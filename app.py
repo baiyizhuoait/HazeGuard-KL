@@ -744,7 +744,7 @@ def alt_timeline(win: pd.DataFrame, when: pd.Timestamp, show_band: bool,
     long["series"] = long["key"].map(names)
     x = alt.X("t:T", title=None, axis=alt.Axis(format="%d %b %H:%M", labelAngle=0,
                                                 tickCount=6))
-    top = float(np.nanmax(wide.drop(columns="t").to_numpy(dtype=float)))
+    top = float(np.nanmax(wide[[c for c in wide.columns if c != "t"]].to_numpy(dtype=float)))
     ymax = top * 1.12 if np.isfinite(top) else 60.0
     y_scale = alt.Scale(domain=[0, ymax], nice=False)
     y_title = "PM2.5 (µg/m³)"
@@ -787,11 +787,14 @@ def alt_timeline(win: pd.DataFrame, when: pd.Timestamp, show_band: bool,
                                            color=INK_2, fontSize=11)
                   .encode(x="t:T", y=alt.value(0), text="label:N"))
 
+    # tooltip text is prepared here so an hour without a value reads "–", not "null"
+    for k in keys + (["lo", "hi"] if band else []):
+        wide[f"{k}_txt"] = wide[k].map(lambda v: "–" if pd.isna(v) else f"{v:.1f}")
     tips = [alt.Tooltip("t:T", title="Time", format="%a %d %b %H:%M")]
-    tips += [alt.Tooltip(f"{k}:Q", title=names[k], format=".1f") for k in keys]
+    tips += [alt.Tooltip(f"{k}_txt:N", title=names[k]) for k in keys]
     if band:
-        tips += [alt.Tooltip("lo:Q", title=f"{band}, low", format=".1f"),
-                 alt.Tooltip("hi:Q", title=f"{band}, high", format=".1f")]
+        tips += [alt.Tooltip("lo_txt:N", title=f"{band}, low"),
+                 alt.Tooltip("hi_txt:N", title=f"{band}, high")]
     base = alt.Chart(wide).encode(x=x)
     # an invisible full-height rule per hour catches the pointer
     layers.append(base.mark_rule(strokeWidth=8, opacity=0.0).encode(tooltip=tips)
@@ -866,71 +869,247 @@ def alt_benchmark(table: pd.DataFrame, metric: str):
     return _alt_config(bars + text, max(180, 34 * len(data) + 40))
 
 
-def deck_map(snapshot: pd.DataFrame, when: pd.Timestamp, dark: bool):
-    """CAMS grid cells on a real basemap. Hover a point for its numbers."""
+def _rgb(hex_color: str) -> list[int]:
+    return [int(hex_color[i:i + 2], 16) for i in (1, 3, 5)]
+
+
+def deck_map(snapshot: pd.DataFrame, dark: bool):
+    """CAMS grid cells on a basemap without place names, so our own labels stay readable.
+    Point size grows with PM2.5; arrows point downwind. Hover a point for its numbers."""
     data = snapshot.copy()
-    rgb = [[int(h[i:i + 2], 16) for i in (1, 3, 5)] for h in LEVEL_COLORS]
-    data["fill"] = [rgb[int(k)] + [235] for k in data["level"]]
-    data["radius"] = np.where(data["role"] == "receptor", 2600, 1900)
+    data["fill"] = [_rgb(LEVEL_COLORS[int(k)]) + [235] for k in data["level"]]
+    data["radius"] = np.clip(7 + data["pm2_5"].astype(float) / 5.0, 7, 26)
     data["name"] = data["station_id"].str.replace("_", " ")
     data["level_txt"] = [level_label(int(k)) for k in data["level"]]
     data["pm_txt"] = data["pm2_5"].map(lambda v: f"{v:.0f}")
     speed = np.hypot(data["u"].astype(float), data["v"].astype(float))
-    data["wind_txt"] = [f"{s:.1f} m/s from {d:.0f}°" if np.isfinite(s) else "n/a"
-                        for s, d in zip(speed, data["wind_direction_10m"].astype(float))]
-    # wind arrows: shaft plus two head strokes, 0.035 degrees per m/s
+    data["wind_txt"] = ["n/a" if not np.isfinite(sp) else f"{sp:.1f} m/s from {d:.0f}°"
+                        for sp, d in zip(speed, data["wind_direction_10m"].astype(float))]
+    # wind arrows: shaft plus two head strokes, 0.06 degrees per m/s
     segs = []
     for _, r in data.dropna(subset=["u", "v"]).iterrows():
-        k = 0.035
+        k = 0.06
         x0, y0 = float(r["lon"]), float(r["lat"])
         x1, y1 = x0 + k * float(r["u"]), y0 + k * float(r["v"])
         segs.append({"s": [x0, y0], "e": [x1, y1]})
         ang = np.arctan2(y1 - y0, x1 - x0)
-        head = 0.35 * k * max(np.hypot(float(r["u"]), float(r["v"])), 1.0)
+        head = 0.3 * k * max(np.hypot(float(r["u"]), float(r["v"])), 1.2)
         for turn in (2.6, -2.6):
             segs.append({"s": [x1, y1], "e": [x1 + head * np.cos(ang + turn),
                                               y1 + head * np.sin(ang + turn)]})
-    ink = [int(INK_2[i:i + 2], 16) for i in (1, 3, 5)]
+    font = "Source Sans Pro, Helvetica, Arial, sans-serif"
     layers = [
-        pdk.Layer("LineLayer", pd.DataFrame(segs), get_source_position="s",
-                  get_target_position="e", get_color=ink + [200], get_width=2,
-                  pickable=False),
+        pdk.Layer("LineLayer", pd.DataFrame(segs, columns=["s", "e"]),
+                  get_source_position="s", get_target_position="e",
+                  get_color=_rgb(INK_2) + [230], get_width=2.5, pickable=False),
         pdk.Layer("ScatterplotLayer", data, get_position=["lon", "lat"],
-                  get_fill_color="fill", get_radius="radius", radius_min_pixels=7,
-                  radius_max_pixels=22, stroked=True, get_line_color=[255, 255, 255, 230],
+                  get_fill_color="fill", get_radius="radius", radius_units="pixels",
+                  stroked=True, get_line_color=_rgb(SURFACE) + [255],
                   line_width_min_pixels=2, pickable=True, auto_highlight=True),
-        pdk.Layer("TextLayer", data[data["role"] == "receptor"], get_position=["lon", "lat"],
-                  get_text="name", get_size=13, get_color=[int(INK[i:i + 2], 16)
-                                                          for i in (1, 3, 5)] + [255],
-                  get_pixel_offset=[0, -22], pickable=False),
+        pdk.Layer("TextLayer", data, get_position=["lon", "lat"], get_text="name",
+                  get_size=12, get_color=_rgb(INK) + [255], font_family=font,
+                  font_weight=600, get_text_anchor="'start'",
+                  get_alignment_baseline="'center'", get_pixel_offset=[16, 0],
+                  background=True, get_background_color=_rgb(CARD) + [215],
+                  background_padding=[4, 2, 4, 2], pickable=False),
     ]
     view = pdk.ViewState(latitude=float(data["lat"].mean()),
-                         longitude=float(data["lon"].mean()), zoom=6.6, pitch=0)
+                         longitude=float(data["lon"].mean()), zoom=6.4, pitch=0)
     tooltip = {"html": "<b>{name}</b> · {role}<br/>PM2.5 {pm_txt} µg/m³ · {level_txt}"
                        "<br/>Wind {wind_txt}",
                "style": {"backgroundColor": CARD, "color": INK, "fontSize": "12px",
-                         "border": f"1px solid {AXIS}", "borderRadius": "8px"}}
+                         "fontFamily": font, "border": f"1px solid {AXIS}",
+                         "borderRadius": "8px"}}
     return pdk.Deck(layers=layers, initial_view_state=view, tooltip=tooltip,
-                    map_provider="carto", map_style="dark" if dark else "light")
+                    map_provider="carto",
+                    map_style="dark_no_labels" if dark else "light_no_labels")
 
 
-def show_map(snapshot: pd.DataFrame, when: pd.Timestamp) -> None:
-    if interactive_on() and pdk is not None:
-        try:
-            st.pydeck_chart(deck_map(snapshot, when, bool(st.session_state.get("dark"))),
-                            use_container_width=True)
-            legend = " · ".join(
-                f"<span style='color:{LEVEL_COLORS[k]}'>●</span> {level_label(k)}"
-                for k in range(4))
-            st.markdown(f"<div style='color:{INK_2};font-size:0.85rem'>{legend} · "
-                        f"PM2.5 level and wind at {when:%d %b %Y %H:%M}; arrows point "
-                        "downwind. Scroll to zoom, hover a point for numbers.</div>",
-                        unsafe_allow_html=True)
+def map_legend() -> None:
+    chips = " ".join(
+        f"<span style='display:inline-flex;align-items:center;gap:6px;margin-right:14px'>"
+        f"<span style='width:11px;height:11px;border-radius:50%;background:{LEVEL_COLORS[k]};"
+        f"display:inline-block'></span>{level_label(k)}</span>" for k in range(4))
+    note = L("Bigger point = higher PM2.5. Arrows point downwind. "
+             "Scroll to zoom, hover a point for its numbers.",
+             "点越大浓度越高；箭头指向下风方向。滚轮缩放，悬停查看数值。")
+    st.markdown(f"<div style='color:{INK_2};font-size:0.85rem;margin-top:4px'>{chips}"
+                f"<br/>{note}</div>", unsafe_allow_html=True)
+
+
+def map_explorer(panel: pd.DataFrame, when: pd.Timestamp) -> None:
+    """The 24 hours up to the page time, one map frame per hour, with its own Play button.
+    Only this block reruns while it plays, so the rest of the page stays still."""
+    hours = [when - pd.Timedelta(hours=h) for h in range(23, -1, -1)]
+    if st.session_state.get("map_anchor") != when:  # page time moved: start at "now"
+        st.session_state["map_anchor"] = when
+        st.session_state["map_idx"] = 23
+        st.session_state["map_playing"] = False
+    fragment = getattr(st, "fragment", None)
+    playing = bool(st.session_state.get("map_playing")) and fragment is not None
+
+    def body() -> None:
+        if st.session_state.get("map_playing"):
+            st.session_state["map_idx"] = (int(st.session_state.get("map_idx", 23)) + 1) % 24
+        idx = int(st.session_state.get("map_idx", 23))
+        moment = hours[idx]
+        c1, c2 = st.columns([1, 7])
+        if fragment is not None and c1.button(
+                tr("Pause") if st.session_state.get("map_playing") else tr("Play"),
+                key="map_play_btn", use_container_width=True):
+            st.session_state["map_playing"] = not st.session_state.get("map_playing")
+            st.rerun()
+        c2.select_slider(L("Map time (last 24 h)", "地图时刻（过去 24 小时）"),
+                         options=list(range(24)), key="map_idx",
+                         format_func=lambda i: f"{hours[i]:%d %b %H:%M}",
+                         label_visibility="collapsed")
+        frame = map_snapshot(panel, moment)
+        if not len(frame):
+            st.info(L("No grid values at this hour.", "该小时没有格点数据。"))
             return
-        except Exception as exc:
-            st.caption(f"Basemap unavailable ({type(exc).__name__}); showing the static map.")
-    show(fig_map(snapshot, when))
+        label = (L("now", "当前") if idx == 23 else
+                 L(f"{23 - idx} h before now", f"当前前 {23 - idx} 小时"))
+        st.markdown(f"**{moment:%a %d %b %Y %H:%M}** · {label}")
+        drawn = False
+        if interactive_on() and pdk is not None:
+            try:
+                st.pydeck_chart(deck_map(frame, bool(st.session_state.get("dark"))),
+                                use_container_width=True)
+                map_legend()
+                drawn = True
+            except Exception as exc:
+                st.caption(f"Basemap unavailable ({type(exc).__name__}); "
+                           "showing the static map.")
+        if not drawn:
+            show(fig_map(frame, moment))
 
+    if fragment is not None:
+        fragment(run_every=1.2 if playing else None)(body)()
+    else:
+        body()
+
+
+# Guidance by audience. The wording is the project's own plain-language advice for the
+# four project-defined levels; it is not the official Malaysian API health advice.
+AUDIENCE_ADVICE = {
+    "en": {
+        0: ("Normal outdoor activity.", "Normal outdoor activity."),
+        1: ("Normal outdoor activity.",
+            "Cut down long or heavy outdoor exertion. Take more breaks."),
+        2: ("Cut down long or heavy outdoor exertion. Keep windows closed.",
+            "Avoid long or heavy outdoor exertion. Move activities indoors."),
+        3: ("Avoid outdoor exertion. Wear a well-fitted N95 if you must go out.",
+            "Stay indoors with windows closed. Seek medical advice if symptoms appear."),
+    },
+    "zh": {
+        0: ("可正常户外活动。", "可正常户外活动。"),
+        1: ("可正常户外活动。", "减少长时间或高强度户外运动，多休息。"),
+        2: ("减少长时间或高强度户外运动，关闭门窗。", "避免长时间或高强度户外运动，改为室内活动。"),
+        3: ("避免户外运动；必须外出时佩戴贴合的 N95 口罩。", "留在室内并关闭门窗；出现不适及时就医。"),
+    },
+}
+
+
+def audience_table(predicted: int) -> None:
+    st.subheader(L("What to do, by group", "分人群建议"))
+    advice = AUDIENCE_ADVICE["zh" if lang() == "zh" else "en"]
+    head = (L("Level", "等级"), L("General public", "普通人群"), L("Sensitive groups", "敏感人群"))
+    marker = L(f"forecast in {HORIZON_H} h", f"{HORIZON_H} 小时后预测")
+    cell = f"padding:9px 10px;border-bottom:1px solid {GRID};vertical-align:top"
+    lines = []
+    for k in range(4):
+        row_style = ""
+        tag = ""
+        if k == predicted:
+            row_style = (f"background:{LEVEL_COLORS[k]}22;box-shadow:inset 4px 0 0 "
+                         f"{LEVEL_COLORS[k]};font-weight:600")
+            tag = f" <span class='hg-tag'>{marker}</span>"
+        dot = (f"<span style='display:inline-block;width:10px;height:10px;border-radius:50%;"
+               f"background:{LEVEL_COLORS[k]};margin-right:8px'></span>")
+        lines.append(f"<tr style='{row_style}'>"
+                     f"<td style='{cell};white-space:nowrap'>{dot}{level_label(k)}{tag}</td>"
+                     f"<td style='{cell}'>{advice[k][0]}</td>"
+                     f"<td style='{cell}'>{advice[k][1]}</td></tr>")
+    header = "".join(f"<th style='padding:8px 10px;font-weight:600'>{h}</th>" for h in head)
+    st.markdown(
+        f"<table style='width:100%;border-collapse:collapse;color:{INK};font-size:0.95rem'>"
+        f"<thead><tr style='color:{INK_2};text-align:left;border-bottom:1px solid {AXIS}'>"
+        f"{header}</tr></thead><tbody>{''.join(lines)}</tbody></table>",
+        unsafe_allow_html=True)
+    st.caption(L("Sensitive groups: children, older adults, pregnant women and people with heart "
+                 "or lung disease such as asthma. This is plain-language guidance written for the "
+                 "project's four levels, not the official Malaysian API health advice.",
+                 "敏感人群：儿童、老人、孕妇，以及哮喘等心肺疾病患者。以上是本项目针对四个"
+                 "自定义等级写的通俗建议，不是马来西亚官方 API 的健康建议。"))
+
+
+def calendar_heatmap(station: pd.DataFrame, when: pd.Timestamp, rule: str) -> None:
+    """Every hour of the period as one tile, coloured by the observed level.
+    Clicking a tile moves the whole page to that hour."""
+    rows = station.dropna(subset=["pm2_5"])
+    if not len(rows):
+        return
+    st.subheader(L("The whole period at a glance", "整段时期一览"))
+    column = RULES[rule]["column"]
+    data = pd.DataFrame({
+        "day": rows["timestamp"].dt.floor("D"),
+        "hour": rows["timestamp"].dt.hour,
+        "key": rows["timestamp"].dt.strftime("%Y-%m-%d %H:00"),
+        "pm": rows["pm2_5"].round(1),
+        "Level": [level_label(int(v)) for v in
+                  np.searchsorted(LEVEL_THRESHOLDS, rows["pm2_5"], side="right")],
+        "Forecast": [level_label(int(v)) for v in rows[column]],
+    })
+    data["day2"] = data["day"] + pd.Timedelta(days=1)
+    pick = alt.selection_point(name="cal_pick", fields=["key"], on="click")
+    tiles = alt.Chart(data).mark_rect().encode(
+        x=alt.X("day:T", title=None, axis=alt.Axis(format="%b %Y", labelAngle=0,
+                                                    tickCount="month")),
+        x2="day2:T",
+        y=alt.Y("hour:O", title=L("Hour (local)", "小时（当地）"),
+                axis=alt.Axis(values=list(range(0, 24, 3)))),
+        color=alt.Color("Level:N", title=None, scale=_level_scale()),
+        tooltip=[alt.Tooltip("key:N", title="Hour"),
+                 alt.Tooltip("pm:Q", title="Observed PM2.5", format=".1f"),
+                 alt.Tooltip("Level:N", title="Observed level"),
+                 alt.Tooltip("Forecast:N", title=f"Forecast for +{HORIZON_H} h")],
+    ).add_params(pick)
+    cursor = pd.DataFrame({"day": [when.floor("D")], "day2": [when.floor("D") + pd.Timedelta(days=1)],
+                           "hour": [when.hour]})
+    ring = alt.Chart(cursor).mark_rect(fill=None, stroke=INK, strokeWidth=2).encode(
+        x="day:T", x2="day2:T", y="hour:O")
+    chart = _alt_config(alt.layer(tiles, ring), 300)
+    try:
+        event = st.altair_chart(chart, use_container_width=True, theme=None,
+                                on_select="rerun", selection_mode="cal_pick",
+                                key="calendar")
+    except TypeError:  # Streamlit too old for click events: view only
+        st.altair_chart(chart, use_container_width=True, theme=None)
+        event = None
+    st.caption(L(
+        f"Each tile is one hour, coloured by the observed level. The black outline is the "
+        f"hour on screen. Click a tile to jump there. Rows at "
+        f"{', '.join(f'{h:02d}:00' for h in run_boundary_hours())} are where two CAMS runs are joined.",
+        f"每格是一小时，颜色为实测等级；黑框是当前显示的时刻。点击任一格可跳转。"
+        f"{'、'.join(f'{h:02d}:00' for h in run_boundary_hours())} 两行是两次 CAMS 预报衔接的时刻。"))
+    picked = None
+    try:
+        chosen = (event or {}).get("selection", {}).get("cal_pick") or []
+        picked = chosen[0].get("key") if chosen else None
+    except Exception:
+        picked = None
+    if picked is None:
+        st.session_state["cal_handled"] = None
+        return
+    if picked == st.session_state.get("cal_handled"):
+        return
+    st.session_state["cal_handled"] = picked
+    target = pd.Timestamp(picked)
+    if (station["timestamp"] == target).any() and target != when:
+        st.session_state["cursor"] = target
+        st.session_state["playing"] = False
+        st.session_state["jumped_to"] = f"{target:%d %b %Y %H:%M}"
+        st.rerun()
 
 def fig_loso(loso: pd.DataFrame):
     order = {"receptor": 0, "corridor": 1, "source": 2}
@@ -1526,12 +1705,21 @@ def tab_risk(station: pd.DataFrame, when: pd.Timestamp, rule: str, ref: dict,
     if panel is None:
         missing("data/haze_panel_clean.parquet")
     else:
-        snap = map_snapshot(panel, when)
-        if len(snap):
-            show_map(snap, when)
-            st.caption("Each point is a CAMS model grid cell, not a ground monitoring station.")
+        st.subheader(L("Grid map, last 24 hours", "格点地图（过去 24 小时）"))
+        map_explorer(panel, when)
+        st.caption(L("Each point is a CAMS model grid cell, not a ground monitoring station. "
+                     "Press Play to loop through the 24 hours up to the time on screen.",
+                     "每个点是 CAMS 模式格点，不是地面监测站。点击播放可循环查看到当前时刻为止的 24 小时。"))
 
+    audience_table(predicted)
     episode_cards(station, events, rule, when)
+    if _HAS_ALT:
+        try:
+            calendar_heatmap(station, when, rule)
+        except Exception as exc:
+            if type(exc).__name__ in ("RerunException", "RerunData", "StopException"):
+                raise
+            st.caption(f"Calendar unavailable ({type(exc).__name__}).")
     unusual_now(str(row["station_id"]), when)
     early_warning_section(stage7, rule)
 
@@ -1783,8 +1971,7 @@ def main() -> None:
     jumped = st.session_state.pop("jumped_to", None)
     if jumped:
         try:
-            st.toast(L(f"Jumped to the episode starting {jumped}.",
-                       f"已跳转到 {jumped} 开始的事件。"))
+            st.toast(L(f"Jumped to {jumped}.", f"已跳转到 {jumped}。"))
         except Exception:
             pass
         scroll_to_top()

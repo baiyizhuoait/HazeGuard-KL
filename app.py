@@ -125,7 +125,7 @@ ZH = {
     "Hour (local time)": "小时（当地时间）", "Decision rule": "判定规则",
     "Test (Mar to Oct 2026)": "测试段（2026 年 3–10 月）",
     "Validation (Jul 2025 to Mar 2026)": "验证段（2025 年 7 月–2026 年 3 月）",
-    "Dark mode": "深色模式", "Language": "语言", "Display": "显示",
+    "Dark mode": "深色模式", "Interactive charts": "交互式图表", "Language": "语言", "Display": "显示",
     "Risk now and in 3 h": "当前风险与 3 小时预测", "Probability and interval": "概率与区间",
     "Model comparison": "模型对比", "Explanation and generalisation": "解释与泛化",
     "Method and limits": "方法与局限",
@@ -657,6 +657,281 @@ def map_snapshot(panel: pd.DataFrame, when: pd.Timestamp) -> pd.DataFrame:
     return snap
 
 
+# ---------------------------------------------------------------------------
+# Interactive charts (hover tooltips, zoom, real basemap).
+# Altair and pydeck both ship with Streamlit, so requirements.txt is unchanged.
+# Every interactive chart has a matplotlib fallback: if a library is missing or
+# a chart fails to build, the static version above is shown instead.
+# ---------------------------------------------------------------------------
+try:
+    import altair as alt
+    _HAS_ALT = hasattr(alt, "selection_point")  # Altair 5 API
+except Exception:  # pragma: no cover - depends on the local install
+    alt = None
+    _HAS_ALT = False
+try:
+    import pydeck as pdk
+except Exception:  # pragma: no cover
+    pdk = None
+
+
+def interactive_on() -> bool:
+    return bool(st.session_state.get("interactive", True))
+
+
+def _alt_config(chart, height: int):
+    """Apply the light or dark palette to an Altair chart."""
+    return (chart.properties(height=height, background=SURFACE)
+            .configure_view(stroke=None)
+            .configure_axis(labelColor=INK_2, titleColor=INK_2, gridColor=GRID,
+                            domainColor=AXIS, tickColor=AXIS, labelFontSize=11,
+                            titleFontSize=11, titleFontWeight="normal")
+            .configure_legend(labelColor=INK, titleColor=INK_2, orient="top",
+                              labelFontSize=11, titleFontSize=11, symbolStrokeWidth=2.5)
+            .configure_text(color=INK))
+
+
+def _render(build, fallback) -> None:
+    """Draw the interactive chart; fall back to the static figure on any error."""
+    if interactive_on() and _HAS_ALT:
+        try:
+            st.altair_chart(build(), use_container_width=True, theme=None)
+            return
+        except Exception as exc:  # keep the page alive, say why
+            st.caption(f"Interactive chart unavailable ({type(exc).__name__}); "
+                       "showing the static version.")
+    show(fallback())
+
+
+def _level_scale():
+    return alt.Scale(domain=[level_label(k) for k in range(4)], range=LEVEL_COLORS)
+
+
+def alt_timeline(win: pd.DataFrame, when: pd.Timestamp, show_band: bool,
+                 show_mean: bool = False):
+    """Hover anywhere to read every series at that hour; scroll to zoom, drag to pan."""
+    # internal field keys stay plain (Altair reads "." as nested access);
+    # the readable names only appear as titles and legend values
+    names = {"obs": "Observed", "fc": f"M5 forecast, {HORIZON_H} h ahead",
+             "mean": "24 h running mean", "next": "What happened next"}
+    parts = [win[["timestamp", "pm2_5"]].rename(columns={"timestamp": "t", "pm2_5": "obs"}),
+             win[["valid_time", "reg"]].rename(columns={"valid_time": "t", "reg": "fc"})]
+    if show_mean and "pm2_5_mean_24h" in win:
+        parts.append(win[["timestamp", "pm2_5_mean_24h"]].rename(
+            columns={"timestamp": "t", "pm2_5_mean_24h": "mean"}))
+    future = win[win["valid_time"] > when]
+    if len(future) and future["target_pm25_3h"].notna().any():
+        parts.append(future[["valid_time", "target_pm25_3h"]].rename(
+            columns={"valid_time": "t", "target_pm25_3h": "next"}))
+    band = None
+    if show_band:
+        use_cal = "cal_lo" in win and win["cal_lo"].notna().any() and interval_label()
+        lo, hi = ("cal_lo", "cal_hi") if use_cal else ("q05", "q95")
+        band = "90% target interval" if use_cal else "Tree spread 5-95%"
+        parts.append(win[["valid_time", lo, hi]].rename(
+            columns={"valid_time": "t", lo: "lo", hi: "hi"}))
+    wide = parts[0]
+    for part in parts[1:]:
+        wide = wide.merge(part, on="t", how="outer")
+    wide = wide.groupby("t", as_index=False).first().sort_values("t")
+    keys = [k for k in names if k in wide.columns]
+    shown = [names[k] for k in keys]
+    colors = {"obs": BLUE, "fc": ORANGE, "mean": INK_2, "next": BLUE}
+    dashes = {"obs": [1, 0], "fc": [1, 0], "mean": [6, 4], "next": [2, 3]}
+    color_scale = alt.Scale(domain=shown, range=[colors[k] for k in keys])
+
+    long = wide.melt(id_vars="t", value_vars=keys, var_name="key", value_name="pm").dropna()
+    long["series"] = long["key"].map(names)
+    x = alt.X("t:T", title=None, axis=alt.Axis(format="%d %b %H:%M", labelAngle=0,
+                                                tickCount=6))
+    top = float(np.nanmax(wide.drop(columns="t").to_numpy(dtype=float)))
+    ymax = top * 1.12 if np.isfinite(top) else 60.0
+    y_scale = alt.Scale(domain=[0, ymax], nice=False)
+    y_title = "PM2.5 (µg/m³)"
+
+    hover = alt.selection_point(fields=["t"], nearest=True, on="mouseover",
+                                empty=False, clear="mouseout")
+    zoom = alt.selection_interval(bind="scales", encodings=["x"])
+
+    layers = []
+    if band:
+        layers.append(alt.Chart(wide).mark_area(opacity=0.18, color=ORANGE).encode(
+            x=x, y=alt.Y("lo:Q", scale=y_scale, title=y_title), y2="hi:Q"))
+    layers.append(alt.Chart(long).mark_line(strokeWidth=2).encode(
+        x=x,
+        y=alt.Y("pm:Q", scale=y_scale, title=y_title),
+        color=alt.Color("series:N", title=None, scale=color_scale),
+        strokeDash=alt.StrokeDash("series:N", legend=None,
+                                  scale=alt.Scale(domain=shown,
+                                                  range=[dashes[k] for k in keys])))
+        .add_params(zoom))
+    levels = [(k, v) for k, v in enumerate(LEVEL_THRESHOLDS, start=1) if v < ymax]
+    if levels:
+        thresholds = pd.DataFrame({"y": [v for _, v in levels],
+                                   "label": [f"L{k} from {v:g}" for k, v in levels]})
+        layers.append(alt.Chart(thresholds).mark_rule(color=AXIS, strokeDash=[4, 3])
+                      .encode(y="y:Q"))
+        layers.append(alt.Chart(thresholds).mark_text(align="left", dx=4, dy=-6,
+                                                      fontSize=10, color=INK_2)
+                      .encode(y="y:Q", x=alt.value(0), text="label:N"))
+    boundaries = run_boundary_hours()
+    span = pd.date_range(wide["t"].min().floor("h"), wide["t"].max().ceil("h"), freq="h")
+    marks = pd.DataFrame({"t": [t for t in span if t.hour in boundaries]})
+    if len(marks):
+        layers.append(alt.Chart(marks).mark_rule(color=AXIS, strokeDash=[1, 3]).encode(
+            x="t:T", tooltip=[alt.Tooltip("t:T", title="CAMS run boundary",
+                                          format="%d %b %H:%M")]))
+    now = pd.DataFrame({"t": [when], "label": ["now"]})
+    layers.append(alt.Chart(now).mark_rule(color=INK_2, strokeWidth=1.2).encode(x="t:T"))
+    layers.append(alt.Chart(now).mark_text(align="left", dx=4, baseline="bottom",
+                                           color=INK_2, fontSize=11)
+                  .encode(x="t:T", y=alt.value(0), text="label:N"))
+
+    tips = [alt.Tooltip("t:T", title="Time", format="%a %d %b %H:%M")]
+    tips += [alt.Tooltip(f"{k}:Q", title=names[k], format=".1f") for k in keys]
+    if band:
+        tips += [alt.Tooltip("lo:Q", title=f"{band}, low", format=".1f"),
+                 alt.Tooltip("hi:Q", title=f"{band}, high", format=".1f")]
+    base = alt.Chart(wide).encode(x=x)
+    # an invisible full-height rule per hour catches the pointer
+    layers.append(base.mark_rule(strokeWidth=8, opacity=0.0).encode(tooltip=tips)
+                  .add_params(hover))
+    layers.append(base.mark_rule(color=INK_2, strokeWidth=1).encode(
+        opacity=alt.condition(hover, alt.value(0.55), alt.value(0.0))))
+    layers.append(alt.Chart(long).mark_circle(size=55, stroke=SURFACE, strokeWidth=1.5)
+                  .encode(x=x, y=alt.Y("pm:Q", scale=y_scale),
+                          color=alt.Color("series:N", legend=None, scale=color_scale))
+                  .transform_filter(hover))
+    return _alt_config(alt.layer(*layers), 330)
+
+
+def alt_level_strip(win: pd.DataFrame, column: str):
+    rows = []
+    for _, r in win.iterrows():
+        for name, col in (("Forecast", column), ("Outcome", "y_true")):
+            if pd.notna(r[col]):
+                rows.append({"t": r["valid_time"], "t2": r["valid_time"] + pd.Timedelta(hours=1),
+                             "Row": name, "Level": level_label(int(r[col]))})
+    data = pd.DataFrame(rows)
+    chart = alt.Chart(data).mark_rect(stroke=SURFACE, strokeWidth=0.6).encode(
+        x=alt.X("t:T", title=None, axis=alt.Axis(format="%d %b %H:%M", labelAngle=0,
+                                                  tickCount=6)),
+        x2="t2:T",
+        y=alt.Y("Row:N", title=None, sort=["Forecast", "Outcome"]),
+        color=alt.Color("Level:N", title=None, scale=_level_scale()),
+        tooltip=[alt.Tooltip("t:T", title="Valid time", format="%a %d %b %H:%M"),
+                 alt.Tooltip("Row:N"), alt.Tooltip("Level:N")])
+    return _alt_config(chart, 110)
+
+
+def alt_probabilities(row: pd.Series):
+    data = pd.DataFrame({"Level": [level_label(k) for k in range(4)],
+                         "Probability": [float(row[f"p{k}"]) for k in range(4)]})
+    data["atleast"] = data["Probability"][::-1].cumsum()[::-1].to_numpy()
+    base = alt.Chart(data).encode(
+        x=alt.X("Level:N", title=None, sort=None, axis=alt.Axis(labelAngle=0)),
+        y=alt.Y("Probability:Q", title="M6 probability", scale=alt.Scale(domain=[0, 1.08]),
+                axis=alt.Axis(format="%")))
+    bars = base.mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4, size=46).encode(
+        color=alt.Color("Level:N", scale=_level_scale(), legend=None),
+        tooltip=[alt.Tooltip("Level:N"),
+                 alt.Tooltip("Probability:Q", format=".1%"),
+                 alt.Tooltip("atleast:Q", title="At least this level", format=".1%")])
+    text = base.mark_text(dy=-8, fontSize=12).encode(text=alt.Text("Probability:Q",
+                                                                   format=".0%"))
+    return _alt_config(bars + text, 280)
+
+
+def alt_benchmark(table: pd.DataFrame, metric: str):
+    higher = METRICS[metric]
+    data = table.copy()
+    values = data[metric].astype(float)
+    best = data.loc[values.idxmax() if higher else values.idxmin(), "model"]
+    data["Rank"] = values.rank(ascending=not higher, method="min").astype(int)
+    data["Best"] = np.where(data["model"] == best, "best", "")
+    order = list(data["model"])
+    base = alt.Chart(data).encode(
+        y=alt.Y("model:N", title=None, sort=order),
+        x=alt.X(f"{metric}:Q", title=f"{metric}  ({'higher' if higher else 'lower'} is better)",
+                scale=alt.Scale(domain=[0, float(values.max()) * 1.2])))
+    pick = alt.selection_point(fields=["model"], on="mouseover", empty=True, clear="mouseout")
+    bars = base.mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4, size=18).encode(
+        color=alt.condition(alt.datum.model == best, alt.value(ORANGE), alt.value(BLUE)),
+        opacity=alt.condition(pick, alt.value(1.0), alt.value(0.45)),
+        tooltip=[alt.Tooltip("model:N", title="Model"), alt.Tooltip("Rank:Q")]
+        + [alt.Tooltip(f"{m}:Q", format=".4f") for m in METRICS]
+        + [alt.Tooltip("n_samples:Q", title="Rows", format=",")]).add_params(pick)
+    text = base.mark_text(align="left", dx=5, fontSize=11).encode(
+        text=alt.Text(f"{metric}:Q", format=".4f"))
+    return _alt_config(bars + text, max(180, 34 * len(data) + 40))
+
+
+def deck_map(snapshot: pd.DataFrame, when: pd.Timestamp, dark: bool):
+    """CAMS grid cells on a real basemap. Hover a point for its numbers."""
+    data = snapshot.copy()
+    rgb = [[int(h[i:i + 2], 16) for i in (1, 3, 5)] for h in LEVEL_COLORS]
+    data["fill"] = [rgb[int(k)] + [235] for k in data["level"]]
+    data["radius"] = np.where(data["role"] == "receptor", 2600, 1900)
+    data["name"] = data["station_id"].str.replace("_", " ")
+    data["level_txt"] = [level_label(int(k)) for k in data["level"]]
+    data["pm_txt"] = data["pm2_5"].map(lambda v: f"{v:.0f}")
+    speed = np.hypot(data["u"].astype(float), data["v"].astype(float))
+    data["wind_txt"] = [f"{s:.1f} m/s from {d:.0f}°" if np.isfinite(s) else "n/a"
+                        for s, d in zip(speed, data["wind_direction_10m"].astype(float))]
+    # wind arrows: shaft plus two head strokes, 0.035 degrees per m/s
+    segs = []
+    for _, r in data.dropna(subset=["u", "v"]).iterrows():
+        k = 0.035
+        x0, y0 = float(r["lon"]), float(r["lat"])
+        x1, y1 = x0 + k * float(r["u"]), y0 + k * float(r["v"])
+        segs.append({"s": [x0, y0], "e": [x1, y1]})
+        ang = np.arctan2(y1 - y0, x1 - x0)
+        head = 0.35 * k * max(np.hypot(float(r["u"]), float(r["v"])), 1.0)
+        for turn in (2.6, -2.6):
+            segs.append({"s": [x1, y1], "e": [x1 + head * np.cos(ang + turn),
+                                              y1 + head * np.sin(ang + turn)]})
+    ink = [int(INK_2[i:i + 2], 16) for i in (1, 3, 5)]
+    layers = [
+        pdk.Layer("LineLayer", pd.DataFrame(segs), get_source_position="s",
+                  get_target_position="e", get_color=ink + [200], get_width=2,
+                  pickable=False),
+        pdk.Layer("ScatterplotLayer", data, get_position=["lon", "lat"],
+                  get_fill_color="fill", get_radius="radius", radius_min_pixels=7,
+                  radius_max_pixels=22, stroked=True, get_line_color=[255, 255, 255, 230],
+                  line_width_min_pixels=2, pickable=True, auto_highlight=True),
+        pdk.Layer("TextLayer", data[data["role"] == "receptor"], get_position=["lon", "lat"],
+                  get_text="name", get_size=13, get_color=[int(INK[i:i + 2], 16)
+                                                          for i in (1, 3, 5)] + [255],
+                  get_pixel_offset=[0, -22], pickable=False),
+    ]
+    view = pdk.ViewState(latitude=float(data["lat"].mean()),
+                         longitude=float(data["lon"].mean()), zoom=6.6, pitch=0)
+    tooltip = {"html": "<b>{name}</b> · {role}<br/>PM2.5 {pm_txt} µg/m³ · {level_txt}"
+                       "<br/>Wind {wind_txt}",
+               "style": {"backgroundColor": CARD, "color": INK, "fontSize": "12px",
+                         "border": f"1px solid {AXIS}", "borderRadius": "8px"}}
+    return pdk.Deck(layers=layers, initial_view_state=view, tooltip=tooltip,
+                    map_provider="carto", map_style="dark" if dark else "light")
+
+
+def show_map(snapshot: pd.DataFrame, when: pd.Timestamp) -> None:
+    if interactive_on() and pdk is not None:
+        try:
+            st.pydeck_chart(deck_map(snapshot, when, bool(st.session_state.get("dark"))),
+                            use_container_width=True)
+            legend = " · ".join(
+                f"<span style='color:{LEVEL_COLORS[k]}'>●</span> {level_label(k)}"
+                for k in range(4))
+            st.markdown(f"<div style='color:{INK_2};font-size:0.85rem'>{legend} · "
+                        f"PM2.5 level and wind at {when:%d %b %Y %H:%M}; arrows point "
+                        "downwind. Scroll to zoom, hover a point for numbers.</div>",
+                        unsafe_allow_html=True)
+            return
+        except Exception as exc:
+            st.caption(f"Basemap unavailable ({type(exc).__name__}); showing the static map.")
+    show(fig_map(snapshot, when))
+
+
 def fig_loso(loso: pd.DataFrame):
     order = {"receptor": 0, "corridor": 1, "source": 2}
     data = loso.assign(_o=loso["role"].map(order)).sort_values(
@@ -1058,7 +1333,12 @@ def preferences() -> bool:
     if wanted != lang():
         st.session_state["lang"] = wanted
         st.rerun()
-    return bool(st.sidebar.toggle(tr("Dark mode"), value=False, key="dark"))
+    dark = bool(st.sidebar.toggle(tr("Dark mode"), value=False, key="dark"))
+    st.sidebar.toggle(tr("Interactive charts"), value=True, key="interactive",
+                      help=L("Hover for values, scroll to zoom, real basemap. "
+                             "Turn off for the static images used in the report.",
+                             "悬停查看数值、滚轮缩放、真实底图。关闭后显示报告用的静态图。"))
+    return dark
 
 
 def sidebar(data: pd.DataFrame, stage7: dict | None):
@@ -1224,12 +1504,13 @@ def tab_risk(station: pd.DataFrame, when: pd.Timestamp, rule: str, ref: dict,
 
 
     win = window_rows(station, when, 72)
-    show(fig_timeline(win, when, show_band=False, show_mean=True))
+    _render(lambda: alt_timeline(win, when, show_band=False, show_mean=True),
+            lambda: fig_timeline(win, when, show_band=False, show_mean=True))
     st.caption("The dashed line is a 24 h running mean of the same observations. It is a "
                "stand-in for an index built on a daily average, not the official API value.")
     st.caption("Level tiles for the same hours. Top row: the selected decision rule. "
                "Bottom row: the level that was actually reached.")
-    show(fig_level_strip(win, column))
+    _render(lambda: alt_level_strip(win, column), lambda: fig_level_strip(win, column))
 
     if benchmark is not None:
         hit = benchmark[(benchmark["model"] == RULES[rule]["benchmark"])
@@ -1247,7 +1528,7 @@ def tab_risk(station: pd.DataFrame, when: pd.Timestamp, rule: str, ref: dict,
     else:
         snap = map_snapshot(panel, when)
         if len(snap):
-            show(fig_map(snap, when))
+            show_map(snap, when)
             st.caption("Each point is a CAMS model grid cell, not a ground monitoring station.")
 
     episode_cards(station, events, rule, when)
@@ -1263,7 +1544,7 @@ def tab_probability(station: pd.DataFrame, when: pd.Timestamp, preds: pd.DataFra
     st.subheader(tr("Four-level probability"))
     left, right = st.columns(2)
     with left:
-        show(fig_probabilities(row))
+        _render(lambda: alt_probabilities(row), lambda: fig_probabilities(row))
     with right:
         st.dataframe(cumulative_table(row, tau), use_container_width=True, hide_index=True)
         st.caption("M7 walks up the levels and stops at the first question that fails.")
@@ -1272,7 +1553,8 @@ def tab_probability(station: pd.DataFrame, when: pd.Timestamp, preds: pd.DataFra
     st.subheader(tr("Concentration and prediction interval" if calibrated
                     else "Concentration and tree spread"))
     win = window_rows(station, when, 72)
-    show(fig_timeline(win, when, show_band=True))
+    _render(lambda: alt_timeline(win, when, show_band=True),
+            lambda: fig_timeline(win, when, show_band=True))
     if calibrated:
         st.warning(calibrated[1])
     else:
@@ -1345,7 +1627,7 @@ def tab_models(benchmark: pd.DataFrame | None, stage7: dict | None) -> None:
     split = c1.selectbox("Split", splits, index=splits.index("test") if "test" in splits else 0)
     metric = c2.selectbox("Metric", list(METRICS), index=2)
     table = main_table[main_table["split"] == split].reset_index(drop=True)
-    show(fig_benchmark(table, metric))
+    _render(lambda: alt_benchmark(table, metric), lambda: fig_benchmark(table, metric))
 
     sizes = sorted(table["n_samples"].unique())
     if len(sizes) > 1:

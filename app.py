@@ -873,20 +873,29 @@ def _rgb(hex_color: str) -> list[int]:
     return [int(hex_color[i:i + 2], 16) for i in (1, 3, 5)]
 
 
+def _literal(text: str):
+    """pydeck reads plain strings as expressions; wrap a fixed value so it stays literal."""
+    try:
+        return pdk.types.String(text)
+    except Exception:
+        return f"'{text}'"
+
+
 def deck_map(snapshot: pd.DataFrame, dark: bool):
-    """CAMS grid cells on a basemap without place names, so our own labels stay readable.
-    Point size grows with PM2.5; arrows point downwind. Hover a point for its numbers."""
+    """CAMS grid cells on a labelled basemap. Point size grows with PM2.5 (kept within
+    8 to 26 pixels at any zoom); arrows point downwind. Hover a point for its numbers."""
     data = snapshot.copy()
     data["fill"] = [_rgb(LEVEL_COLORS[int(k)]) + [235] for k in data["level"]]
-    data["radius"] = np.clip(7 + data["pm2_5"].astype(float) / 5.0, 7, 26)
+    # metres, clamped in pixels below, the same mechanism as the first map version
+    data["radius"] = 12000 + 450 * data["pm2_5"].astype(float).clip(0, 150)
     data["name"] = data["station_id"].str.replace("_", " ")
+    data["label"] = [f"{n} {v:.0f}" for n, v in zip(data["name"], data["pm2_5"])]
     data["level_txt"] = [level_label(int(k)) for k in data["level"]]
     data["pm_txt"] = data["pm2_5"].map(lambda v: f"{v:.0f}")
     speed = np.hypot(data["u"].astype(float), data["v"].astype(float))
     data["wind_txt"] = ["n/a" if not np.isfinite(sp) else f"{sp:.1f} m/s from {d:.0f}°"
                         for sp, d in zip(speed, data["wind_direction_10m"].astype(float))]
-    # wind arrows: shaft plus two head strokes, 0.06 degrees per m/s
-    segs = []
+    segs = []  # wind arrows: shaft plus two head strokes, 0.06 degrees per m/s
     for _, r in data.dropna(subset=["u", "v"]).iterrows():
         k = 0.06
         x0, y0 = float(r["lon"]), float(r["lat"])
@@ -897,32 +906,59 @@ def deck_map(snapshot: pd.DataFrame, dark: bool):
         for turn in (2.6, -2.6):
             segs.append({"s": [x1, y1], "e": [x1 + head * np.cos(ang + turn),
                                               y1 + head * np.sin(ang + turn)]})
-    font = "Source Sans Pro, Helvetica, Arial, sans-serif"
     layers = [
         pdk.Layer("LineLayer", pd.DataFrame(segs, columns=["s", "e"]),
                   get_source_position="s", get_target_position="e",
                   get_color=_rgb(INK_2) + [230], get_width=2.5, pickable=False),
         pdk.Layer("ScatterplotLayer", data, get_position=["lon", "lat"],
-                  get_fill_color="fill", get_radius="radius", radius_units="pixels",
-                  stroked=True, get_line_color=_rgb(SURFACE) + [255],
+                  get_fill_color="fill", get_radius="radius", radius_min_pixels=8,
+                  radius_max_pixels=26, stroked=True, get_line_color=_rgb(SURFACE) + [255],
                   line_width_min_pixels=2, pickable=True, auto_highlight=True),
-        pdk.Layer("TextLayer", data, get_position=["lon", "lat"], get_text="name",
-                  get_size=12, get_color=_rgb(INK) + [255], font_family=font,
-                  font_weight=600, get_text_anchor="'start'",
-                  get_alignment_baseline="'center'", get_pixel_offset=[16, 0],
-                  background=True, get_background_color=_rgb(CARD) + [215],
-                  background_padding=[4, 2, 4, 2], pickable=False),
+        pdk.Layer("TextLayer", data[data["role"] == "receptor"],
+                  get_position=["lon", "lat"], get_text="label", get_size=14,
+                  get_color=_rgb(INK) + [255], get_pixel_offset=[0, -24],
+                  font_family=_literal("Arial, Helvetica, sans-serif"), font_weight=700,
+                  pickable=False),
     ]
-    view = pdk.ViewState(latitude=float(data["lat"].mean()),
-                         longitude=float(data["lon"].mean()), zoom=6.4, pitch=0)
+    lat0, lat1 = float(data["lat"].min()), float(data["lat"].max())
+    lon0, lon1 = float(data["lon"].min()), float(data["lon"].max())
+    span = max(lat1 - lat0, (lon1 - lon0) * 0.6, 0.5)
+    zoom = float(np.clip(np.log2(360.0 / span) - 1.6, 4.5, 9.0))
+    view = pdk.ViewState(latitude=(lat0 + lat1) / 2, longitude=(lon0 + lon1) / 2,
+                         zoom=zoom, pitch=0)
     tooltip = {"html": "<b>{name}</b> · {role}<br/>PM2.5 {pm_txt} µg/m³ · {level_txt}"
                        "<br/>Wind {wind_txt}",
-               "style": {"backgroundColor": CARD, "color": INK, "fontSize": "12px",
-                         "fontFamily": font, "border": f"1px solid {AXIS}",
-                         "borderRadius": "8px"}}
+               "style": {"backgroundColor": CARD, "color": INK, "fontSize": "13px",
+                         "border": f"1px solid {AXIS}", "borderRadius": "8px"}}
     return pdk.Deck(layers=layers, initial_view_state=view, tooltip=tooltip,
-                    map_provider="carto",
-                    map_style="dark_no_labels" if dark else "light_no_labels")
+                    map_provider="carto", map_style="dark" if dark else "light")
+
+
+def node_table(frame: pd.DataFrame) -> None:
+    """Every grid cell with its number, highest first, so values never depend on map text."""
+    rows = frame.sort_values("pm2_5", ascending=False)
+    cell = f"padding:5px 8px;border-bottom:1px solid {GRID}"
+    lines = []
+    for _, r in rows.iterrows():
+        k = int(r["level"])
+        dot = (f"<span style='display:inline-block;width:10px;height:10px;border-radius:50%;"
+               f"background:{LEVEL_COLORS[k]};margin-right:7px'></span>")
+        weight = "font-weight:700" if r["role"] == "receptor" else ""
+        lines.append(f"<tr><td style='{cell};{weight}'>{dot}{r['station_id'].replace('_', ' ')}</td>"
+                     f"<td style='{cell};color:{INK_2}'>{r['role']}</td>"
+                     f"<td style='{cell};text-align:right;font-variant-numeric:tabular-nums;"
+                     f"{weight}'>{r['pm2_5']:.0f}</td>"
+                     f"<td style='{cell}'>L{k}</td></tr>")
+    head = "".join(f"<th style='padding:5px 8px;text-align:{al}'>{h}</th>" for h, al in
+                   ((L("Grid cell", "格点"), "left"), (L("Role", "角色"), "left"),
+                    ("PM2.5", "right"), (L("Level", "等级"), "left")))
+    st.markdown(
+        f"<div style='max-height:470px;overflow-y:auto;border:1px solid {BORDER};"
+        f"border-radius:12px;background:{CARD}'>"
+        f"<table style='width:100%;border-collapse:collapse;color:{INK};font-size:0.88rem'>"
+        f"<thead style='position:sticky;top:0;background:{CARD};color:{INK_2}'><tr>{head}"
+        f"</tr></thead><tbody>{''.join(lines)}</tbody></table></div>",
+        unsafe_allow_html=True)
 
 
 def map_legend() -> None:
@@ -930,9 +966,9 @@ def map_legend() -> None:
         f"<span style='display:inline-flex;align-items:center;gap:6px;margin-right:14px'>"
         f"<span style='width:11px;height:11px;border-radius:50%;background:{LEVEL_COLORS[k]};"
         f"display:inline-block'></span>{level_label(k)}</span>" for k in range(4))
-    note = L("Bigger point = higher PM2.5. Arrows point downwind. "
-             "Scroll to zoom, hover a point for its numbers.",
-             "点越大浓度越高；箭头指向下风方向。滚轮缩放，悬停查看数值。")
+    note = L("Bigger point = higher PM2.5. Arrows point downwind. Receptor labels show "
+             "PM2.5 in µg/m³; the table lists every grid cell.",
+             "点越大浓度越高；箭头指向下风方向。受体标签上的数字是 PM2.5（µg/m³），右表列出全部格点。")
     st.markdown(f"<div style='color:{INK_2};font-size:0.85rem;margin-top:4px'>{chips}"
                 f"<br/>{note}</div>", unsafe_allow_html=True)
 
@@ -970,18 +1006,22 @@ def map_explorer(panel: pd.DataFrame, when: pd.Timestamp) -> None:
         label = (L("now", "当前") if idx == 23 else
                  L(f"{23 - idx} h before now", f"当前前 {23 - idx} 小时"))
         st.markdown(f"**{moment:%a %d %b %Y %H:%M}** · {label}")
-        drawn = False
-        if interactive_on() and pdk is not None:
-            try:
-                st.pydeck_chart(deck_map(frame, bool(st.session_state.get("dark"))),
-                                use_container_width=True)
-                map_legend()
-                drawn = True
-            except Exception as exc:
-                st.caption(f"Basemap unavailable ({type(exc).__name__}); "
-                           "showing the static map.")
-        if not drawn:
-            show(fig_map(frame, moment))
+        left, right = st.columns([2.3, 1])
+        with left:
+            drawn = False
+            if interactive_on() and pdk is not None:
+                try:
+                    st.pydeck_chart(deck_map(frame, bool(st.session_state.get("dark"))),
+                                    use_container_width=True, height=470)
+                    map_legend()
+                    drawn = True
+                except Exception as exc:
+                    st.caption(f"Basemap unavailable ({type(exc).__name__}); "
+                               "showing the static map.")
+            if not drawn:
+                show(fig_map(frame, moment))
+        with right:
+            node_table(frame)
 
     if fragment is not None:
         fragment(run_every=1.2 if playing else None)(body)()

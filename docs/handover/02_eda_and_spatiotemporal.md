@@ -1,5 +1,7 @@
 # 02 模块交接 EDA 与时空特征
 
+2026-11-15 QC 复核有一份独立候选交付。训练和验证的合格受体各减少 9 行，测试的合格键和标签一致，但四个远场字段发生变化。成员 3 可先核对候选输入，成员 1 决定是否采纳并登记契约。[候选结果与复现命令](../../data/candidate/stage2_qcfix/README.md)
+
 成员 3 从现有 `feat/02-eda` 取得第二阶段成果。正式读表入口是 `data/feat_spatiotemporal.parquet` 目录。共享 README 由组长维护，本模块的运行与交接以本页为入口。 [协作规范](../../CONTRIBUTING.md) · [26 格点技术契约](../technical_spec_26grid.md) · [质量通告 QN-001](../quality_notice_001.md)
 
 ## 1. 我产出了什么

@@ -1,0 +1,492 @@
+{
+ "generated_at": "2026-11-15T12:38:49+00:00",
+ "git_commit": "ee58208caabc66b861f13b6cadba5d2a0bc736dd",
+ "scope": "sections 1, 2.1, 2.2 of the group report",
+ "panel": {
+  "rows": 966406,
+  "columns": 35,
+  "nodes": 26,
+  "months": 51,
+  "first_timestamp": "2022-08-04 08:00:00",
+  "last_timestamp": "2026-10-31 20:00:00"
+ },
+ "cleaning_reconciliation": {
+  "rows_fetched": 969072,
+  "leading_block_trimmed": 2080,
+  "rows_after_trim": 966992,
+  "rows_dropped_no_target": 328,
+  "rows_dropped_no_anchor": 102,
+  "rows_final": 966406,
+  "retention_pct": 99.72,
+  "interpolated_cells": 299,
+  "rows_interpolated": 264,
+  "rows_still_missing": 489,
+  "duplicates_removed": 0,
+  "grid_rows_added": 0
+ },
+ "splits": {
+  "train": {
+   "rows": 676806,
+   "receptor_rows": 78093,
+   "start": "2022-08-04 08:00:00",
+   "end": "2025-07-23 22:00:00"
+  },
+  "val": {
+   "rows": 144976,
+   "receptor_rows": 16728,
+   "start": "2025-07-24 02:00:00",
+   "end": "2026-03-13 09:00:00"
+  },
+  "test": {
+   "rows": 144624,
+   "receptor_rows": 16728,
+   "start": "2026-03-13 13:00:00",
+   "end": "2026-10-31 20:00:00"
+  }
+ },
+ "receptor_split": {
+  "train": 78093,
+  "val": 16728,
+  "test": 16728,
+  "test_eligible": 16647,
+  "val_eligible": 16647,
+  "train_eligible": 77744
+ },
+ "nodes": [
+  {
+   "id": "KL_City",
+   "role": "receptor",
+   "region": "KL",
+   "lat": 3.107,
+   "lon": 101.726,
+   "rows": 37183,
+   "mean_pm25": 40.29,
+   "level3_share_pct": 21.64
+  },
+  {
+   "id": "Port_Klang",
+   "role": "receptor",
+   "region": "KL",
+   "lat": 3.0,
+   "lon": 101.392,
+   "rows": 37183,
+   "mean_pm25": 20.81,
+   "level3_share_pct": 1.94
+  },
+  {
+   "id": "Sepang",
+   "role": "receptor",
+   "region": "KL",
+   "lat": 2.828,
+   "lon": 101.703,
+   "rows": 37183,
+   "mean_pm25": 34.07,
+   "level3_share_pct": 13.03
+  },
+  {
+   "id": "Seremban",
+   "role": "corridor",
+   "region": "Peninsula",
+   "lat": 2.729,
+   "lon": 101.938,
+   "rows": 37183,
+   "mean_pm25": 19.63,
+   "level3_share_pct": 2.29
+  },
+  {
+   "id": "Malacca",
+   "role": "corridor",
+   "region": "Peninsula",
+   "lat": 2.189,
+   "lon": 102.25,
+   "rows": 37183,
+   "mean_pm25": 13.76,
+   "level3_share_pct": 1.27
+  },
+  {
+   "id": "Johor_Bahru",
+   "role": "corridor",
+   "region": "Peninsula",
+   "lat": 1.492,
+   "lon": 103.741,
+   "rows": 37183,
+   "mean_pm25": 20.67,
+   "level3_share_pct": 2.86
+  },
+  {
+   "id": "Kuantan",
+   "role": "corridor",
+   "region": "Peninsula",
+   "lat": 3.807,
+   "lon": 103.326,
+   "rows": 37183,
+   "mean_pm25": 11.41,
+   "level3_share_pct": 0.46
+  },
+  {
+   "id": "Temerloh",
+   "role": "corridor",
+   "region": "Peninsula",
+   "lat": 3.45,
+   "lon": 102.417,
+   "rows": 37183,
+   "mean_pm25": 14.23,
+   "level3_share_pct": 0.81
+  },
+  {
+   "id": "Kota_Bharu",
+   "role": "corridor",
+   "region": "Peninsula",
+   "lat": 6.125,
+   "lon": 102.238,
+   "rows": 37183,
+   "mean_pm25": 12.88,
+   "level3_share_pct": 0.06
+  },
+  {
+   "id": "Kuala_Terengganu",
+   "role": "corridor",
+   "region": "Peninsula",
+   "lat": 5.33,
+   "lon": 103.14,
+   "rows": 37183,
+   "mean_pm25": 12.67,
+   "level3_share_pct": 0.14
+  },
+  {
+   "id": "Penang",
+   "role": "corridor",
+   "region": "Peninsula",
+   "lat": 5.414,
+   "lon": 100.329,
+   "rows": 37183,
+   "mean_pm25": 18.11,
+   "level3_share_pct": 0.64
+  },
+  {
+   "id": "Alor_Setar",
+   "role": "corridor",
+   "region": "Peninsula",
+   "lat": 6.118,
+   "lon": 100.368,
+   "rows": 37183,
+   "mean_pm25": 14.64,
+   "level3_share_pct": 0.32
+  },
+  {
+   "id": "Ipoh",
+   "role": "corridor",
+   "region": "Peninsula",
+   "lat": 4.597,
+   "lon": 101.09,
+   "rows": 37183,
+   "mean_pm25": 16.1,
+   "level3_share_pct": 0.87
+  },
+  {
+   "id": "Banda_Aceh",
+   "role": "source",
+   "region": "Sumatra",
+   "lat": 5.548,
+   "lon": 95.324,
+   "rows": 37183,
+   "mean_pm25": 10.8,
+   "level3_share_pct": 0.04
+  },
+  {
+   "id": "Medan",
+   "role": "source",
+   "region": "Sumatra",
+   "lat": 3.595,
+   "lon": 98.672,
+   "rows": 37183,
+   "mean_pm25": 30.96,
+   "level3_share_pct": 8.09
+  },
+  {
+   "id": "Dumai",
+   "role": "source",
+   "region": "Sumatra",
+   "lat": 1.666,
+   "lon": 101.45,
+   "rows": 37183,
+   "mean_pm25": 18.86,
+   "level3_share_pct": 4.35
+  },
+  {
+   "id": "Pekanbaru",
+   "role": "source",
+   "region": "Sumatra",
+   "lat": 0.507,
+   "lon": 101.447,
+   "rows": 37183,
+   "mean_pm25": 20.22,
+   "level3_share_pct": 3.27
+  },
+  {
+   "id": "Padang",
+   "role": "source",
+   "region": "Sumatra",
+   "lat": -0.949,
+   "lon": 100.354,
+   "rows": 37183,
+   "mean_pm25": 16.55,
+   "level3_share_pct": 1.12
+  },
+  {
+   "id": "Jambi",
+   "role": "source",
+   "region": "Sumatra",
+   "lat": -1.61,
+   "lon": 103.613,
+   "rows": 37183,
+   "mean_pm25": 18.38,
+   "level3_share_pct": 3.26
+  },
+  {
+   "id": "Palembang",
+   "role": "source",
+   "region": "Sumatra",
+   "lat": -2.976,
+   "lon": 104.775,
+   "rows": 37183,
+   "mean_pm25": 18.85,
+   "level3_share_pct": 3.43
+  },
+  {
+   "id": "Bengkulu",
+   "role": "source",
+   "region": "Sumatra",
+   "lat": -3.8,
+   "lon": 102.265,
+   "rows": 37183,
+   "mean_pm25": 9.98,
+   "level3_share_pct": 0.0
+  },
+  {
+   "id": "Pontianak",
+   "role": "source",
+   "region": "Borneo",
+   "lat": -0.026,
+   "lon": 109.342,
+   "rows": 37183,
+   "mean_pm25": 19.06,
+   "level3_share_pct": 5.42
+  },
+  {
+   "id": "Palangkaraya",
+   "role": "source",
+   "region": "Borneo",
+   "lat": -2.209,
+   "lon": 113.917,
+   "rows": 36831,
+   "mean_pm25": 25.85,
+   "level3_share_pct": 6.58
+  },
+  {
+   "id": "Banjarmasin",
+   "role": "source",
+   "region": "Borneo",
+   "lat": -3.319,
+   "lon": 114.59,
+   "rows": 37183,
+   "mean_pm25": 15.28,
+   "level3_share_pct": 1.85
+  },
+  {
+   "id": "Kuching",
+   "role": "source",
+   "region": "Borneo",
+   "lat": 1.553,
+   "lon": 110.359,
+   "rows": 37183,
+   "mean_pm25": 17.13,
+   "level3_share_pct": 2.85
+  },
+  {
+   "id": "Bintulu",
+   "role": "source",
+   "region": "Borneo",
+   "lat": 3.171,
+   "lon": 113.041,
+   "rows": 37183,
+   "mean_pm25": 10.51,
+   "level3_share_pct": 0.65
+  }
+ ],
+ "test_window": {
+  "kl_city_monthly": {
+   "2026-03": {
+    "level3_share_pct": 29.35,
+    "p95_pm25": 112.35,
+    "rows": 443
+   },
+   "2026-04": {
+    "level3_share_pct": 20.69,
+    "p95_pm25": 80.33,
+    "rows": 720
+   },
+   "2026-05": {
+    "level3_share_pct": 18.41,
+    "p95_pm25": 77.76,
+    "rows": 744
+   },
+   "2026-06": {
+    "level3_share_pct": 17.36,
+    "p95_pm25": 76.1,
+    "rows": 720
+   },
+   "2026-07": {
+    "level3_share_pct": 23.92,
+    "p95_pm25": 90.07,
+    "rows": 744
+   },
+   "2026-08": {
+    "level3_share_pct": 38.04,
+    "p95_pm25": 95.84,
+    "rows": 744
+   },
+   "2026-09": {
+    "level3_share_pct": 46.94,
+    "p95_pm25": 121.57,
+    "rows": 720
+   },
+   "2026-10": {
+    "level3_share_pct": 51.01,
+    "p95_pm25": 151.8,
+    "rows": 741
+   }
+  },
+  "episode_max_3h_rise": 128.3,
+  "episode_hours_above_100": 281,
+  "episode_max_pm25": 224.0,
+  "level_distribution_train": {
+   "0": 0.1854,
+   "1": 0.5029,
+   "2": 0.2004,
+   "3": 0.1113
+  },
+  "level_distribution_test": {
+   "0": 0.1178,
+   "1": 0.4718,
+   "2": 0.2218,
+   "3": 0.1885
+  }
+ },
+ "m0_m1_eligible": {
+  "n": 16647,
+  "n_high_risk": 6848,
+  "confusion": [
+   [
+    1148,
+    806,
+    5,
+    0
+   ],
+   [
+    448,
+    6594,
+    688,
+    110
+   ],
+   [
+    9,
+    1358,
+    1815,
+    517
+   ],
+   [
+    2,
+    223,
+    809,
+    2115
+   ]
+  ],
+  "m0": {
+   "Macro_F1": 0.6231,
+   "Balanced_Accuracy": 0.6232,
+   "High_Risk_Recall": 0.7757,
+   "MAOE": 0.3925,
+   "Severe_Jumping_Error_Rate": 0.0374,
+   "Avg_Asymmetric_Cost": 0.9978,
+   "n_samples": 16647,
+   "n_high_risk": 6848
+  },
+  "m1": {
+   "Macro_F1": 0.6658,
+   "Balanced_Accuracy": 0.6473,
+   "High_Risk_Recall": 0.7675,
+   "MAOE": 0.3199,
+   "Severe_Jumping_Error_Rate": 0.021,
+   "Avg_Asymmetric_Cost": 0.9047,
+   "n_samples": 16647,
+   "n_high_risk": 6848,
+   "diag_High_Risk_Exact_Recall": 0.5739,
+   "diag_Level3_Recall": 0.6716
+  },
+  "m1_refit": {
+   "Macro_F1": 0.6658,
+   "Balanced_Accuracy": 0.6473,
+   "High_Risk_Recall": 0.7675
+  },
+  "refit_matches_stored": {
+   "Macro_F1": true,
+   "Balanced_Accuracy": true,
+   "High_Risk_Recall": true
+  },
+  "m1_best_params": {
+   "criterion": "gini",
+   "max_depth": 9,
+   "min_samples_leaf": 20
+  },
+  "m1_cv_macro_f1": 0.6281,
+  "m1_train_macro_f1": 0.7013,
+  "m1_val_macro_f1": 0.6867,
+  "m1_leaves": 384
+ },
+ "per_node_test": {
+  "KL_City": {
+   "Macro_F1": 0.6007,
+   "Balanced_Accuracy": 0.586,
+   "High_Risk_Recall": 0.8078,
+   "MAOE": 0.3481,
+   "Severe_Jumping_Error_Rate": 0.0305,
+   "Avg_Asymmetric_Cost": 1.0791,
+   "n_samples": 5576,
+   "n_high_risk": 3278,
+   "diag_High_Risk_Exact_Recall": 0.6037,
+   "diag_Level3_Recall": 0.7159
+  },
+  "Port_Klang": {
+   "Macro_F1": 0.6741,
+   "Balanced_Accuracy": 0.6516,
+   "High_Risk_Recall": 0.6724,
+   "MAOE": 0.2724,
+   "Severe_Jumping_Error_Rate": 0.0117,
+   "Avg_Asymmetric_Cost": 0.6264,
+   "n_samples": 5576,
+   "n_high_risk": 1105,
+   "diag_High_Risk_Exact_Recall": 0.5222,
+   "diag_Level3_Recall": 0.6293
+  },
+  "Sepang": {
+   "Macro_F1": 0.6152,
+   "Balanced_Accuracy": 0.5964,
+   "High_Risk_Recall": 0.7615,
+   "MAOE": 0.3454,
+   "Severe_Jumping_Error_Rate": 0.0231,
+   "Avg_Asymmetric_Cost": 0.9659,
+   "n_samples": 5576,
+   "n_high_risk": 2482,
+   "diag_High_Risk_Exact_Recall": 0.5488,
+   "diag_Level3_Recall": 0.6626
+  }
+ },
+ "m1_importance_top5": {
+  "pm2_5": 0.667,
+  "hour": 0.181,
+  "no2": 0.041,
+  "so2": 0.027,
+  "pm2_5_anomaly": 0.017
+ }
+}

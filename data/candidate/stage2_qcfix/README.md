@@ -1,6 +1,6 @@
 # 02 模块 QC 候选交接
 
-本目录交给成员 3 核对。旧的正式 02 产物继续从仓库根目录的 `data/feat_spatiotemporal.parquet` 读取。成员 1 可据本轮对账决定是否登记候选的行数与数据契约。
+**历史对照。** 这些分片已按 QN-004 晋升为 02 正式表。成员 3 请从[最新交接](../../../docs/handover/02_eda_and_spatiotemporal.md)读取仓库根目录的正式表。下文保留评审时的旧版与候选口径。复核两版差异时请从配有旧正式表的[原审计提交](https://github.com/baiyizhuoait/HazeGuard-KL/tree/d2fe027d33efed8a6cf7fa2e71d64a20b4432a1b)运行命令。
 
 - 候选输入来自成员 1 的固定提交 `ec1ff0aa8a3a7bd4cfe776ddee28cf2d68853919`，SHA-256 为 `5cd7c1d3149147b85259bcf5d48dfda5a88d8cff7a42b4030ed2cb129e4a5bc6`。[01 候选面板、差异清单与指纹](https://github.com/baiyizhuoait/HazeGuard-KL/tree/ec1ff0aa8a3a7bd4cfe776ddee28cf2d68853919/docs/qc_fix)
 - [候选特征目录](data/feat_spatiotemporal.parquet/)含 966,406 行、98 列。用 `pd.read_parquet` 读取整个目录。分片行数、大小和 SHA-256 见[特征审计](models/metrics_stage2_features.json)。

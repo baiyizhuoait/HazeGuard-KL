@@ -6,6 +6,13 @@
 
 开工之前请读完，尤其第 3 节和第 5 节。
 
+**这份文档只管"怎么协作"，不管"每个人做什么"。** 每个模块的具体任务、接口、验收标准
+写在 `docs/spec_v3.md`（阶段执行规范 v3.4）。两份文档冲突时，以 `spec_v3.md` 的任务定义为准、
+以本文档的流程规定为准。
+
+> 早期那份技术规范 v2.0（Word 文档）写在开工前，里面还是"8 个监测站 + 6 个模型 + FCM/GPSO/SHAP"，
+> 已经全部作废。以仓库里的 `spec_v3.md` 为准，不要再去翻那份 docx。
+
 ---
 
 ## 1. 分工与文件归属
@@ -19,11 +26,24 @@
 |---|---|---|---|
 | **1号**（组长） | 数据工程、气候基线解耦与基线模型 | `src/config.py`、`src/01_data_pipeline.py`、`src/01_baseline_dt.py`、`src/01_verify_data.py`、`src/utils_metrics.py`、`tools/discover_nodes.py` | `data/haze_panel_clean.parquet`、`data/manifest.json`、`data/data_dictionary.json`、`models/baseline_dt.joblib`、`models/metrics_stage1.json`、`models/gate0_report.json`、`models/cleaning_report.json`、`figures/fig_baseline_dt_*.png` |
 | **2号** | EDA 与时空季风传导特征 | `src/02_eda_analysis.py`、`src/02_spatiotemporal_features.py` | `data/feat_spatiotemporal.parquet`、`figures/fig_eda_diurnal_seasonal.png`、`figures/fig_eda_correlation_matrix.png`、`figures/fig_eda_class_imbalance.png`、`figures/fig_eda_wind_rose_pollution.png`、`figures/fig_eda_spatial_crosscorr.png`、`models/metrics_stage2_eda.json`、`models/metrics_stage2_features.json`、`models/metrics_stage2_verification.json`、`docs/handover/02_eda_and_spatiotemporal.md`、`reports/sec2_3_and_2_4_1.md` |
-| **3号** | 多尺度趋势粒化与特征选择 | `src/03_granulation_features.py`、`src/03_feature_selection.py` | `data/features_final.parquet`、`models/selected_features.json`、`figures/fig_feature_ablation.png`、`figures/fig_granulation_bands.png` |
-| **4号** | 名义 RF、类权重与提升法 | `src/04_rf_and_boosting.py`、`src/04_complexity_experiments.py` | `models/rf_nominal.joblib`、`models/rf_balanced.joblib`、`models/boosting.joblib`、`models/metrics_stage4.json`、`figures/fig_rf_complexity_curve.png`、`figures/fig_window_sensitivity.png`、`figures/fig_boosting_vs_rf.png` |
-| **5号** | 回归分级与有序随机森林（两种保序范式） | `src/05_reg_to_cls.py`、`src/05_ordinal_rf.py` | `models/rf_regressor.joblib`、`models/ordinal_rf.joblib`、`models/ordinal_probs_val_test.npz`、`models/metrics_stage5.json`、`figures/fig_ordinal_error_distribution.png`、`figures/fig_interval_band.png` |
+| **3号** | 多尺度趋势粒化与特征选择 | `src/03_granulation_features.py`、`src/03_feature_selection.py` | `data/features_final.parquet`、`models/selected_features.json`、`models/metrics_stage3.json`、`figures/fig_feature_ablation.png`、`figures/fig_granulation_bands.png`、`docs/handover/03_granulation_and_selection.md`、`reports/sec2_4_2_and_2_5.md` |
+| **4号** | 名义 RF、类权重与提升法 | `src/04_rf_and_boosting.py`、`src/04_complexity_experiments.py` | `models/rf_nominal.joblib`、`models/rf_balanced.joblib`、`models/boosting.joblib`、`models/metrics_stage4.json`、`figures/fig_rf_complexity_curve.png`、`figures/fig_window_sensitivity.png`、`figures/fig_boosting_vs_rf.png`、`docs/handover/04_nominal_rf_and_boosting.md`、`reports/sec2_6_models.md` |
+| **5号** | 回归分级与有序随机森林（两种保序范式） | `src/05_reg_to_cls.py`、`src/05_ordinal_rf.py` | `models/rf_regressor.joblib`、`models/ordinal_rf.joblib`、`models/ordinal_probs_val_test.npz`、`models/metrics_stage5.json`、`figures/fig_ordinal_error_distribution.png`、`figures/fig_interval_band.png`、`docs/handover/05_ordinal_and_interval.md`、`reports/sec2_6_and_2_7.md` |
 | **6号** | 代价敏感阈值、可解释性与泛化评估 | `src/06_cost_thresholds.py`、`src/06_interpretability.py`、`src/06_generalization_study.py` | `models/cost_thresholds.json`、`models/all_models_benchmark.csv`、`models/loso_results.csv`、`models/seasonal_metrics.csv`、`figures/fig_perm_importance.png`、`figures/fig_pdp_wind_humidity.png`、`figures/fig_roc_high_risk.png`、`figures/fig_confusion_matrices_comparison.png` |
-| **7号** | 交互系统与示范报告总成 | `app.py`、`src/07_compile_report.py` | `reports/HazeGuard_KL_Demonstration_Report.md`、`requirements.txt`（定稿）、`README.md`（定稿） |
+| **7号** | 交互系统与示范报告总成 | `app.py`、`src/07_compile_report.py`、`src/07_m8_v2_control.py` | `reports/HazeGuard_KL_Demonstration_Report.md`、`models/metrics_m8.json`、`requirements.txt`（定稿）、`README.md`（定稿） |
+
+### 报告章节归属（避免两人写同一节）
+
+| 章节 | 内容 | 谁 | 文件 |
+|---|---|---|---|
+| §1 | Introduction | 1号 | `reports/sec1_data_and_baseline.md` |
+| §2.1 / §2.2 | 数据与质控、基线相减与时序切分 | 1号 | 同上 |
+| §2.3 / §2.4.1 | EDA、滞后滚动与上风向平流特征 | 2号 | `reports/sec2_3_and_2_4_1.md` |
+| §2.4.2 / §2.5 | 窗口粒化、特征选择 | 3号 | `reports/sec2_4_2_and_2_5.md` |
+| §2.6 | 分类模型 M2 / M3 / M4 | 4号 | `reports/sec2_6_models.md` |
+| §2.7 / §2.8 | 有序分解与区间 | 5号 | `reports/sec2_6_and_2_7.md`（文件名沿用，内容以标题为准） |
+| §3 | 代价敏感、可解释性与泛化 | 6号 | `reports/sec3_cost_and_explain.md` |
+| §4 | 系统与示范 | 7号 | `reports/HazeGuard_KL_Demonstration_Report.md` |
 
 每个人还要交两样东西，不写就算没做完：
 
@@ -98,7 +118,7 @@ git push
 01（已完成）→ 02 → 03 → 04 / 05（这两条可以真并行）→ 06 → 07
 ```
 
-03 想提前开工是可以的：先写 `src/03_fuzzy_granulation.py`，用 01 的清洗表单独跑 FIG 特征，
+03 想提前开工是可以的：先写 `src/03_granulation_features.py`，用 01 的清洗表单独跑窗口粒化特征，
 等 02 合并后再做合并和消融。但不要写着"并行"结果去读一个还不存在的文件。
 
 ### 保护 main
@@ -125,6 +145,16 @@ git push
 5. **不许用 test 段做任何选择。** 调超参、挑特征、定阈值，统统在 val 上做。
    test 只在最后报一次。用了就是数据泄露，结论作废。
 6. **随机种子固定 42。** 要比较两个模型，至少跑 3 个种子，报均值 ± 标准差。
+9. **周期特征 sin 与 cos 必须成对出现。** 只留 `hour_sin`，24 个钟点会塌成 13 个取值，
+   11 组两两同值（00 与 12、04 与 08、16 与 20……），只有 06 和 18 是唯一的。
+   两个起报接缝时刻恰好都在撞值的那几组里。特征选择按重要性取 Top-K 时特别容易
+   把其中一个筛掉，所以设了机器检查：
+
+   ```bash
+   python tools/check_merge_gate.py --main     # 当前 main 上这条是 FAIL
+   ```
+
+   取完 Top-K 自己先跑一遍，别等人发现。
 7. **主实验统一在 3 个受体节点上训练**（`role == "receptor"`，面板实测 train 78,102 行；2 号离线完整性筛选后 77,753 行可建模，以 `models/metrics_stage2_features.json` 登记为准）。
    走廊和源区那 23 个节点只作特征输入与泛化对照，不许混进训练集——
    它们 Level 3 占比接近 0，混进去会把高危先验稀释到 3.37%，和 M1 就没法比了。
@@ -140,7 +170,7 @@ git push
 ### 文件
 
 ```
-src/NN_<english_slug>.py          例：03_fuzzy_granulation.py
+src/NN_<english_slug>.py          例：03_granulation_features.py
 models/metrics_stage<N>.json      例：metrics_stage4.json
 models/<model_key>.joblib         model_key: rf_nominal / rf_balanced / rf_regressor / ordinal_rf / boosting
 models/<name>.npz                 概率矩阵，键名统一 val_probs / test_probs / val_y / test_y
@@ -160,6 +190,7 @@ Severe_Jumping_Error_Rate
 Avg_Asymmetric_Cost
 n_samples
 n_high_risk
+feature_set          （只出现在 all_models_benchmark.csv，取值 v1 / v2）
 ```
 
 不要写 `macro_f1`、`MacroF1`、`f1_macro`、`highrisk_recall` 这些变体。
@@ -173,6 +204,7 @@ n_high_risk
 | 高危 | `y ∈ {2, 3}` |
 | 风速 | 用 `wind_speed_ms`（m/s），不要用 `wind_speed_kmh` |
 | 时间 | `Asia/Kuala_Lumpur`；面板落盘为 `datetime64[us]`，契约按前缀 `datetime64` 校验 |
+| 运行环境 | 产物 json 必须带 `runtime`（python 与各库版本）。已有产物统一登记在 `models/runtime_environments.json`；换环境重跑同一模型，必须同时记下两套环境与差值 |
 | 空间单元 | `station_id` 指 CAMS 格点，**不是监测站**，别在图表里写 "station/measured" |
 | 图内文字 | 英文（中文字体在服务器上容易变方块） |
 | 报告正文 | 学术英文；`docs/` 和 `CONTRIBUTING.md` 用中文 |
@@ -189,6 +221,8 @@ n_high_risk
 - [ ] `docs/handover/` 里自己的交接文档写完了，**"已知缺陷"和"我没做的事"两段不能空**
 - [ ] `reports/sec*.md` 是英文学术写法，图表编号连续，每个数字能在 json 里查到
 - [ ] `python tools/check_prose.py reports/` 通过（第 9 节，AI 腔自查）
+- [ ] `python tools/check_report_numbers.py` 待复核清单里没有**指标值**
+      （差值、百分比换算属正常；指标值查不到只可能是报告写错了）
 - [ ] `git diff main --stat` 里没有 `data/raw/`、没有绝对路径（`D:\`、`C:\Users`）、没有密钥
 - [ ] 没有单个文件超过 50 MB
 - [ ] 没有改别人负责的、已经存在的文件。**越权改动 = 直接拒绝合并**，内容再好也不收：先在群里提，由负责人自己改
@@ -239,14 +273,14 @@ n_high_risk
 好的例子：
 
 ```
-feat(03): FIG 粒化与 Top-25 特征选择
+feat(03): 多尺度趋势粒化与 Top-25 特征选择
 
-- 窗口粒化特征只在 train 上拟合归一化参数，未触碰 val/test
-- 窗口斜率与区间宽度纳入候选特征
-- 消融：Raw → +Lag → +Spatial → +FIG，val Macro-F1 0.662 → 0.701 → 0.734 → 0.762
+- 窗口粒化只在 train 上拟合归一化参数，未触碰 val/test
+- 窗口斜率、区间宽度与中枢值纳入候选特征
+- 消融：Raw → +Lag → +Spatial → +Granulation（数值填 models/metrics_stage3.json 的实测值，别照抄本行）
 
 影响：features_final.parquet 新增 12 列，未改名未删列
-已知缺陷：c=8 时原型 6 只占 1.8% 样本，见 handover/03_fig.md 第 4 节
+已知缺陷：窗口特征在静风段高度共线，见 docs/handover/03_granulation_and_selection.md 第 4 节
 ```
 
 ---

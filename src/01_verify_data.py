@@ -191,6 +191,23 @@ def main() -> int:
     results.append(check("dtype：timestamp 为 datetime64", dt_ok,
                          f"实际 {df['timestamp'].dtype}"))
 
+    # ---- 契约：特征表指纹（防止"表换了、模型还是旧的"这种静默错配）----
+    fman = os.path.join(C.DATA_DIR, "feature_manifest.json")
+    if os.path.exists(fman):
+        man = json.load(open(fman, encoding="utf-8"))
+        drift = []
+        for rel, meta in man["tables"].items():
+            if not os.path.exists(rel):
+                drift.append(f"{os.path.basename(rel)} 不存在")
+                continue
+            got = hashlib.sha256(open(rel, "rb").read()).hexdigest()
+            if got != meta["sha256"]:
+                drift.append(f"{os.path.basename(rel)} 指纹变了"
+                             f"（登记 {meta['sha256'][:12]}… 实际 {got[:12]}…）")
+        results.append(check("契约：特征表指纹", not drift,
+                             "；".join(drift) if drift
+                             else f"{len(man['tables'])} 份特征表与登记一致"))
+
     size_bad, lfs_bad = [], []
     ddir = C.DATA_DIR
     for f in sorted(os.listdir(ddir)):
@@ -211,9 +228,9 @@ def main() -> int:
                          or "全部合规"))
 
     banned = [t.lower() for t in pc["banned_terms"]]
-    # 执行工具自身（守卫定义里必然出现禁词原文）与政策文档豁免
+    # 执行工具自身（守卫与闸门脚本的定义里必然出现禁词原文）与政策文档豁免
     whitelist = {"CONTRIBUTING.md", "syllabus_coverage.md",
-                 "01_verify_data.py", "config.py"}
+                 "01_verify_data.py", "config.py", "check_merge_gate.py"}
     scan_roots = ["src", "reports", "tools", "docs/handover"]
     word_hits = []
     for root in scan_roots:

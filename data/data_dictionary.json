@@ -1,6 +1,6 @@
 {
   "dataset": "HazeGuard-KL haze panel",
-  "generated_at": "2026-11-07T17:50:46",
+  "generated_at": "2026-11-15T20:38:19",
   "unit_notes": {
     "pm2_5/pm10/no2/so2/o3/co": "µg/m³（Open-Meteo 原样，CO 非 ppm）",
     "wind_speed_ms": "m/s，由 km/h ÷ 3.6 换算，建模请用此列",
@@ -12,8 +12,8 @@
   },
   "key_columns": {
     "station_id": "CAMS 空间单元 ID（非行政站点，同格点已归并）",
-    "split": "train/val/test，按每节点时间跨度 70/15/15 顺序切分，无 shuffle",
-    "b_proto_pm25": "气候态基线，仅用 train 段按 (station,month,hour) 统计",
+    "split": "train/val/test，按每节点时间跨度 70/15/15 顺序切分，无 shuffle；边界 3 小时做标签冲刷（越界行剔除）",
+    "b_proto_pm25": "气候态基线，仅用 train 段按 (station,month,hour) 统计（切分冲刷后重算）",
     "pm2_5_anomaly": "pm2_5 - b_proto_pm25，去季节与日周期背景",
     "target_pm25_3h": "t+3h 的 PM2.5 浓度，groupby(station).shift(-3) 构造",
     "target_level_3h": "四级有序标签，阈值 [15,35,55]",
@@ -21,7 +21,7 @@
   },
   "data_source_note": "空气质量来自 CAMS 全球大气成分产品（0.4°≈45 km，模式再分析/预报，非地面实测）；气象来自 ERA5（约 9 km）。引用需注明 Open-Meteo 与 CAMS/ECMWF。",
   "gate0_summary": {
-    "generated_at": "2026-11-07T17:50:45",
+    "generated_at": "2026-11-15T20:38:19",
     "n_nodes": 26,
     "n_receptors": 3,
     "date_range": [
@@ -29,12 +29,12 @@
       "2026-10-31 20:00:00"
     ],
     "split_rows": {
-      "train": 676884,
-      "val": 145054,
-      "test": 144739
+      "train": 676806,
+      "val": 144976,
+      "test": 144624
     },
     "level_distribution_receptor_all": {
-      "0": 0.1791,
+      "0": 0.1792,
       "1": 0.4973,
       "2": 0.2015,
       "3": 0.1221
@@ -42,7 +42,7 @@
     "level_distribution_receptor_train": {
       "0": 0.1854,
       "1": 0.5029,
-      "2": 0.2005,
+      "2": 0.2004,
       "3": 0.1113
     },
     "level_distribution_receptor_test": {
@@ -52,17 +52,17 @@
       "3": 0.1885
     },
     "level_distribution_receptor_val": {
-      "0": 0.2114,
-      "1": 0.4966,
-      "2": 0.1861,
-      "3": 0.1059
+      "0": 0.2115,
+      "1": 0.4963,
+      "2": 0.1862,
+      "3": 0.106
     },
     "checks": {
       "G0-1_total_rows": {
         "pass": true,
         "value": {
-          "total_rows": 966677,
-          "min_rows_per_node": 36952
+          "total_rows": 966406,
+          "min_rows_per_node": 36831
         },
         "rule": "总行数 ≥ 100,000 且每节点 ≥ 12,000"
       },
@@ -70,7 +70,7 @@
         "pass": true,
         "value": {
           "receptor_level3": 0.1221,
-          "panel_level3": 0.0337
+          "panel_level3": 0.0335
         },
         "rule": "受体节点 Level 3 占比 ≥ 1.0%"
       },

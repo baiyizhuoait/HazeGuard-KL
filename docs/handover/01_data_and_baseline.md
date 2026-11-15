@@ -13,7 +13,7 @@
 
 | 文件 | 形状 | 大小 | SHA256 前 16 位 |
 |---|---|---|---|
-| `data/haze_panel_clean.parquet` | **966,677 行 × 35 列** | 25.1 MB | `97b5db123352861b` |
+| `data/haze_panel_clean.parquet` | **966,406 行 × 35 列** | 25.0 MB | `5cd7c1d3149147b8` |
 | `data/manifest.json` | 清单 + 11 项校验结果 | 6 KB | 每次重跑会变 |
 | `data/data_dictionary.json` | 字段口径 | 4 KB | — |
 
@@ -50,6 +50,8 @@ assert m["sha256"] == hashlib.sha256(open("data/haze_panel_clean.parquet","rb").
 | `models/cleaning_report.json` | 清洗计数、QC 计数、逐节点完整性 |
 
 ### 基线成绩（test 段，只取受体节点，n = 16,728，其中高危 6,865）
+
+> 注：与 M2~M7 同口径的版本（n=16,647）在 `metrics_stage1.json` 的 `metrics_test_eligible`，主表用那一组。
 
 | 指标 | M0 纯持续性 | M1 决策树 |
 |---|---|---|
@@ -170,7 +172,7 @@ composition product*。这句话写错，答辩时会被直接问住。
 
 ### 4.2 数据整体偏高
 
-`KL_City` 两年均值约 41 µg/m³，明显高于马来西亚官方常年水平。跨数据源比较时必须说明。
+`KL_City` 全期（51 个月）均值 40.29 µg/m³，明显高于马来西亚官方常年水平。跨数据源比较时必须说明。
 也别把"Level 3 占 21.6%"直接翻译成"一年有五分之一时间空气危险"。
 
 ### 4.3 测试集里有真实烟霾事件

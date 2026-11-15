@@ -1,0 +1,46 @@
+{
+ "data/candidate/haze_panel_qcfix.parquet": {
+  "sha256": "5cd7c1d3149147b85259bcf5d48dfda5a88d8cff7a42b4030ed2cb129e4a5bc6",
+  "bytes": 25005421
+ },
+ "docs/qc_fix/drops.parquet": {
+  "sha256": "53c0cbeb847353f1eec87ccefdf6e66f9bdefb8193b5026161dd297c5ec43cb5",
+  "bytes": 6266
+ },
+ "docs/qc_fix/rows_dropped_271.csv": {
+  "sha256": "6c09ed11561782d7788d63e86ab443aece5acc68890536b9ee0cf756fa84d931",
+  "bytes": 13344
+ },
+ "docs/qc_fix/evidence.json": {
+  "sha256": "d651ad7b0431a87d76a39cb3716f510de49f2e24743fe8932816e5b975c0977a",
+  "bytes": 2466
+ },
+ "docs/qc_fix/metrics_stage1_candidate.json": {
+  "sha256": "66adc0df4001438811af7e02d4f3287a47b09665a98317825ba1f6f0ae6053b5",
+  "bytes": 5660
+ },
+ "docs/qc_fix/baseline_dt_candidate.joblib": {
+  "sha256": "b72a26239e39ddf511b3d9ae62152e4dc88860e780c978f31c6b1bc75dbc8cdb",
+  "bytes": 29822
+ },
+ "docs/qc_fix/cleaning_report_candidate.json": {
+  "sha256": "ca9d8f0529a0e0a6fe4867d0b8a0988e588219277adeaac00a19af9e0ca5a1f9",
+  "bytes": 10686
+ },
+ "docs/qc_fix/gate0_report_candidate.json": {
+  "sha256": "19290060f39cf92633c55800a0db688ed5750e0130c73aea3509a57939eda8ad",
+  "bytes": 2091
+ },
+ "models/baseline_dt.joblib": {
+  "sha256": "9ebe49491ab13b0304d415b04289491885182752c08634bd87c07e32f891b3ae",
+  "bytes": 29820
+ },
+ "models/metrics_stage1.json": {
+  "sha256": "eb88d047efb44d95df122249f268d4a4c7dbd1981f7bc5eb272d972616d4bc0d",
+  "bytes": 4798
+ },
+ "data/haze_panel_clean.parquet": {
+  "sha256": "97b5db123352861b6cd41224daf1ce278c90d6d528031b9bdc2744317a5ead93",
+  "bytes": 25057369
+ }
+}

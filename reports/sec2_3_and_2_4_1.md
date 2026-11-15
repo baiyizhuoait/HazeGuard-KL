@@ -1,6 +1,6 @@
 # Exploratory analysis and spatiotemporal features
 
-*Engineering handover draft for verification. Coursework section C.2 requires student authors to write the assessed report independently. Use the verified tables and figures as evidence for that work.*
+*Verified engineering record for Sections 2.3 and 2.4.1. The figures and results refer to the registered 966,677-row panel. See the [QC review](https://github.com/baiyizhuoait/HazeGuard-KL/blob/d2fe027d33efed8a6cf7fa2e71d64a20b4432a1b/data/candidate/stage2_qcfix/README.md) for the separate candidate. The assessed report requires independent student authorship under [CONTRIBUTING.md §9](../CONTRIBUTING.md).*
 
 ## 2.3 Exploratory Data Analysis
 
@@ -18,7 +18,7 @@ The adopted 26-grid design follows `docs/technical_spec_26grid.md` and the two s
 | Input path | `data/haze_panel_clean.parquet` | Read-only default. Alternate inputs require explicit arguments |
 | Diurnal and wind summaries | Training receptor population | Pooled and per-receptor views, with all-node wind statistics in JSON |
 | Cross-correlation pairs | Geometry and role selected candidates | 12 pairs fixed by geometry and role from 75 directed candidates |
-| Spatial predictors | Near-field direction and far-field background | 60 km Gaussian scale and 150 km radius for the near field, with separate historical means for source regions |
+| Spatial predictors | Near-field direction and far-field background | 60 km Gaussian scale and 150 km radius for the near field. The far-field history uses a pooled hourly mean across available Sumatra and Borneo cells |
 
 Historical candidate names and deduplication records document provenance. Runtime pair selection uses current registered sampling coordinates. Exact model grid centres are unverified. The 26-cell distribution supplies network context, while receptor rows define the primary modelling population.
 
@@ -30,7 +30,7 @@ Figures 1, 2 and 4 use training receptor rows after excluding rows marked as int
 
 ### Figure 1 Diurnal and monsoon-period distributions
 
-![Figure 1](../figures/fig_eda_diurnal_seasonal.png)
+![Figure 1. Hourly PM2.5 profiles and monsoon-period distributions for training receptors](../figures/fig_eda_diurnal_seasonal.png)
 
 **Observation.** KL_City and Sepang have local maxima at 09:00 and 21:00, whereas Port_Klang has local maxima at 01:00 and 15:00. The southwest-monsoon receptor median is 26.6 µg/m³, compared with 26.0 µg/m³ during the northeast-monsoon months. Their interquartile ranges are 18.3–39.7 and 17.0–38.5 µg/m³, respectively. The seasonal contrast is small in this training sample. The plot does not impose an early-morning and evening pattern on every cell.
 
@@ -40,7 +40,7 @@ Figures 1, 2 and 4 use training receptor rows after excluding rows marked as int
 
 ### Figure 2 Associations with the three-hour target
 
-![Figure 2](../figures/fig_eda_correlation_matrix.png)
+![Figure 2. Pearson and Spearman correlations between current predictors and the three-hour PM2.5 target in the training split](../figures/fig_eda_correlation_matrix.png)
 
 **Observation.** Current PM2.5 is associated with the future target in both Pearson correlation (0.737) and Spearman correlation (0.779). PM10 has corresponding coefficients of 0.721 and 0.760. Wind speed has weaker pooled associations, at −0.107 and −0.091. The display annotates cells whose absolute coefficient exceeds 0.3.
 
@@ -50,7 +50,7 @@ Figures 1, 2 and 4 use training receptor rows after excluding rows marked as int
 
 ### Figure 3 Ordered risk-level distribution
 
-![Figure 3](../figures/fig_eda_class_imbalance.png)
+![Figure 3. Future risk-level counts and proportions by receptor, split and calendar year](../figures/fig_eda_class_imbalance.png)
 
 **Observation.** Across receptor rows, the four future-level counts are 19,986, 55,480, 22,484 and 13,617. Level 1 accounts for approximately half of the receptor samples. Level 3 represents 12.2% overall and is not globally scarce in this panel, although its local support differs across cells. Port_Klang has Level 2 and Level 3 proportions of 9.73% and 1.94%. The new time panels show Level 3 proportions of 11.13%, 10.59% and 18.85% in train, validation and test. Its calendar-year share increases from 10.37% in 2025 to 17.92% in the available part of 2026. The endpoints of 2022 and 2026 cover partial years, so these bars are not balanced annual comparisons.
 
@@ -60,7 +60,7 @@ Figures 1, 2 and 4 use training receptor rows after excluding rows marked as int
 
 ### Figure 4 Wind direction, speed and concentration
 
-![Figure 4](../figures/fig_eda_wind_rose_pollution.png)
+![Figure 4. Training receptor wind frequency and PM2.5 by direction, including southwest-monsoon summaries](../figures/fig_eda_wind_rose_pollution.png)
 
 **Observation.** The training wind summary contains 73,189 non-calm receptor rows. The sector centred on 67.5° has the highest sector mean, 38.11 µg/m³, whereas the 225° southwest sector has a mean of 29.36 µg/m³. The six-panel figure retains wind-speed and pollution summaries and adds a southwest-monsoon calendar slice and three receptor views. The calendar slice contains 24,528 non-calm receptor rows. Within it, southwest-from winds from 202.5° inclusive to 247.5° exclusive account for 10.15% of rows, with mean PM2.5 of 27.28 µg/m³. Under those winds, the corresponding receptor means are 33.04 for KL_City, 19.17 for Port_Klang and 27.41 for Sepang. All 26 nodes have separate all-month and southwest-monsoon summaries in the JSON.
 
@@ -70,13 +70,13 @@ Figures 1, 2 and 4 use training receptor rows after excluding rows marked as int
 
 ### Figure 5 Geometry selected local and regional lead lag associations
 
-![Figure 5](../figures/fig_eda_spatial_crosscorr.png)
+![Figure 5. Local and regional lead-lag correlations for raw PM2.5 and training-climatology residuals](../figures/fig_eda_spatial_crosscorr.png)
 
 **Observation.** Positive lag k is corr[source(t−k), destination(t)], so positive peaks indicate source lead. The pair selection uses geography and roles. Each receptor receives its nearest other receptor and nearest corridor within 150 km, plus the nearest source in each source region. All 75 directed candidates and the 12 selected pairs are recorded. Local raw peaks range from 0.482 to 0.867 and occur at 0 or +1 hour. The KL_City-to-Port_Klang peak is +1 hour with r=0.614, so KL_City leads this association. Regional raw peaks range from 0.199 to 0.297, with lags from 0 to +2 hours. Dumai-to-Port_Klang changes from +2 hours and r=0.297 before adjustment to 0 hours and r=0.253 after adjustment.
 
 **Physical interpretation.** Removing a training climatology reduces shared calendar structure but does not remove all confounding or autocorrelation. Adjacent cells may share atmospheric forcing and model dynamics. A broad correlation maximum, including one at a negative lag, is insufficient evidence for transport direction, causal transmission or a stable travel time.
 
-**Implication for modelling.** The displayed cross-correlations use exact timestamp joins from −12 to +12 hours and preserve gaps. A separate audit extends the same 12 pairs to −48 through +48 hours, with both members restricted to clean training rows. It records the lag, signed Pearson coefficient and paired-hour count at the maximum over the full range and at the best lag in the specified band. The bands are +2 to +4 hours for the six local pairs and +18 to +36 hours for the six regional source pairs. The full results are in `crosscorr.extended_training_peaks` in the EDA JSON.
+**Implication for modelling.** The displayed cross-correlations use exact timestamp joins from −12 to +12 hours and preserve gaps. A separate audit extends the same 12 pairs to −48 through +48 hours, with both members restricted to clean training rows. It records the lag, signed Pearson coefficient and paired-hour count at the maximum over the full range and at the best lag in the specified band. The bands are +2 to +4 hours for the six local pairs and +18 to +36 hours for the six regional source pairs. The extended peak summaries are in `crosscorr.extended_training_peaks` in the EDA JSON.
 
 Among the six local pairs, four peak at zero hours, one at +1 hour and one at +2 hours in both views. Seremban to Port_Klang is the only full-range peak in the +2 to +4 hour band. Its coefficient falls from 0.382 to 0.319 after subtracting the training climatology, with 26,031 paired hours in each view. Every local pair has its best in-band coefficient at the lower boundary, +2 hours.
 
@@ -114,7 +114,7 @@ The background starts with the arithmetic mean of quality-checked PM2.5 across t
 
 The 15 km reference produced zero usable directional weight on 496,245 of 676,884 training rows, or 73.31%. The near-field calculation lowers this to 415,159 of the same 676,884 rows, or 61.33%. Across all splits the corresponding rates are 73.38% and 61.30%. The 10% whole-network training gate remains unmet. Among the three receptors alone, 9.75% of training rows have zero support. This receptor statistic uses a separate population.
 
-No coordinate pair lies within 15 km. Of the 325 unordered coordinate pairs, five lie within 60 km and 25 within 150 km. Applying the regional grouping leaves 21 near-field pairs, with five neighbours for each receptor. The shortest nearest-neighbour distance is 28.33 km and the median across cells is 133.32 km. The QN-001 target of at least ten pairs within the 60 km scale remains unmet. The 50 km and 80 km sensitivity runs produce the same 61.33% training support deficit. They retain the same radius and regional candidate rule.
+No coordinate pair lies within 15 km. Of the 325 unordered coordinate pairs, five lie within 60 km and 25 within 150 km. Applying the regional grouping leaves 21 unordered near-field pairs across the network. Each receptor has five geometric candidates before wind and data-quality screening. The shortest nearest-neighbour distance is 28.33 km and the median across cells is 133.32 km. The QN-001 target of at least ten pairs within the 60 km scale remains unmet. The 50 km and 80 km sensitivity runs produce the same 61.33% training support deficit. They retain the same radius and regional candidate rule.
 
 The zero-weight fraction uses all target rows in each reported population, including rows with unavailable source inputs. The audit applies this denominator consistently to both calculations and separately reports the fraction among computable rows. Of the 415,159 unsupported training rows, 260,340 lack geometric neighbours, 142,769 lack positive projection, 12,039 have only calm source winds and 11 lack source inputs. The 11 rows account for 0.0016% of the training population. The audit also records the largest normalized weight and the effective neighbour count, 1/Σp² for normalized weights p, on hours with support.
 
@@ -139,5 +139,6 @@ These checks establish the documented transformations on the available panel. Th
 - The supplied *HazeGuard-KL_技术规范_v2.0.docx* has SHA256 `e15c706d08d86ce6939938c55666d16b8d4c15aea7ebf479b12504921ee7bd04`.
 - `docs/technical_spec_26grid.md` records the adopted panel contract. `docs/quality_notice_001.md` records the requirements for the two spatial layers and the coverage gates.
 - The upstream revision provides the registry, acquisition and cleaning code, duplicate-location audit, data manifest, Gate 0 evidence and original handover. See `src/config.py`, `src/01_data_pipeline.py`, `docs/node_discovery.json`, `data/manifest.json`, `models/gate0_report.json` and `docs/handover/01_data_and_baseline.md`.
+- The registered panel produces the [EDA statistics](../models/metrics_stage2_eda.json), [feature diagnostics](../models/metrics_stage2_features.json) and [verification results](../models/metrics_stage2_verification.json).
 - [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api), consulted 8 November 2026. Underlying CAMS data and Open-Meteo require attribution under their stated licences.
 - [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api), consulted 8 November 2026. This documents default model selection and the distinction between reanalysis and station observations.

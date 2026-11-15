@@ -11,6 +11,42 @@
       "approved_by": "7 号提议、1 号确认",
       "declared": "2026-11-14",
       "review_by": "报告定稿前复查一次，确认 M8 已写入"
+    },
+    {
+      "id": "KD-02",
+      "check": "缺失值插值规则",
+      "scope": "src/01_data_pipeline.py → clean_node()",
+      "description": "原实现用 .interpolate(limit=3)，pandas 的 limit 是「最多补 3 个单元格」，会把长缺口的前 3 个值补上，与「缺口 >3 小时整段不插值」的规则相反。全库 656 个填充单元格中 357 个属于长缺口。",
+      "status": "已在 fix/qc-gap-rule-and-purged-cv 修复，面板待采纳",
+      "why_accepted": "不适用：这是实现错误，不是取舍",
+      "mitigation": "改为按整段缺口长度判断（_interp_short_gaps），并加 tests/test_qc_rules.py 四条回归。影响面：Palangkaraya 115 行、Sepang 3 行、o3/co 共 119 个单元格。",
+      "approved_by": "1 号复核并修复，待 2 号确认后换面板",
+      "declared": "2026-11-15",
+      "review_by": "新面板进 main 前复查一次"
+    },
+    {
+      "id": "KD-03",
+      "check": "交叉验证切分与折内预处理",
+      "scope": "src/01_baseline_dt.py",
+      "description": "原用 TimeSeriesSplit(5) 按行切折，训练集末尾 3 小时的标签落在验证折里（每折 9–11 行）；pm2_5_anomaly / temp_anomaly 用全训练段气候态算好后在折内复用，验证期信息从特征侧渗回训练。",
+      "status": "已修复（按唯一时间戳切折 + 折内重算气候态）",
+      "why_accepted": "不适用",
+      "mitigation": "CV 0.6315 → 0.6281（std 0.0105）。测试成绩未受影响：M1 修复后重评 0.6658 / 0.7675，与修复前一致；超参数未按测试表现调整。",
+      "approved_by": "1 号",
+      "declared": "2026-11-15",
+      "review_by": "报告引用 CV 数时统一用 0.6281"
+    },
+    {
+      "id": "KD-04",
+      "check": "外层 train/val/test 边界",
+      "scope": "src/01_data_pipeline.py → assign_split()",
+      "description": "按特征时间切分，每节点每个边界有 3 行的标签落进下一段（受体共 18 行）。",
+      "status": "已修复（边界 3 小时冲刷，越界行标 purged 后剔除）",
+      "why_accepted": "不适用",
+      "mitigation": "受体三段 78,102/16,737/16,728 → 78,093/16,728/16,728；测试段未变，故 M1 测试指标不变。契约待同步。",
+      "approved_by": "1 号",
+      "declared": "2026-11-15",
+      "review_by": "PANEL_CONTRACT 更新后复查 verify_data"
     }
   ]
 }

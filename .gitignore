@@ -13,3 +13,6 @@ data/feat_granulation.parquet
 # 中间产物
 *.tmp
 *.log
+
+# 修复对比用的临时产物（不入库）
+.scratch/

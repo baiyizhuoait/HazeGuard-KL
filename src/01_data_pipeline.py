@@ -144,17 +144,18 @@ def clean_node(df: pd.DataFrame, rep: dict) -> pd.DataFrame:
     runs = _max_run(nan_mask.to_numpy())
     rep["max_gap_h"][sid] = int(runs)
 
-    # 6) 连续缺失 <=3h 线性插值；>3h 保持 NaN 并打标记
+    # 6) 连续缺失 <=3h 线性插值；>3h 整段保持 NaN 并打标记
+    #    不能写成 .interpolate(limit=3)：pandas 的 limit 是「最多填 3 个单元格」，
+    #    会把 10 小时缺口的前 3 个值补上，和「超过 3 小时不插值」的规则相反。
     before_nan = df[value_cols].isna().sum().sum()
     nan_before = df[value_cols].isna()
-    df[value_cols] = (
-        df[value_cols]
-        .interpolate(method="linear", limit=C.MAX_INTERP_GAP_H, limit_area="inside")
-    )
+    df[value_cols] = df[value_cols].apply(
+        lambda s: _interp_short_gaps(s, C.MAX_INTERP_GAP_H))
     filled = (nan_before & df[value_cols].notna()).any(axis=1)
     df["qc_interpolated"] = filled.astype("int8")
     rep["interpolated_cells"] += int(before_nan - df[value_cols].isna().sum().sum())
     rep["rows_interpolated"] = rep.get("rows_interpolated", 0) + int(filled.sum())
+    rep["gap_rule"] = f"fill only interior runs with length <= {C.MAX_INTERP_GAP_H}h"
 
     df["is_missing"] = 0
     for col in value_cols:
@@ -164,6 +165,33 @@ def clean_node(df: pd.DataFrame, rep: dict) -> pd.DataFrame:
     rep["rows_with_missing"] += int((df["is_missing"] == 1).sum())
     rep["rows_fetched"] += n0
     return df
+
+
+def _interp_short_gaps(s: pd.Series, max_gap: int) -> pd.Series:
+    """只填「整段长度 <= max_gap 的内部缺口」，长缺口整段保持 NaN。
+
+    判断依据是缺口长度，不是可填单元格数：一段 10 小时的缺失要么整段不填，
+    要么整段填，不能只补前 3 个。首尾缺口同样不填，因为没有两端锚点。
+    """
+    isn = s.isna().to_numpy()
+    if not isn.any() or isn.all():
+        return s
+
+    run_id = np.cumsum(~isn)[isn]                    # 同一段 NaN 共享一个 id
+    lengths = pd.Series(run_id).value_counts()
+    short_runs = set(lengths[lengths <= max_gap].index)
+
+    first_valid = int(np.argmax(~isn))
+    last_valid = len(isn) - 1 - int(np.argmax(~isn[::-1]))
+    interior = isn.copy()
+    interior[:first_valid] = False
+    interior[last_valid + 1:] = False
+
+    filled = s.interpolate(method="linear", limit_area="inside")
+    out = s.copy()
+    allowed = interior & np.isin(np.cumsum(~isn), list(short_runs))
+    out[allowed] = filled[allowed]
+    return out
 
 
 def _max_run(mask: np.ndarray) -> int:
@@ -220,7 +248,12 @@ def add_targets(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def assign_split(df: pd.DataFrame) -> pd.DataFrame:
-    """按每节点时间跨度 70/15/15 切分（时间基准，不按行数，抗缺失扰动）。"""
+    """按每节点时间跨度 70/15/15 切分，切分依据是**标签时间** t+3h，不是特征时间。
+
+    这样任何一行的标签都落在它所属的那一段里，训练段的最后一个标签严格早于验证段
+    的第一个特征时刻，验证段同理。若按特征时间切，边界前 3 小时的那几行会把标签
+    写进下一段（每节点 3 行），训练时等于提前看到了验证期的答案。
+    """
     parts = []
     for sid, sub in df.groupby("station_id", sort=False):
         sub = sub.sort_values("timestamp").copy()
@@ -228,8 +261,15 @@ def assign_split(df: pd.DataFrame) -> pd.DataFrame:
         span = (t1 - t0).total_seconds()
         cut1 = t0 + pd.Timedelta(seconds=span * C.SPLIT_RATIOS[0])
         cut2 = t0 + pd.Timedelta(seconds=span * (C.SPLIT_RATIOS[0] + C.SPLIT_RATIOS[1]))
-        sub["split"] = np.where(sub["timestamp"] < cut1, "train",
-                                np.where(sub["timestamp"] < cut2, "val", "test"))
+        ts = sub["timestamp"]
+        label_t = ts + pd.Timedelta(hours=C.HORIZON_H)
+        split = np.where(ts < cut1, "train", np.where(ts < cut2, "val", "test"))
+        # 边界冲刷：标签落进下一段的行从本段剔除（不是推到下一段）。
+        # 推过去会把下一段的起点拉早 3 小时，问题原样保留；只能丢。
+        # 代价是每个节点每个边界少 3 行，记在 rows_dropped_split_purge。
+        split = np.where((split == "train") & (label_t >= cut1), "purged", split)
+        split = np.where((split == "val") & (label_t >= cut2), "purged", split)
+        sub["split"] = split
         parts.append(sub)
     return pd.concat(parts, ignore_index=True)
 
@@ -362,9 +402,13 @@ def gate0(df: pd.DataFrame, rep: dict) -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--force-refresh", action="store_true")
+    ap.add_argument("--out-dir", default=None,
+                    help="把面板与报告写到指定目录（修复前后对比用）；默认仍写 data/ 与 models/")
     args = ap.parse_args()
 
-    for d in (C.DATA_DIR, C.MODEL_DIR):
+    out_data = C.DATA_DIR if args.out_dir is None else os.path.join(args.out_dir, "data")
+    out_model = C.MODEL_DIR if args.out_dir is None else os.path.join(args.out_dir, "models")
+    for d in (out_data, out_model):
         os.makedirs(d, exist_ok=True)
 
     rep = {
@@ -406,6 +450,10 @@ def main() -> None:
     # pm2_5 既是锚点特征又是 anomaly 的基底，缺了它任何模型都用不了，
     # 因此在这里直接剔除，而不是留给下游每位组员 各自记得过滤。
     before = len(df)
+    df = df[df["split"] != "purged"].reset_index(drop=True)
+    rep["rows_dropped_split_purge"] = before - len(df)
+
+    before = len(df)
     df = df[df["target_pm25_3h"].notna()].reset_index(drop=True)
     rep["rows_dropped_no_target"] = before - len(df)
 
@@ -428,7 +476,7 @@ def main() -> None:
     print("[5/5] Gate 0 校验 + 落盘")
     g0 = gate0(df, rep)
 
-    out = os.path.join(C.DATA_DIR, "haze_panel_clean.parquet")
+    out = os.path.join(out_data, "haze_panel_clean.parquet")
     df.to_parquet(out, index=False, compression="snappy")
 
     rep.update({
@@ -451,15 +499,15 @@ def main() -> None:
             "qc_pm25_gt_pm10 只标记不修正：PM2.5 是 PM10 的子集，违反者为模式内部不一致。",
             "qc_censored 标记贴近 900 µg/m³ 输出上限的截断值，不可当作真实极值使用。",
             "qc_calm_wind 标记静风时刻，此时风向为数值噪声，上风向权重应置零。",
-            "qc_interpolated 标记经 ≤3h 线性插值补齐的单元格。",
+            "qc_interpolated 标记经 ≤3h 线性插值补齐的单元格；长缺口整段不填。",
             "is_missing 标记仍有变量缺失、未插值的行。",
         ],
     })
-    with open(os.path.join(C.MODEL_DIR, "cleaning_report.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out_model, "cleaning_report.json"), "w", encoding="utf-8") as f:
         json.dump(rep, f, ensure_ascii=False, indent=2)
-    with open(os.path.join(C.MODEL_DIR, "gate0_report.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out_model, "gate0_report.json"), "w", encoding="utf-8") as f:
         json.dump(g0, f, ensure_ascii=False, indent=2)
-    with open(os.path.join(C.DATA_DIR, "data_dictionary.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out_data, "data_dictionary.json"), "w", encoding="utf-8") as f:
         json.dump(_dictionary(g0), f, ensure_ascii=False, indent=2)
 
     print(f"\n✓ 写出 {out}")

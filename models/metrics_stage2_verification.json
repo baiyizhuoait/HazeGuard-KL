@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-10T05:22:08.490241+00:00",
-  "git_commit": "3827b8c62b142e687d30e8d8e5ba0486fd0b09b4",
+  "generated_at": "2026-11-15T14:16:45.346795+00:00",
+  "git_commit": "6b58f322e5b019ca56c4b955b462d07e335f8382",
   "python": "3.13.9",
   "packages": {
     "numpy": "2.3.5",
@@ -17,17 +17,17 @@
     "src/02_eda_analysis.py": "bdecb2737d7a49116496086c2caafe6d315167f6c8e5094c3b611ab910af1765",
     "src/02_spatiotemporal_features.py": "01f612d53e29f5060d1a9cb4bec93603a82b763fc536165716d4b1b6e6dfaf05",
     "src/stage2_storage.py": "46c905a92a2a8672d05155757732c0ccdcb165dff3d9cd1b7e371d4e25ac0cbd",
-    "tools/verify_stage2.py": "3fb06a8816fa21949e4391dd7b23fdc065bb590bf5cfa67ad422e01a569a052f",
+    "tools/verify_stage2.py": "90c0155df3cc4d5e66dd769b37dd77ed9d283deac73fd6b242f9127f0db9a3e3",
     "tools/package_stage2.py": "60736c9a5f72c23e17d20b732bcf2c5dcd91836510e19fc27be57b678a744608",
     "tests/test_stage2_contract.py": "a81733ebc1dd96dbfa51add3d89e4a3070e85e567e57fafc62c283a4aff20270",
-    "tests/test_stage2_eda26.py": "d4498e6ec37cb9d9bf8116d12e7411ad3dc2e800c03b047b00bd3429c0af3912",
+    "tests/test_stage2_eda26.py": "7e43170d8c98a9c79bbb9077c8d941febcc0448212f419d22b10131f14c453c7",
     "tests/test_stage2_release.py": "8301ed383b80c73d837fc2684218340495fb417fec8b20550d13bc339790e494",
     "tests/test_stage2_spatial26.py": "67bbec5044ebe3b45ee139c56e17ea392157c93e8beddb971a3b3189b6092dc1",
     "tests/test_stage2_spatial_layers.py": "d832243b017989e46265e6d7575aa5bb3ef87b74529afe7d0b0ff05f4c9926f9"
   },
   "full_data_preflight_passed": true,
   "input_profile": {
-    "rows": 966677,
+    "rows": 966406,
     "columns": 35,
     "unique_grid_ids": 26,
     "unique_sampling_coordinates": 26,
@@ -50,8 +50,8 @@
       "pm10": 0,
       "no2": 2,
       "so2": 0,
-      "o3": 31,
-      "co": 74,
+      "o3": 59,
+      "co": 147,
       "temperature_2m": 0,
       "relative_humidity_2m": 0,
       "wind_speed_ms": 0,
@@ -80,17 +80,17 @@
         "0": 62323,
         "1": 51447,
         "2": 14989,
-        "3": 15980
+        "3": 15865
       },
       "train": {
-        "0": 397500,
-        "1": 231141,
-        "2": 34737,
-        "3": 13506
+        "0": 397490,
+        "1": 231095,
+        "2": 34720,
+        "3": 13501
       },
       "val": {
-        "0": 82677,
-        "1": 51526,
+        "0": 82617,
+        "1": 51508,
         "2": 7797,
         "3": 3054
       }
@@ -106,7 +106,7 @@
         299.9994,
         299.9994
       ],
-      "sha256": "d46bd8b1637e62ac7315d40904f81b05e615a4b4f9a44aeb730889d0ae175948"
+      "sha256": "86bdd8d32da45062e58cc2269568c6491e9b7c525cad5f56e154ea7d219d5c55"
     },
     "fig_eda_correlation_matrix.png": {
       "pixels": [
@@ -117,7 +117,7 @@
         299.9994,
         299.9994
       ],
-      "sha256": "8965fc1a87feee748c1aa5c016f4d0a523d76e3d8437e340e7755a3bd662f115"
+      "sha256": "d57f8600ab9c2fbcd6df1933eb39652ad13342dc50e41bb49d74216e3deda45c"
     },
     "fig_eda_class_imbalance.png": {
       "pixels": [
@@ -128,7 +128,7 @@
         299.9994,
         299.9994
       ],
-      "sha256": "7d3cf1fbf458bd1c04f5fcde67859e069a3a5e534bac110df04c12d46e978469"
+      "sha256": "1c6348414abe589f252fcb752ac1505b75b5ccc257da04b84f545a1824cb5c98"
     },
     "fig_eda_wind_rose_pollution.png": {
       "pixels": [
@@ -139,7 +139,7 @@
         299.9994,
         299.9994
       ],
-      "sha256": "76f3093be1c74dd568e2548fd55da7eff33e8edcb93e984978622f41d2be1457"
+      "sha256": "2d9a67a03c2a3dc4b6a6593361dff5aebcf0aaab19206a036df23b1f6ce0e520"
     },
     "fig_eda_spatial_crosscorr.png": {
       "pixels": [
@@ -150,7 +150,7 @@
         299.9994,
         299.9994
       ],
-      "sha256": "6532c2e611c82c920370a2f5ddadf970975d1535c159b218586dac302597183f"
+      "sha256": "75956af535ee344735bc3f0f797e171455a246995cb2cba46ddc63c95e92e6c4"
     }
   },
   "git_diff_applicable": true,
@@ -162,7 +162,7 @@
         "--check"
       ],
       "exit_code": 0,
-      "stdout": "校验 data\\haze_panel_clean.parquet\n  [PASS] schema：必需列齐全                                 35 列全部存在\n  [PASS] schema：无意外新增列                                无\n  [PASS] 主键 (station_id, timestamp) 唯一                重复 0 行\n  [PASS] 时间轴单调且步长为整小时                                 26 节点全部为 1h 整数倍步长\n  [PASS] 切分严格时序且不重叠                                   全部 26 节点 train<val<test\n  [PASS] 四级标签与阈值一致                                    966,677 行全部匹配 [15,35,55]\n  [PASS] target_pm25_3h = 3 小时后的 pm2_5                抽检 78 行\n  [PASS] 基线未泄露（可用 train 重算复现）                         966,677 行全部可复现\n  [PASS] 受体 Level 3 占比 ≥ 1%                           12.21%\n  [PASS] 质量标记列齐全                                      {'qc_pm25_gt_pm10': 303, 'qc_censored': 4, 'qc_calm_wind': 48621, 'qc_interpolated': 356}\n  [PASS] 契约：面板行数/列数/节点数                               966,677×35，26 节点\n  [PASS] 契约：受体三段行数                                    train/val/test = 78,102/16,737/16,728\n  [PASS] dtype：timestamp 为 datetime64                 实际 datetime64[us]\n  [PASS] 体积：data/*.parquet ≤ 50MB 且非 LFS 指针           全部合规\n  [PASS] 交付命名合规\n  [PASS] 关键列无 NaN                                     {'pm2_5': 0, 'target_pm25_3h': 0, 'target_level_3h': 0, 'b_proto_pm25': 0}\n\n16/16 项通过",
+      "stdout": "校验 data\\haze_panel_clean.parquet\n  [PASS] schema：必需列齐全                                 35 列全部存在\n  [PASS] schema：无意外新增列                                无\n  [PASS] 主键 (station_id, timestamp) 唯一                重复 0 行\n  [PASS] 时间轴单调且步长为整小时                                 26 节点全部为 1h 整数倍步长\n  [PASS] 切分严格时序且不重叠                                   全部 26 节点 train<val<test\n  [PASS] 四级标签与阈值一致                                    966,406 行全部匹配 [15,35,55]\n  [PASS] target_pm25_3h = 3 小时后的 pm2_5                抽检 78 行\n  [PASS] 基线未泄露（可用 train 重算复现）                         966,406 行全部可复现\n  [PASS] 受体 Level 3 占比 ≥ 1%                           12.21%\n  [PASS] 质量标记列齐全                                      {'qc_pm25_gt_pm10': 303, 'qc_censored': 4, 'qc_calm_wind': 48598, 'qc_interpolated': 182}\n  [PASS] 契约：面板行数/列数/节点数                               966,406×35，26 节点\n  [PASS] 契约：受体三段行数                                    train/val/test = 78,093/16,728/16,728\n  [PASS] dtype：timestamp 为 datetime64                 实际 datetime64[us]\n  [PASS] 契约：特征表指纹                                     6 份特征表与登记一致\n  [PASS] 体积：data/*.parquet ≤ 50MB 且非 LFS 指针           全部合规\n  [PASS] 交付命名合规\n  [PASS] 关键列无 NaN                                     {'pm2_5': 0, 'target_pm25_3h': 0, 'target_level_3h': 0, 'b_proto_pm25': 0}\n\n17/17 项通过",
       "stderr": ""
     },
     {
@@ -170,22 +170,26 @@
         "python",
         "-m",
         "pytest",
-        "tests/",
+        "tests/test_stage2_contract.py",
+        "tests/test_stage2_eda26.py",
+        "tests/test_stage2_release.py",
+        "tests/test_stage2_spatial26.py",
+        "tests/test_stage2_spatial_layers.py",
         "-q",
         "-rs"
       ],
       "exit_code": 0,
-      "stdout": ".......................................................................  [100%]\n============================== warnings summary ===============================\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:64\n  <python-env>\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'\n    prop = Group((name + Suppress(\"=\") + comma_separated(value)) | oneOf(_CONSTANTS))\n\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n  <python-env>\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'\n    parse = parser.parseString(pattern)\n\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n  <python-env>\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'\n    parser.resetCache()\n\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_mathtext.py:45\n  <python-env>\\Lib\\site-packages\\matplotlib\\_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'\n    ParserElement.enablePackrat()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n71 passed, 14 warnings in 8.65s",
+      "stdout": ".......................................................................  [100%]\n============================== warnings summary ===============================\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:64\n  <python-env>\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'\n    prop = Group((name + Suppress(\"=\") + comma_separated(value)) | oneOf(_CONSTANTS))\n\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85\n  <python-env>\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:85: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'\n    parse = parser.parseString(pattern)\n\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89\n  <python-env>\\Lib\\site-packages\\matplotlib\\_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'\n    parser.resetCache()\n\n..\\26grid-clean-env\\Lib\\site-packages\\matplotlib\\_mathtext.py:45\n  <python-env>\\Lib\\site-packages\\matplotlib\\_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'\n    ParserElement.enablePackrat()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n71 passed, 14 warnings in 7.93s",
       "stderr": ""
     },
     {
       "command": [
         "python",
         "tools/check_prose.py",
-        "reports/"
+        "reports/sec2_3_and_2_4_1.md"
       ],
       "exit_code": 0,
-      "stdout": "[PASS] reports\\sec1_data_and_baseline.md\n       2605 词 / 131 句 | 破折号 4 处 (1.54/千词) | 平均句长 18.7 | 变异系数 0.57\n[PASS] reports\\sec2_3_and_2_4_1.md\n       3386 词 / 226 句 | 破折号 0 处 (0.0/千词) | 平均句长 13.5 | 变异系数 0.39\n\n共 2 个文件，0 个有硬性问题。",
+      "stdout": "[PASS] reports\\sec2_3_and_2_4_1.md\n       3565 词 / 234 句 | 破折号 0 处 (0.0/千词) | 平均句长 13.6 | 变异系数 0.4\n\n共 1 个文件，0 个有硬性问题。",
       "stderr": ""
     },
     {
@@ -197,7 +201,11 @@
         "src/02_eda_analysis.py",
         "src/02_spatiotemporal_features.py",
         "src/stage2_storage.py",
-        "tests/",
+        "tests/test_stage2_contract.py",
+        "tests/test_stage2_eda26.py",
+        "tests/test_stage2_release.py",
+        "tests/test_stage2_spatial26.py",
+        "tests/test_stage2_spatial_layers.py",
         "tools/verify_stage2.py",
         "tools/package_stage2.py"
       ],
@@ -222,7 +230,7 @@
       ],
       "exit_code": 0,
       "stdout": "",
-      "stderr": "warning: in the working copy of 'docs/quality_notice_001.md', CRLF will be replaced by LF the next time Git touches it"
+      "stderr": ""
     }
   ],
   "all_exit_codes_zero": true,

@@ -232,13 +232,21 @@ def audit(branch: str) -> tuple[list[tuple[str, bool, str]], str]:
         ["git", "merge-base", "--is-ancestor", f"origin/{branch}", "origin/main"]
     ).returncode == 0
     if merged:
-        # 区分"已合并"与"空分支恰好指向旧 main"：看 main 上有没有这个模块的产物
+        # 三种情况要分开：全部交付物到位、部分到位（分支合了但东西没交全）、
+        # 空分支恰好指向旧 main。只看"产物在不在"，不看"分支有没有提交"，
+        # 否则合并了半个模块的分支会被误判成"未开工"——07 就这样被误报过一次。
         main_paths = tree("main")
         spec = EXPECTED[mod]
-        landed = all(p in main_paths or any(x.startswith(p + "/") for x in main_paths)
-                     for p in spec["files"])
-        if landed:
+        missing = [p for p in spec["files"]
+                   if p not in main_paths
+                   and not any(x.startswith(p + "/") for x in main_paths)]
+        has_own_commit = bool(git("rev-list", "--count", f"origin/main..origin/{branch}").strip() != "0"
+                              or True)  # 已合入时该值为 0，用产物判断更可靠
+        if not missing:
             return [("已合入 main", True, "全部产物都在 main 上，此分支可删")], "MERGED"
+        if has_own_commit and any(p in main_paths for p in spec["files"]):
+            return [("已合入，交付物不全", True,
+                     f"main 上已有本模块产物，但缺 {len(missing)} 项：" + "、".join(missing[:3]))], "PARTIAL"
         return [("未开工", True, "分支指向旧 main，尚无自己的提交")], "UNSTARTED"
 
     # 1 落后 main
@@ -358,6 +366,8 @@ def main() -> int:
             print(f"  {'PASS' if ok else 'FAIL'}  {name:16s} {note}")
         if verdict == "FAIL":
             overall = "FAIL"
+        elif verdict == "PARTIAL" and overall == "PASS":
+            overall = "PARTIAL"
 
     print(f"\n总判定：{overall}")
     return 0 if overall == "PASS" else 1

@@ -117,7 +117,7 @@
 |---|---|---|
 | 最终总报告 | 缺（A7） | 本索引就是为它准备的 |
 | 看板视觉验收 | 缺（A8） | 无头运行通过，没逐页看图；`use_container_width` 已废弃 |
-| 提交包称重 | 缺（A9） | `src/07_package_submission.py` 未跑；20 MB 上限 |
+| 提交包称重 | 部分（A9） | dry-run：93 文件 8.3 MB，加报告约 10–11 MB，20 MB 够；待 PDF 出后打 zip |
 | Q5-3 接缝切片误差表 | 未做 | 5 号手上剩这一件；做不了就写进 improvements |
 | LOSO / 分季度 | 有结果未进正文 | `models/loso_results.csv`、`seasonal_metrics.csv`，§3 有引用，汇总时决定是否单列 |
 | 逐页图表清单 | 未整理 | `figures/` 下 20 余张，报告需统一编号 |

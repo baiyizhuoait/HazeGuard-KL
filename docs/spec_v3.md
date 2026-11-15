@@ -559,7 +559,7 @@ git diff --stat origin/main...HEAD       # 确认没动别人的文件
 | A6 | ✅ `PANEL_CONTRACT` 已补登 02 的目录形态 | 1 号 | verify_data 第 17 项按指纹校验 |
 | **A7** | **最终总报告 `reports/HazeGuard_KL_Demonstration_Report.md` 未产出** | **1 号** | 7 号失联，原定由她总成。现在只能由 1 号起草，材料见 `docs/report_evidence_index.md` |
 | **A8** | **看板只做过无头运行验证，没有视觉验收** | 1 号 | `AppTest` 跑通（0 异常、5 tab、17 表、8 卡），但没有逐页看图；`use_container_width` 已废弃，1.58 仍可用 |
-| **A9** | **提交包未实测 20 MB 上限** | 1 号 | `src/07_package_submission.py` 已并入但未跑；报告 PDF + README.txt + 源码 + json 要称重 |
+| **A9** | 提交包已称重，**待报告 PDF 后打最后一次 zip** | 1 号 | `--dry-run` 结果：93 个文件、8.3 MB（figures 6.70 / models 1.00 / src 0.32），加上报告 PDF 约 10–11 MB，仍在 20 MB 内；脚本会因为缺报告直接报错，这是设计如此 |
 
 ---
 

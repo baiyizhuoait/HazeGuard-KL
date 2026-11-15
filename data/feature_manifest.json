@@ -1,5 +1,5 @@
 {
-  "note": "特征表有两版。v1 是 M0~M7 全部已登记成绩所对应的版本；v2 补了 hour_cos，仅用于 M8 对照。任何一版的内容变化都必须先在这里登记，否则 verify_data 会报错。",
+  "note": "03 特征表有两版。v1 是 M0~M7 已登记成绩所对应的版本；v2 补了 hour_cos，仅用于 M8 对照。02 正式特征表的逻辑摘要见 stage2，四个分片各自登记在 tables 中。文件变化须同步维护指纹。",
   "version": "v1",
   "tables": {
     "data/features_final.parquet": {
@@ -26,6 +26,30 @@
         "M8 (pending)"
       ],
       "periodic_encoding": "hour_sin + hour_cos"
+    },
+    "data/feat_spatiotemporal.parquet/part-0000.parquet": {
+      "sha256": "67dd02cb70e65da273fc077432c7e45686272c6e279eb6064df19a4874461b7a",
+      "rows": 250000
+    },
+    "data/feat_spatiotemporal.parquet/part-0001.parquet": {
+      "sha256": "e84393c43d823d80cac86654d8e573fd21c98d42a1826f6c1592d354b11f915e",
+      "rows": 250000
+    },
+    "data/feat_spatiotemporal.parquet/part-0002.parquet": {
+      "sha256": "7b33ae09aeef257766b7075abd41dbd524042252142ec43052317a3f767e8393",
+      "rows": 250000
+    },
+    "data/feat_spatiotemporal.parquet/part-0003.parquet": {
+      "sha256": "4e2310c9b480dacf1919cfd841f43fed94429e5645eab16eb77b6f7bdf893b3e",
+      "rows": 216406
     }
+  },
+  "stage2": {
+    "path": "data/feat_spatiotemporal.parquet",
+    "input_sha256": "5cd7c1d3149147b85259bcf5d48dfda5a88d8cff7a42b4030ed2cb129e4a5bc6",
+    "sha256": "e43cc67b643845e1f2236efdce10381a39d4e9676d14c6d07098e931b5a1b37e",
+    "rows": 966406,
+    "columns": 98,
+    "sha256_basis": "Ordered part manifest with name, bytes, sha256 and rows"
   }
 }

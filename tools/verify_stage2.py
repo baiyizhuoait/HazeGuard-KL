@@ -36,8 +36,18 @@ def main():
         raise RuntimeError("Expected the complete staged Parquet dataset. Run both 02 scripts.")
     audit = json.loads((ROOT / "models/metrics_stage2_features.json").read_text(encoding="utf-8"))
     eda_audit = json.loads((ROOT / "models/metrics_stage2_eda.json").read_text(encoding="utf-8"))
-    for key, value in features.feature_artifact(path).items():
+    artifact = features.feature_artifact(path)
+    for key, value in artifact.items():
         assert audit[key] == value, key
+    manifest = json.loads((ROOT / "data/feature_manifest.json").read_text(encoding="utf-8"))
+    registration = manifest["stage2"]
+    assert registration["path"] == path.relative_to(ROOT).as_posix()
+    for registered_key, audit_key in (("sha256", "output_sha256"), ("rows", "rows"),
+                                      ("columns", "output_columns"), ("input_sha256", "input_sha256")):
+        assert registration[registered_key] == audit[audit_key], registered_key
+    for part in artifact["output_parts"]:
+        part_path = (path / part["name"]).relative_to(ROOT).as_posix()
+        assert manifest["tables"][part_path] == {"sha256": part["sha256"], "rows": part["rows"]}, part_path
     assert (ROOT / "models/metrics_stage2_eda.json").stat().st_size <= 100_000
     original = pd.read_parquet(ROOT / "data/haze_panel_clean.parquet")
     data = pd.read_parquet(path)
@@ -54,6 +64,13 @@ def main():
     config_spec = importlib.util.spec_from_file_location("config", ROOT / "src/config.py")
     config = importlib.util.module_from_spec(config_spec)
     config_spec.loader.exec_module(config)
+    contract = config.PANEL_CONTRACT
+    assert original.shape == (contract["panel_rows"], contract["panel_cols"])
+    receptor = data.role.eq("receptor")
+    for split in ("train", "val", "test"):
+        rows = data.loc[receptor & data.split.eq(split)]
+        assert len(rows) == contract[f"receptor_{split}_rows"]
+        assert rows.audit_model_eligible.sum() == contract[f"receptor_{split}_eligible_rows"]
     banned_terms = config.PANEL_CONTRACT["banned_terms"]
     assert not any(term.casefold() in column.casefold()
                    for column in data.columns for term in banned_terms)
@@ -81,11 +98,13 @@ def main():
         figure = ROOT / f"figures/fig_eda_{slug}.png"
         figure_info[figure.name] = verified_figure(figure, eda_audit["figure_sha256"][figure.name])
     del data, original
+    stage2_tests = sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / "tests").glob("test_stage2_*.py"))
     commands = [
         [sys.executable, "src/01_verify_data.py", "--check"],
-        [sys.executable, "-m", "pytest", "tests/", "-q", "-rs"],
-        [sys.executable, "tools/check_prose.py", "reports/"],
-        [sys.executable, "-m", "compileall", "-q", "src/02_eda_analysis.py", "src/02_spatiotemporal_features.py", "src/stage2_storage.py", "tests/", "tools/verify_stage2.py", "tools/package_stage2.py"],
+        [sys.executable, "-m", "pytest", *stage2_tests, "-q", "-rs"],
+        [sys.executable, "tools/check_prose.py", "reports/sec2_3_and_2_4_1.md"],
+        [sys.executable, "-m", "compileall", "-q", "src/02_eda_analysis.py", "src/02_spatiotemporal_features.py",
+         "src/stage2_storage.py", *stage2_tests, "tools/verify_stage2.py", "tools/package_stage2.py"],
     ]
     git_available = (ROOT / ".git").exists()
     if git_available:
@@ -108,7 +127,7 @@ def main():
         print(f"{'PASS' if result.returncode == 0 else 'FAIL'} {' '.join(label)}")
     sources = ["src/02_eda_analysis.py", "src/02_spatiotemporal_features.py", "src/stage2_storage.py",
                "tools/verify_stage2.py", "tools/package_stage2.py"]
-    sources += [p.relative_to(ROOT).as_posix() for p in sorted((ROOT / "tests").glob("test_*.py"))]
+    sources += stage2_tests
     output = {
         "generated_at": datetime.now(timezone.utc).isoformat(), "git_commit": features.git_revision(),
         "python": platform.python_version(),

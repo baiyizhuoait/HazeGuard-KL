@@ -149,12 +149,12 @@ def test_published_metrics_fit_budget_and_retain_report_evidence():
     metrics = json.loads(artifact.read_text(encoding="utf-8"))
     assert metrics["format_version"] == 2
     assert metrics["diurnal_seasonal"]["seasons"]["SW: Jun–Sep"]["median"] == 26.6
-    assert metrics["correlations"]["pearson"]["target_pm25_3h"]["pm2_5"] == pytest.approx(.73704, abs=1e-5)
+    assert metrics["correlations"]["pearson"]["target_pm25_3h"]["pm2_5"] == pytest.approx(.737025386)
     assert metrics["class_distribution"]["receptor_by_split"]["test"]["counts"]["3"] == 3154
 
     wind = metrics["wind_rose"]
-    assert wind["sw_monsoon"]["n_noncalm"] == 24_528
-    assert wind["sw_monsoon"]["sw_flow_fraction"] == pytest.approx(.10148, abs=1e-5)
+    assert wind["sw_monsoon"]["n_noncalm"] == 24_519
+    assert wind["sw_monsoon"]["sw_flow_fraction"] == pytest.approx(.101513112)
     assert len(wind["by_node"]) == 26
     for periods in wind["by_node"].values():
         assert set(periods) == {"all_months", "sw_monsoon"}
@@ -190,7 +190,7 @@ def test_published_metrics_fit_budget_and_retain_report_evidence():
 
     similarity = metrics["spatial_similarity"]
     assert similarity["pair_count"] == 325
-    assert similarity["max_pair"]["pearson_r"] == pytest.approx(.9086)
-    assert similarity["max_pair"]["n_pairs"] == 26_034
+    assert similarity["max_pair"]["pearson_r"] == pytest.approx(.908566263)
+    assert similarity["max_pair"]["n_pairs"] == 26_031
     assert similarity["identical_on_overlap_pairs"] == []
     assert len(metrics["figure_sha256"]) == 5

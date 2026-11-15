@@ -1,5 +1,7 @@
 # 02 模块交接 EDA 与时空特征
 
+2026-11-15，按 QN-004 将已验证的候选分片提升为 02 正式表。训练和验证的合格受体各减少 9 行，测试的合格键和标签一致。四个测试远场字段仍有变化。48 小时背景均值变化 1,896 行，24 小时滞后的最大绝对差为 65.18 µg/m³。成员 3 应基于正式表重建粒化和选择，测试集仅用于最终报告。[QN-004](../quality_notice_004.md) · [逐键对照](../../models/metrics_stage2_qc_review.json)
+
 成员 3 从现有 `feat/02-eda` 取得第二阶段成果。正式读表入口是 `data/feat_spatiotemporal.parquet` 目录。共享 README 由组长维护，本模块的运行与交接以本页为入口。 [协作规范](../../CONTRIBUTING.md) · [26 格点技术契约](../technical_spec_26grid.md) · [质量通告 QN-001](../quality_notice_001.md)
 
 ## 1. 我产出了什么
@@ -7,20 +9,20 @@
 | 文件 | 用途 |
 |---|---|
 | [02_eda_analysis.py](../../src/02_eda_analysis.py)、[02_spatiotemporal_features.py](../../src/02_spatiotemporal_features.py)、[stage2_storage.py](../../src/stage2_storage.py) | EDA、特征生成及有序 Parquet 分片。 |
-| [feat_spatiotemporal.parquet](../../data/feat_spatiotemporal.parquet) | **成员 3 正式输入目录**。契约为 966,677 行 × 98 列，包含 35 个原始列和 63 个新增列。 |
-| [haze_panel_clean.parquet](../../data/haze_panel_clean.parquet)、[data_dictionary.json](../../data/data_dictionary.json) | 清洗输入及原字段字典。输入为 966,677 行 × 35 列。 |
+| [feat_spatiotemporal.parquet](../../data/feat_spatiotemporal.parquet) | **成员 3 正式输入目录**。契约为 966,406 行 × 98 列，包含 35 个原始列和 63 个新增列。 |
+| [haze_panel_clean.parquet](../../data/haze_panel_clean.parquet)、[data_dictionary.json](../../data/data_dictionary.json) | 清洗输入及原字段字典。输入为 966,406 行 × 35 列。 |
 | [日内与季风](../../figures/fig_eda_diurnal_seasonal.png)、[相关矩阵](../../figures/fig_eda_correlation_matrix.png)、[等级分布](../../figures/fig_eda_class_imbalance.png)、[风玫瑰](../../figures/fig_eda_wind_rose_pollution.png)、[空间互相关](../../figures/fig_eda_spatial_crosscorr.png) | 五张英文 300 dpi 图。 |
 | [EDA 统计](../../models/metrics_stage2_eda.json)、[特征审计](../../models/metrics_stage2_features.json)、[验收记录](../../models/metrics_stage2_verification.json) | 图表数字、特征白名单、缺失和覆盖率、来源校验及实跑记录。 |
 | [英文章节](../../reports/sec2_3_and_2_4_1.md)、[仓库审计](../repository_audit_stage2.md) | 科学结果及工程决策的核对材料。课程提交正文由学生本人完成。 |
 | [测试](../../tests/)、[验证器](../../tools/verify_stage2.py)、[打包工具](../../tools/package_stage2.py) | 检验正式分片、图表和测试，按固定提交导出并从 ZIP 复验。 |
 
-清洗输入 SHA256 为 `97b5db123352861b6cd41224daf1ce278c90d6d528031b9bdc2744317a5ead93`。输出为四个按原行顺序写入的 Zstandard 分片，单片上限 50,000,000 字节，按普通 Git 文件交付。实际总字节数及每片的文件名、行数、大小和 SHA256 见特征审计的 `output_bytes`、`output_parts`。`output_sha256` 是按分片名排序、规范序列化后的清单摘要。验收成绩见验证记录中的 `checks` 和 `all_exit_codes_zero`。
+清洗输入 SHA256 为 `5cd7c1d3149147b85259bcf5d48dfda5a88d8cff7a42b4030ed2cb129e4a5bc6`。输出为四个按原行顺序写入的 Zstandard 分片，单片上限 50,000,000 字节，按普通 Git 文件交付。实际总字节数及每片的文件名、行数、大小和 SHA256 见特征审计的 `output_bytes`、`output_parts`。`output_sha256` 是按分片名排序、规范序列化后的清单摘要。两类 SHA256 均已登记。验收成绩见验证记录中的 `checks` 和 `all_exit_codes_zero`。[特征指纹登记](../../data/feature_manifest.json)
 
 ## 2. 字段/接口说明
 
 每行是一个格点在一个小时的预测时刻 `t`，联合主键为 `station_id`、`timestamp`。26 个节点分为 3 个受体、10 个走廊和 13 个源区。时间按 `Asia/Kuala_Lumpur` 本地钟解释，清洗输入落盘为无时区 `timestamp[us]`。需要 UTC 时先本地化，再转换。
 
-`target_pm25_3h` 为 `float64` 的 `t+3h` 浓度目标，单位 µg/m³。`target_level_3h` 为 `int8`，阈值为 15、35、55 µg/m³。全表 train/val/test 分别为 676,884 / 145,054 / 144,739 行，三个受体的原始行数分别为 78,102 / 16,737 / 16,728。各段离线合格行数以 `eligibility_by_receptor_split` 为准。
+`target_pm25_3h` 为 `float64` 的 `t+3h` 浓度目标，单位 µg/m³。`target_level_3h` 为 `int8`，阈值为 15、35、55 µg/m³。全表 train/val/test 分别为 676,806 / 144,976 / 144,624 行，三个受体的原始行数分别为 78,093 / 16,728 / 16,728。离线合格受体为 77,744 / 16,647 / 16,647，与 `PANEL_CONTRACT` 和 `eligibility_by_receptor_split` 一致。
 
 | 新字段 | 含义、单位与可空性 |
 |---|---|
@@ -84,7 +86,7 @@ import pandas as pd
 
 audit = json.loads(Path("models/metrics_stage2_features.json").read_text(encoding="utf-8"))
 panel = pd.read_parquet("data/feat_spatiotemporal.parquet")
-assert panel.shape == (966677, 98)
+assert panel.shape == (966406, 98)
 feature_columns = audit["model_feature_columns"]
 assert len(feature_columns) == 63
 eligible = panel.loc[panel["role"].eq("receptor") & panel["audit_model_eligible"]]

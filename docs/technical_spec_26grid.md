@@ -1,10 +1,10 @@
 # HazeGuard KL 26 格点技术契约
 
-2026-11-10 更新。当前范围采用 26 格点。第二阶段的空间设计、命名和交付依据 QN-001 的修订，沿用既有时间特征和已登记的主读表路径。 [质量通告](quality_notice_001.md) · [成员 2 交接](handover/02_eda_and_spatiotemporal.md)
+2026-11-15 更新。第二阶段的空间设计和命名沿用 QN-001。上游正式采纳缺口插值与切分冲刷修复，02 按通告 004 晋升已验证的四个分片、五张图及相应生成审计，沿用既有读表路径。 [QN-001](quality_notice_001.md) · [采纳通告 004](quality_notice_004.md) · [成员 2 交接](handover/02_eda_and_spatiotemporal.md)
 
 ## 1 数据与空间单元
 
-- 只读输入 `data/haze_panel_clean.parquet` 为 966,677 行 × 35 列。SHA256 为 `97b5db123352861b6cd41224daf1ce278c90d6d528031b9bdc2744317a5ead93`。
+- 只读输入 `data/haze_panel_clean.parquet` 为 966,406 行 × 35 列。SHA256 为 `5cd7c1d3149147b85259bcf5d48dfda5a88d8cff7a42b4030ed2cb129e4a5bc6`。
 - 有效记录从 2022-08-04 08:00 至 2026-10-31 20:00。时钟采用 `Asia/Kuala_Lumpur`，输入落盘精度为 `timestamp[us]`。
 - 唯一键为 `station_id, timestamp`。节点注册表 `src/config.py::NODES` 包含 26 个模式采样坐标和角色，分为 3 个受体、10 个走廊和 13 个源区。样本坐标与实际模型网格中心需要区分。
 - 主训练和评价域为 `role == 'receptor'`，包含 KL_City、Port_Klang、Sepang。其余节点提供空间输入和泛化对照。序列差异及相关性在训练时刻计算，模式误差的独立性和地面代表性仍须验证。
@@ -18,12 +18,13 @@
 | 输入与字段定义 | `data/haze_panel_clean.parquet`、`data/data_dictionary.json`、`data/manifest.json` |
 | EDA、特征、存储 | `src/02_eda_analysis.py`、`src/02_spatiotemporal_features.py`、`src/stage2_storage.py` |
 | 正式输出 | `data/feat_spatiotemporal.parquet/part-*.parquet` |
+| 指纹登记 | `data/feature_manifest.json` |
 | 五张图 | `figures/fig_eda_diurnal_seasonal.png`、`figures/fig_eda_correlation_matrix.png`、`figures/fig_eda_class_imbalance.png`、`figures/fig_eda_wind_rose_pollution.png`、`figures/fig_eda_spatial_crosscorr.png` |
 | 英文章节 | `reports/sec2_3_and_2_4_1.md` |
 | 统计和验收 | `models/metrics_stage2_eda.json`、`models/metrics_stage2_features.json`、`models/metrics_stage2_verification.json` |
 | 测试和交接 | `tests/test_stage2_*.py`、`docs/handover/02_eda_and_spatiotemporal.md` |
 
-输出保留原字段、值、类型、行顺序、标签和分区。正式目录由四个有序 Zstandard 分片组成，单片不超过 50,000,000 字节。`pd.read_parquet("data/feat_spatiotemporal.parquet")` 读取完整逻辑表。契约为 966,677 行 × 98 列，35 个原始列加 63 个新增列。
+输出保留原字段、值、类型、行顺序、标签和分区。正式目录由四个有序 Zstandard 分片组成，单片不超过 50,000,000 字节。`pd.read_parquet("data/feat_spatiotemporal.parquet")` 读取完整逻辑表。正式表为 966,406 行 × 98 列，35 个原始列加 63 个新增列。四个分片依次为 250,000、250,000、250,000 和 216,406 行，总计 98,400,479 字节，目录清单摘要为 `e43cc67b643845e1f2236efdce10381a39d4e9676d14c6d07098e931b5a1b37e`。
 
 | 新增族 | 数量 | 定义 |
 |---|---:|---|
@@ -41,7 +42,15 @@
 
 ## 3 时间与防泄漏
 
-原时序切分为 train 676,884、val 145,054、test 144,739。节点内的每个分区单独重建完整小时网格。滞后按真实小时，PM2.5 滚动和趋势截至 `t`，结果只写回原行。插值及缺失标记的源行从新历史和空间聚合中屏蔽。缺历史留空，保持分区独立暖机。
+上游对整段不超过 3 小时的内部缺口插值，并在 train/val、val/test 边界剔除目标时间跨段的行。正式切分如下，合格受体数以 `src/config.py::PANEL_CONTRACT` 和 02 特征审计为准。
+
+| 分区 | 全网行数 | 受体行数 | 离线合格受体行数 |
+|---|---:|---:|---:|
+| train | 676,806 | 78,093 | 77,744 |
+| val | 144,976 | 16,728 | 16,647 |
+| test | 144,624 | 16,728 | 16,647 |
+
+节点内的每个分区单独重建完整小时网格。滞后按真实小时，PM2.5 滚动和趋势截至 `t`，结果只写回原行。插值及缺失标记的源行从新历史和空间聚合中屏蔽。缺历史留空，保持分区独立暖机。
 
 目标用同格点精确 `t+3h` 核对。`audit_model_eligible` 用于离线训练和评价筛样本，包含未来标签核对，线上可用性应独立按 `t` 时点核实。后续 CV 同一时刻的受体同折，并从训练折清除标签跨验证边界的行。填补、变换、FIG/FCM 和选择仅用本折训练数据拟合，最终测试集留给报告。
 
@@ -59,7 +68,7 @@
 
 五张图采用英文、300 dpi 及已登记文件名。图 1 为训练受体日内与季风分布，图 2 为训练安全标签的 Pearson/Spearman，图 3 为等级分布及分区和年份差异，图 4 为风向、风速、季风及受体差异，图 5 为按几何和角色预选配对的全时段 ±12 h 互相关。图 3、5 的全时段展示用于描述。
 
-正滞后 `k` 定义为 `corr(source(t−k), destination(t))`。另用同一预选配对在清洁训练样本上计算 ±48 h，分别核对近场 +2 至 +4 h 和远场 +18 至 +36 h。图表和报告以实测峰、样本数及去训练气候态后的结果为准。互相关峰说明时间关联。风权重、来源归属、旅行时间和因果关系各有独立的证据要求。
+正滞后 `k` 定义为 `corr(source(t−k), destination(t))`。另用同一预选配对在清洁训练样本上计算 ±48 h，分别核对近场 +2 至 +4 h 和远场 +18 至 +36 h。正式图及统计采用此前用同一面板生成的五张图和 EDA JSON。逐键复核中，受体测试类别分布和固定配对的峰值时刻与旧版一致。图表和报告以该版实测峰、样本数及去训练气候态后的结果为准。互相关峰说明时间关联。风权重、来源归属、旅行时间和因果关系各有独立的证据要求。
 
 `models/metrics_stage2_eda.json` 保留报告数字、图表哈希、配对元数据和关键峰值，文件上限 100,000 字节。曲线数组使用统一滞后轴，扩展诊断中的配对编号从零起，对应预选表。
 
@@ -77,6 +86,10 @@ python tools/verify_stage2.py
 
 `requirements-stage2.txt` 记录直接依赖，锁文件记录验收环境。生成器默认读取本地清洗表。替代输入用 `--input` 明确指定，风速单位不明确时使用 `--wind-speed-unit`。源代码 ZIP 可使用清洗输入重建并验收全部分片。
 
-特征审计记录输入 SHA256、脚本 SHA256 和 `output_parts`。目录摘要 `output_sha256` 对有序分片清单计算，各片的 SHA256、字节数和行数均可单独核对。生成统计的 `git_commit` 记录生成时的检出来源。`tools/package_stage2.py` 从 Git 检出目录导出固定提交，写 `SOURCE_COMMIT.txt` 和 `DELIVERY_MANIFEST.json`，解压后验证、重生成并核对每个分片及每张图。
+正式交付复用经逐键审计的四个分片、五张图、特征与 EDA 生成统计及对照审计。生成统计的 `git_commit` 为原计算使用的 02 源码提交 `2165c4cbe2965c49284f41214339ce187507c519`，正式晋升提交另查分支历史。原候选目录保留供追溯。 [逐键审计](../models/metrics_stage2_qc_review.json) · [历史候选](../data/candidate/stage2_qcfix/README.md)
+
+特征审计记录输入 SHA256、脚本 SHA256 和 `output_parts`。`data/feature_manifest.json` 的 `tables` 分别登记四个正式分片的文件 SHA256 和行数，供 01 指纹门禁直接读取。顶层 `stage2` 记录逻辑目录的 `path`、`input_sha256`、目录清单摘要 `sha256`、`rows` 和 `columns`。各片的哈希和逻辑目录摘要分别核对。`tools/package_stage2.py` 从 Git 检出目录导出固定提交，写 `SOURCE_COMMIT.txt` 和 `DELIVERY_MANIFEST.json`，解压后核验、重生成并对比分片和图。
+
+成员 3 应按新样本集合重建粒化和特征选择。共同合格的训练和验证受体的白名单值一致，但两段各少 9 个选样键。16,647 个共同合格测试受体的键和标签一致，四个远场字段发生变化，单列最多涉及 1,896 行，最大绝对差为 65.18 µg/m³。用独立目录输出新 03 特征，保留旧版模型已登记的输入指纹。 [采纳通告 004](quality_notice_004.md)
 
 可取得的 AIT201 作业说明副本未提供可核实的 C.2 原文。阶段命名依据 QN-001，正式课程材料按学生本人撰写和课程 §D 提交流程处理。02 工程包用于复现和下游交接。 [仓库审计](repository_audit_stage2.md)

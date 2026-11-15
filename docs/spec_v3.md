@@ -35,16 +35,19 @@ v2.0 是在开工前写的，那时数据还是"大吉隆坡 8 个监测站"的�
 | 模块 | 负责人 | 状态 | 证据位置 |
 |---|---|---|---|
 | 01 数据工程与基线 | 1 号 | ✅ 完成并已并入 `main` | `models/metrics_stage1.json`、`models/gate0_report.json` |
-| 02 EDA 与时空特征 | 2 号 | ✅ 已并入 `main`（8e7c847） | `models/metrics_stage2_eda.json`、`metrics_stage2_features.json`、`metrics_stage2_verification.json` |
-| 03 粒化与特征选择 | 3 号 | ✅ 已并入 `main`（b955a23） | `models/metrics_stage3.json`、`models/selected_features.json` |
-| 04 名义/平衡 RF 与提升 | 4 号 | ✅ 已并入 `main`（1e75e86） | `models/metrics_stage4.json`、三个 joblib、三张图 |
-| 05 两种保序范式 | 5 号 | ✅ 已并入 `main`（d90db26） | `models/metrics_stage5.json`、三个模型、两张图 |
-| 06 代价敏感与可解释性 | 6 号 | 🟡 已交付，闸门 3 项未过 | 缺 `all_models_benchmark.csv`；`cost_thresholds.json` 缺 `generated_at`/`git_commit`；改了 `.gitignore` |
-| 07 系统与报告 | 7 号 | ⬜ 未开工 | 分支 `feat/07-streamlit` 仍是空的 |
+| 02 EDA 与时空特征 | 2 号 | ✅ 已并入 `main`（8e7c847） | `models/metrics_stage2_*.json`、特征表分片 |
+| 03 粒化与特征选择 | 3 号 | ✅ 已并入 `main`（b955a23 / 775c4cc 补 12 段消融） | `metrics_stage3.json`、`selected_features*.json` |
+| 04 名义/平衡 RF 与提升 | 4 号 | ✅ 已并入 `main`（1e75e86） | `metrics_stage4.json`、三个 joblib |
+| 05 两种保序范式 | 5 号 | ✅ 已并入 `main`（d90db26，区间校准 f636324） | `metrics_stage5*.json`、区间记录 |
+| 06 代价敏感与可解释性 | 6 号 | ✅ 已并入 `main`（8e52e3d） | `cost_thresholds.json`、`all_models_benchmark.csv` |
+| 07 系统与报告 | 7 号（失联） | 🟡 已并入 `main`（5b77559）：看板与 §4 已交，**缺最终总报告** | `app.py`、`metrics_stage7.json`、`reports/sec4_system_and_demo.md` |
 
-**注意**：截至 2026-11-13，`main` 已包含 01~05 五个模块（按 02 → 03 → 04 → 05 顺序并入）。
-这条顺序不是形式：03 的 `git_commit` 记的是 02 的提交，04 和 05 的 `input_sha256.features_final` 记的都是 03 的产物哈希，
-04 的代码还要读 03 生成的 `data/features_final.parquet`，所以**跳序合并会让 main 上有代码没数据**。
+**截至 2026-11-15，`main` 含 01~07 全部模块**，合并顺序是 02 → 03 → 04 → 05 → 06 → 07。
+顺序不是形式：03 的 `git_commit` 记 02 的提交，04/05 的 `input_sha256.features_final` 记 03 的产物哈希，
+04 运行时直接读 03 生成的表——**跳序合并会让 main 上有代码没数据**。
+
+7 号（Claude）账号被封，`app.py` 与 §4 已并入且代码可运行，但最终总报告无人交付。
+这一项转由 1 号接管，见欠账 A7。
 
 ### 1.2 已有模型的成绩
 
@@ -548,12 +551,15 @@ git diff --stat origin/main...HEAD       # 确认没动别人的文件
 
 | 编号 | 事项 | 谁 | 为什么必须做 |
 |---|---|---|---|
-| A1 | M1 已按同口径重算 | 1 号 | 在 16,647 行上重算：Macro_F1 0.6658、高危召回 0.7675、MAOE 0.3199、代价 0.9047，**排序不变**。结果写进 `metrics_stage1.json` 的 `metrics_test_eligible`，主表用这一组，旧口径保留可追溯 |
-| A2 | 02 分支并入 main | 1 号 + 2 号 | 03/04 都卡在它后面 |
-| A3 | 03、04 依次并线 | 1 号 + 3/4 号 | 同上 |
-| A4 | 4 号补交接文档与报告章节 | 4 号 | 现在只有代码和产物，没有 `docs/handover/04_*.md`，也没有 `reports/sec2_5.md`。下一棒 5 号拿不到口径说明 |
-| A5 | 仓库体积 148 MB | 1 号 | Moodle 装不下，见 6.3。可以考虑清历史里的大文件，但要先备份 |
-| A6 | `PANEL_CONTRACT` 补登 02 的目录形态 | 1 号 | 3.2 节写了是目录，代码里还没断言 |
+| A1 | ✅ M1 已按同口径重算 | 1 号 | 16,647 行：Macro_F1 0.6658、高危召回 0.7675、代价 0.9047；旧口径留档 |
+| A2 | ✅ 02 已并入 main | 1 号 | 8e7c847 |
+| A3 | ✅ 03/04/05/06 已依次并线 | 1 号 | b955a23 / 1e75e86 / d90db26 / 8e52e3d |
+| A4 | ✅ 4 号交接与报告章节已补 | 4 号 | `docs/handover/04_*.md`、`reports/sec2_6_models.md` |
+| A5 | ✅ 仓库体积 | 1 号 | `.git` 约 190 MB，已确认这是仓库不是提交包；提交包见 A9 |
+| A6 | ✅ `PANEL_CONTRACT` 已补登 02 的目录形态 | 1 号 | verify_data 第 17 项按指纹校验 |
+| **A7** | **最终总报告 `reports/HazeGuard_KL_Demonstration_Report.md` 未产出** | **1 号** | 7 号失联，原定由她总成。现在只能由 1 号起草，材料见 `docs/report_evidence_index.md` |
+| **A8** | **看板只做过无头运行验证，没有视觉验收** | 1 号 | `AppTest` 跑通（0 异常、5 tab、17 表、8 卡），但没有逐页看图；`use_container_width` 已废弃，1.58 仍可用 |
+| **A9** | **提交包未实测 20 MB 上限** | 1 号 | `src/07_package_submission.py` 已并入但未跑；报告 PDF + README.txt + 源码 + json 要称重 |
 
 ---
 

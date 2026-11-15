@@ -27,7 +27,10 @@ ROOT = Path(__file__).resolve().parent.parent
 JSON_DIRS = [ROOT / "models", ROOT / "data"]
 REPORT_DIR = ROOT / "reports"
 
-NUM = re.compile(r"(?<![\w.])-?\d+\.\d{2,4}(?![\w])")
+# 报告里用 Unicode 负号（−, U+2212）而不是 ASCII 连字符，之前只认 "-"，
+# 于是 "−1.29" 被当成 "1.29"，和 json 里的 -1.29 对不上，误报成"查不到"。
+# 另外要排除版本号：3.12.14 里的 "3.12" 不是指标值，后面紧跟 ".数字" 时跳过。
+NUM = re.compile(r"(?<![\w.])([-\u2212])?(\d+\.\d{2,4})(?![\w])(?!\.\d)")
 
 
 def collect_json_numbers() -> dict[str, str]:
@@ -86,8 +89,9 @@ def scan(report: Path, facts: dict[str, str]) -> list[tuple[str, str]]:
                      if not ln.strip().startswith("```"))
     misses: list[tuple[str, str]] = []
     for m in NUM.finditer(body):
-        raw = m.group(0)
-        val = float(raw)
+        sign, digits = m.group(1), m.group(2)
+        raw = (sign or "") + digits
+        val = float(raw.replace("\u2212", "-"))
         # 百分数：报告写 93.60%，json 里存的是 0.9360
         tail = body[m.end():m.end() + 2].lstrip()
         is_pct = tail.startswith("%")

@@ -174,10 +174,15 @@ M5 把顺序交给回归的连续性，M6 把顺序写进三个累积二分类�
 | 04 名义 / 平衡 RF 与提升 | 4号 | ✅ 已并入 main | M2 / M3 / M4 |
 | 05 两种保序范式 | 5号 | ✅ 已并入 main | M5 / M6、区间带、跳级误差分布 |
 | 06 代价敏感与可解释性 | 6号 | ✅ 已并入 main | M7、置换重要性、PDP、ROC、泛化实验 |
-| 07 交互系统与报告 | 7号 | 🟡 进行中 | 看板已成型，还差最终报告 |
+| 07 交互系统与报告 | 7号（失联） | 🟡 已并入 main：看板与 §4 已交，**缺最终总报告** | `app.py`、`metrics_stage7.json`、`reports/sec4_system_and_demo.md` |
 
-**当前 main 上跑得通的东西**：`verify_data` 16/16、六份报告章节、六份交接文档、
-七个模型的 joblib 与指标 json、`all_models_benchmark.csv`。
+**当前 main 上跑得通的东西**：`verify_data` 17/17、七份报告章节、六份交接文档、
+七个模型的 joblib 与指标 json、11 列的 `all_models_benchmark.csv`、以及 Streamlit 看板。
+
+**缺的一样东西**：最终总报告 `reports/HazeGuard_KL_Demonstration_Report.md`。
+原定由 7 号总成，她账号被封后无人接，现由 1 号起草，材料索引在 `docs/report_evidence_index.md`。
+看板本身代码是完整的：用 `streamlit.testing.v1.AppTest` 无头跑过，0 异常、5 个标签页、
+17 张表、8 个指标卡都渲染出来；但没有做过逐页视觉验收。
 
 > 分工表里的"2~7 号"是仓库里的代号，提交前替换成真实姓名。
 >
@@ -228,12 +233,19 @@ python src/01_baseline_dt.py       # M1 基线（约 10 秒）
 ├── reports/                      报告章节（Markdown，英文）
 ├── docs/
 │   ├── spec_v3.md                阶段执行规范 v3.4（每个人交什么、怎么验收）
+│   ├── report_evidence_index.md  报告取数地图（结论 → 数字 → 出处）
+│   ├── project_log.md            项目日志（时间线、十个决策、返工记录）
 │   ├── quality_notice_001.md     质量通告（整改项与验收）
+│   ├── quality_notice_002.md     第二轮整改（钟点编码、邻域、接缝）
 │   ├── syllabus_coverage.md      课程周次对照
 │   ├── node_discovery.json       格点去重证据
 │   └── handover/                 交接文档
+├── app.py                        Streamlit 看板（只读，不改任何文件）
 ├── tools/discover_nodes.py       格点发现脚本
 ├── tools/check_prose.py          报告文字自查
+├── tools/check_merge_gate.py     合并闸门（十项）
+├── tools/check_report_numbers.py 报告数字溯源
+├── tools/check_run_seam.py       起报接缝诊断
 ├── CONTRIBUTING.md               协作规范（分工、分支、合并规矩）
 └── README.md
 ```

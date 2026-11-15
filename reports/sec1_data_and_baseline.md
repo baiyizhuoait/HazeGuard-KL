@@ -437,13 +437,16 @@ any added complexity is the persistence of the pollutant itself, not an empty mo
 **M1, one decision tree** [7]. Current-hour observations only: six pollutants, five
 meteorological variables, the two anomalies, three calendar variables and the wind sine
 and cosine pair, which is 18 columns. No lag, no rolling statistic, no spatial
-aggregation. Hyperparameters are chosen by `TimeSeriesSplit(n_splits=5)` grid search
-scored on macro-F1 over `max_depth` ∈ {3, 5, 7, 9, 12, none}, `min_samples_leaf` ∈ {5, 20,
-50, 100} and `criterion` ∈ {gini, entropy}, which is 48 configurations. The selected
-tree is `gini`, depth 9, minimum leaf 20, giving 385 leaves and a cross-validated
-macro-F1 of 0.6277. Training macro-F1 is 0.7013 against 0.6867 on validation, a gap of
-0.015, so the tree is not memorising the training set; what it cannot reach comes from
-the features.
+aggregation. The hyperparameters are `gini`, depth 9 and minimum leaf 20, carried over
+from the 48-configuration grid we searched on an earlier build. That search is not
+re-runnable as it stands: the grid used `TimeSeriesSplit(3)` on row order, which does not
+know about the three-hour label and let training rows sit after the validation window.
+Re-enabling it is tracked as KD-05, and the current script refuses the flag rather than
+silently producing a leaky number. What is reported instead is a five-fold estimate on
+unique timestamps, with the climatology refitted inside each fold: 0.6277, standard
+deviation 0.0107. The fitted tree has 385 leaves over the 77,744 eligible training rows.
+Its macro-F1 is 0.7005 on train against 0.6839 on validation, a gap of 0.0166, so it is
+not memorising the training set; what it cannot reach comes from the features.
 
 Results on the test split, receptor nodes, 16,647 rows of which 6,848 are high risk:
 
@@ -491,7 +494,7 @@ objective should produce.
 and `hour` for 18.1 %.*
 
 The importance profile says the tree is close to a persistence-plus-diurnal rule. `pm2_5`
-carries 66.7 % of the split mass and `hour` 18.1 %; `no2` (4.1 %) and `so2` (2.7 %) are
+carries 66.7 % of the split mass and `hour` 18.1 %; `no2` (4.2 %) and `so2` (2.7 %) are
 the only meteorological or secondary pollutants that register at all. That is consistent
 with the recall failure: the model has learned "tomorrow's air resembles today's air,
 adjusted for the time of day", and such a rule has no reason to shout.
@@ -500,9 +503,9 @@ Performance is also uneven across the three receptors, and the pattern is physic
 
 | Node | Macro-F1 | High-risk recall | Average cost | Level 3 share |
 |---|---|---|---|---|
-| KL_City | 0.6007 | **0.8078** | 1.0791 | 21.64 % |
-| Port_Klang | **0.6741** | 0.6724 | 0.6264 | 1.94 % |
-| Sepang | 0.6152 | 0.7615 | 0.9659 | 13.03 % |
+| KL_City | 0.6039 | **0.8032** | 1.1079 | 21.64 % |
+| Port_Klang | **0.6827** | 0.6724 | 0.6289 | 1.94 % |
+| Sepang | 0.6224 | 0.7628 | 0.9773 | 13.03 % |
 
 *M1 by receptor node. The cleanest node is the worst on recall.*
 

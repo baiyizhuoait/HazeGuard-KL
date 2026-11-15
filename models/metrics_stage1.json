@@ -37,18 +37,42 @@
     "diag_Level3_Recall": 0.6777
   },
   "metrics_persistence_M0_val": {
-    "Macro_F1": 0.6098,
-    "Balanced_Accuracy": 0.6099,
-    "High_Risk_Recall": 0.7056,
-    "MAOE": 0.3816,
-    "Severe_Jumping_Error_Rate": 0.0341,
-    "Avg_Asymmetric_Cost": 0.9291,
-    "n_samples": 16728,
-    "n_high_risk": 4888,
-    "diag_High_Risk_Exact_Recall": 0.4763,
-    "diag_Level3_Recall": 0.5431
+    "Macro_F1": 0.6094,
+    "Balanced_Accuracy": 0.6096,
+    "High_Risk_Recall": 0.7051,
+    "MAOE": 0.3813,
+    "Severe_Jumping_Error_Rate": 0.034,
+    "Avg_Asymmetric_Cost": 0.9271,
+    "n_samples": 16647,
+    "n_high_risk": 4842,
+    "diag_High_Risk_Exact_Recall": 0.4754,
+    "diag_Level3_Recall": 0.5425
   },
   "metrics_train": {
+    "Macro_F1": 0.7005,
+    "Balanced_Accuracy": 0.6834,
+    "High_Risk_Recall": 0.7678,
+    "MAOE": 0.2711,
+    "Severe_Jumping_Error_Rate": 0.0114,
+    "Avg_Asymmetric_Cost": 0.6856,
+    "n_samples": 77744,
+    "n_high_risk": 24181,
+    "diag_High_Risk_Exact_Recall": 0.5735,
+    "diag_Level3_Recall": 0.6376
+  },
+  "metrics_val": {
+    "Macro_F1": 0.6839,
+    "Balanced_Accuracy": 0.6665,
+    "High_Risk_Recall": 0.7433,
+    "MAOE": 0.2834,
+    "Severe_Jumping_Error_Rate": 0.0109,
+    "Avg_Asymmetric_Cost": 0.7109,
+    "n_samples": 16647,
+    "n_high_risk": 4842,
+    "diag_High_Risk_Exact_Recall": 0.5423,
+    "diag_Level3_Recall": 0.6202
+  },
+  "metrics_train_all_rows": {
     "Macro_F1": 0.7013,
     "Balanced_Accuracy": 0.6863,
     "High_Risk_Recall": 0.7741,
@@ -60,7 +84,7 @@
     "diag_High_Risk_Exact_Recall": 0.5781,
     "diag_Level3_Recall": 0.6586
   },
-  "metrics_val": {
+  "metrics_val_all_rows": {
     "Macro_F1": 0.6867,
     "Balanced_Accuracy": 0.6737,
     "High_Risk_Recall": 0.7473,
@@ -71,6 +95,30 @@
     "n_high_risk": 4888,
     "diag_High_Risk_Exact_Recall": 0.5497,
     "diag_Level3_Recall": 0.6712
+  },
+  "metrics_persistence_M0_val_all_rows": {
+    "Macro_F1": 0.6098,
+    "Balanced_Accuracy": 0.6099,
+    "High_Risk_Recall": 0.7056,
+    "MAOE": 0.3816,
+    "Severe_Jumping_Error_Rate": 0.0341,
+    "Avg_Asymmetric_Cost": 0.9291,
+    "n_samples": 16728,
+    "n_high_risk": 4888,
+    "diag_High_Risk_Exact_Recall": 0.4763,
+    "diag_Level3_Recall": 0.5431
+  },
+  "metrics_persistence_M0_test_all_rows": {
+    "Macro_F1": 0.6222,
+    "Balanced_Accuracy": 0.6222,
+    "High_Risk_Recall": 0.7752,
+    "MAOE": 0.393,
+    "Severe_Jumping_Error_Rate": 0.0375,
+    "Avg_Asymmetric_Cost": 0.9986,
+    "n_samples": 16728,
+    "n_high_risk": 6865,
+    "diag_High_Risk_Exact_Recall": 0.5576,
+    "diag_Level3_Recall": 0.6766
   },
   "per_node_test": {
     "KL_City": {
@@ -136,7 +184,7 @@
     "min_support": 30
   },
   "split_protocol": "outer split assigned by label timestamp (t+3h)",
-  "overfit_gap_train_minus_val": 0.0146,
+  "overfit_gap_train_minus_val": 0.0166,
   "features": [
     "pm2_5",
     "pm10",
@@ -159,7 +207,7 @@
   ],
   "n_features": 18,
   "n_train": 77744,
-  "n_val": 16728,
+  "n_val": 16647,
   "n_test": 16647,
   "class_distribution_train": {
     "0": 14472,
@@ -203,14 +251,14 @@
   "panel_sha256": "5cd7c1d3149147b85259bcf5d48dfda5a88d8cff7a42b4030ed2cb129e4a5bc6",
   "model_path": "models\\baseline_dt.joblib",
   "model_file_sha256": "9bc0138ef34e1dc26059d28c411d7cde91bb4c605aac52bbb9e75576a91789dc",
-  "trained_at": "2026-11-15T15:40:05+00:00",
+  "trained_at": "2026-11-15T15:53:05+00:00",
   "train_universe": "receptor nodes only (KL_City, Port_Klang, Sepang)",
   "train_universe_note": "主实验统一只在 3 个受体节点上训练与验证；23 个走廊/源区节点只作特征输入与泛化实验对照",
   "metric_version": "High_Risk_Recall = P(ŷ∈{2,3} | y∈{2,3})，诊断项 diag_* 不参与横向排序",
   "evaluation_status": "post-fix re-evaluation",
   "test_previously_viewed": true,
   "evaluation_note": "插值规则与切分修复后重评。测试集此前已查看过一次，本次结果不构成「从未看过测试集」的声明；超参数沿用修复前选择，未按测试表现调整。",
-  "elapsed_sec": 2.7,
+  "elapsed_sec": 2.8,
   "eligibility": {
     "source": "D:\\Projects\\HazeGuard-KL\\data\\feat_spatiotemporal.parquet",
     "fit_rows": 77744,

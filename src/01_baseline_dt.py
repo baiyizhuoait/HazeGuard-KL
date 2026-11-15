@@ -238,12 +238,16 @@ def main() -> None:
     m_va_all = UM.evaluate_predictions(y_va, model_all.predict(X_va))
     m_te_all = UM.evaluate_predictions(y_te, model_all.predict(X_te))
     print(f"      train {m_tr_all['Macro_F1']:.4f}  val {m_va_all['Macro_F1']:.4f}  "
-          f"gap {m_tr_all['Macro_F1'] - m_va_all['Macro_F1']:.4f}")
+          f"gap {m_tr_all['Macro_F1'] - m_va_all['Macro_F1']:.4f}（全受体行，对照用）")
 
     # ---- 主表口径：给了 02 特征表就按可建模行重训，若否则用全受体行 ----
     primary, primary_role = model_all, "all_receptor_rows"
     X_p, y_p, d_p = X_te, y_te, d[tem].reset_index(drop=True)
     key_tr, key_te = trm, tem
+    # 主表口径的 train/val 视图：默认是全受体行，给 --eligibility 后与 metrics 同对象
+    X_p_tr, y_p_tr = X_tr, y_tr
+    X_p_va, y_p_va = X_va, y_va
+    d_p_va = d[vam].reset_index(drop=True)
     elig_info = None
     if args.eligibility:
         keys = pd.read_parquet(args.eligibility,
@@ -258,6 +262,10 @@ def main() -> None:
             X_e[tr_e], y_e[tr_e])
         primary, primary_role = model_e, "eligible_rows"
         X_p, y_p, d_p = X_e[te_e].reset_index(drop=True), y_e[te_e], d_e[te_e].reset_index(drop=True)
+        va_e = (d_e["split"] == "val").to_numpy()
+        X_p_tr, y_p_tr = X_e[tr_e], y_e[tr_e]
+        X_p_va, y_p_va = X_e[va_e], y_e[va_e]
+        d_p_va = d_e[va_e].reset_index(drop=True)
         key_tr, key_te = tr_e, te_e
         p_e = model_e.predict(X_e[te_e])
         p_a = model_all.predict(X_e[te_e])          # 同一批测试键，全行模型
@@ -286,9 +294,18 @@ def main() -> None:
           "  ".join(f"{k}={v['Macro_F1']:.3f}" for k, v in per_node.items()))
 
     m0_te = UM.evaluate_predictions(y_p, _level_from_pm25(d_p["pm2_5"].to_numpy()))
-    m0_va = UM.evaluate_predictions(
+    m0_va = UM.evaluate_predictions(y_p_va, _level_from_pm25(d_p_va["pm2_5"].to_numpy()))
+    m0_va_all = UM.evaluate_predictions(
         y_va, _level_from_pm25(d.loc[vam, "pm2_5"].to_numpy()))
+    m0_te_all = UM.evaluate_predictions(
+        y_te, _level_from_pm25(d.loc[tem, "pm2_5"].to_numpy()))
     UM.print_metrics(m0_te, "M0 Persistence · test")
+
+    # 主表口径的 train/val：同一个模型对象，不跟全行模型混在一份文件里
+    m_tr = UM.evaluate_predictions(y_p_tr, primary.predict(X_p_tr))
+    m_va = UM.evaluate_predictions(y_p_va, primary.predict(X_p_va))
+    print(f"      主表口径 train {m_tr['Macro_F1']:.4f} / val {m_va['Macro_F1']:.4f} "
+          f"（n={m_tr['n_samples']:,}/{m_va['n_samples']:,}）")
 
     print("")
     print("      对照（test）      M0 持续性   M1 决策树   差值")
@@ -344,8 +361,12 @@ def main() -> None:
             "Severe_Jumping_Error_Rate", "Avg_Asymmetric_Cost", "n_samples", "n_high_risk")},
         "metrics_persistence_M0_test": m0_te,
         "metrics_persistence_M0_val": m0_va,
-        "metrics_train": m_tr_all,
-        "metrics_val": m_va_all,
+        "metrics_train": m_tr,
+        "metrics_val": m_va,
+        "metrics_train_all_rows": m_tr_all,
+        "metrics_val_all_rows": m_va_all,
+        "metrics_persistence_M0_val_all_rows": m0_va_all,
+        "metrics_persistence_M0_test_all_rows": m0_te_all,
         "per_node_test": per_node,
         "best_params": fixed,
         "params_source": "fixed a priori (carried over from the pre-fix run); search disabled",
@@ -359,11 +380,11 @@ def main() -> None:
                        "cells": int(len(look)), "sha256": preprocess_sha,
                        "min_support": C.MIN_BASELINE_SUPPORT},
         "split_protocol": "outer split assigned by label timestamp (t+3h)",
-        "overfit_gap_train_minus_val": round(float(m_tr_all["Macro_F1"] - m_va_all["Macro_F1"]), 4),
+        "overfit_gap_train_minus_val": round(float(m_tr["Macro_F1"] - m_va["Macro_F1"]), 4),
         "features": feats,
         "n_features": len(feats),
         "n_train": int(key_tr.sum()),
-        "n_val": int(vam.sum()),
+        "n_val": int(len(y_p_va)),
         "n_test": int(key_te.sum()),
         "class_distribution_train": {str(k): int(v) for k, v in pd.Series(y_fit).value_counts().sort_index().items()},
         "class_distribution_test": {str(k): int(v) for k, v in pd.Series(y_p).value_counts().sort_index().items()},

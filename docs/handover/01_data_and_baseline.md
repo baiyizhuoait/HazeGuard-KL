@@ -44,14 +44,17 @@ assert m["sha256"] == hashlib.sha256(open("data/haze_panel_clean.parquet","rb").
 
 | 文件 | 内容 |
 |---|---|
-| `models/baseline_dt.joblib` | dict，键 `model`（模型对象）/ `features`（特征名列表） |
-| `models/metrics_stage1.json` | 六指标 + 超参 + 分节点结果 + 类别分布 |
+| `models/baseline_dt.joblib` | dict，键 `schema` / `model` / `features` / `preprocess`（气候态表 + sha256）/ `trained_on`（`eligible_rows`）。**这是出主表指标的那个模型**，换面板或换预处理时 `trained_on` 会变，别当常量用 |
+| `models/baseline_dt_allrows.joblib` | 同一套超参、只在全受体行（78,093）上训练的对照模型，用来解释可建模行筛掉了什么 |
+| `models/metrics_stage1.json` | 六指标 + 超参 + 分节点结果 + 类别分布。**主表字段（`metrics` / `metrics_train` / `metrics_val` / `per_node_test` / `n_*`）统一属于 `baseline_dt.joblib` 这一个对象；全受体行的一组另存为 `*_all_rows`** |
 | `models/gate0_report.json` | 四项数据可行性闸门 |
 | `models/cleaning_report.json` | 清洗计数、QC 计数、逐节点完整性 |
 
 ### 基线成绩（test 段，只取受体节点，n = 16,728，其中高危 6,865）
 
-> 注：与 M2~M7 同口径的版本（n=16,647）在 `metrics_stage1.json` 的 `metrics_test_eligible`，主表用那一组。
+> 注：与 M2~M7 同口径的版本（n=16,647）是 `metrics_test_eligible`，主表用那一组；
+> 下表是全受体行（n=16,728）的对照，字段是 `metrics_test_all_rows` 与
+> `metrics_persistence_M0_test_all_rows`。
 
 | 指标 | M0 纯持续性 | M1 决策树 |
 |---|---|---|

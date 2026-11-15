@@ -1,11 +1,11 @@
 {
   "dataset": "haze_panel_clean",
-  "generated_at": "2026-11-10T00:21:50",
-  "git_commit": "2cd57c5",
+  "generated_at": "2026-11-15T20:39:26",
+  "git_commit": "ee58208",
   "path": "data/haze_panel_clean.parquet",
-  "sha256": "97b5db123352861b6cd41224daf1ce278c90d6d528031b9bdc2744317a5ead93",
-  "bytes": 25057369,
-  "rows": 966677,
+  "sha256": "5cd7c1d3149147b85259bcf5d48dfda5a88d8cff7a42b4030ed2cb129e4a5bc6",
+  "bytes": 25005421,
+  "rows": 966406,
   "columns": [
     "station_id",
     "timestamp",
@@ -83,25 +83,125 @@
     "2026-10-31 20:00:00"
   ],
   "split_rows": {
-    "train": 676884,
-    "val": 145054,
-    "test": 144739
+    "train": 676806,
+    "val": 144976,
+    "test": 144624
   },
   "qc_counts": {
     "qc_pm25_gt_pm10": 303,
     "qc_censored": 4,
-    "qc_calm_wind": 48621,
-    "qc_interpolated": 356
+    "qc_calm_wind": 48598,
+    "qc_interpolated": 182
   },
   "time_axis_holes": {
+    "Alor_Setar": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Banda_Aceh": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Banjarmasin": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Bengkulu": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Bintulu": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Dumai": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Ipoh": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Jambi": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Johor_Bahru": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "KL_City": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Kota_Bharu": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Kuala_Terengganu": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Kuantan": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Kuching": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Malacca": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Medan": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Padang": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
     "Palangkaraya": {
-      "n_holes": 44,
-      "max_step_h": 19.0
+      "n_holes": 36,
+      "max_step_h": 22.0
+    },
+    "Palembang": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Pekanbaru": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Penang": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Pontianak": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Port_Klang": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Sepang": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Seremban": {
+      "n_holes": 2,
+      "max_step_h": 4.0
+    },
+    "Temerloh": {
+      "n_holes": 2,
+      "max_step_h": 4.0
     }
   },
   "verification": {
-    "passed": 16,
-    "total": 16,
+    "passed": 17,
+    "total": 17,
     "all_passed": true,
     "results": [
       {
@@ -132,7 +232,7 @@
       {
         "check": "四级标签与阈值一致",
         "pass": true,
-        "detail": "966,677 行全部匹配 [15,35,55]"
+        "detail": "966,406 行全部匹配 [15,35,55]"
       },
       {
         "check": "target_pm25_3h = 3 小时后的 pm2_5",
@@ -142,7 +242,7 @@
       {
         "check": "基线未泄露（可用 train 重算复现）",
         "pass": true,
-        "detail": "966,677 行全部可复现"
+        "detail": "966,406 行全部可复现"
       },
       {
         "check": "受体 Level 3 占比 ≥ 1%",
@@ -152,22 +252,27 @@
       {
         "check": "质量标记列齐全",
         "pass": true,
-        "detail": "{'qc_pm25_gt_pm10': 303, 'qc_censored': 4, 'qc_calm_wind': 48621, 'qc_interpolated': 356}"
+        "detail": "{'qc_pm25_gt_pm10': 303, 'qc_censored': 4, 'qc_calm_wind': 48598, 'qc_interpolated': 182}"
       },
       {
         "check": "契约：面板行数/列数/节点数",
         "pass": true,
-        "detail": "966,677×35，26 节点"
+        "detail": "966,406×35，26 节点"
       },
       {
         "check": "契约：受体三段行数",
         "pass": true,
-        "detail": "train/val/test = 78,102/16,737/16,728"
+        "detail": "train/val/test = 78,093/16,728/16,728"
       },
       {
         "check": "dtype：timestamp 为 datetime64",
         "pass": true,
         "detail": "实际 datetime64[us]"
+      },
+      {
+        "check": "契约：特征表指纹",
+        "pass": true,
+        "detail": "2 份特征表与登记一致"
       },
       {
         "check": "体积：data/*.parquet ≤ 50MB 且非 LFS 指针",

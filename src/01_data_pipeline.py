@@ -554,8 +554,8 @@ def _dictionary(g0: dict) -> dict:
         },
         "key_columns": {
             "station_id": "CAMS 空间单元 ID（非行政站点，同格点已归并）",
-            "split": "train/val/test，按每节点时间跨度 70/15/15 顺序切分，无 shuffle",
-            "b_proto_pm25": "气候态基线，仅用 train 段按 (station,month,hour) 统计",
+            "split": "train/val/test，按每节点时间跨度 70/15/15 顺序切分，无 shuffle；边界 3 小时做标签冲刷（越界行剔除）",
+            "b_proto_pm25": "气候态基线，仅用 train 段按 (station,month,hour) 统计（切分冲刷后重算）",
             "pm2_5_anomaly": "pm2_5 - b_proto_pm25，去季节与日周期背景",
             "target_pm25_3h": "t+3h 的 PM2.5 浓度，groupby(station).shift(-3) 构造",
             "target_level_3h": "四级有序标签，阈值 [15,35,55]",

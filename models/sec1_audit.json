@@ -1,9 +1,9 @@
 {
- "generated_at": "2026-11-15T06:37:25+00:00",
- "git_commit": "1f33ffe9c6bfb27d8a9c5287962c0bdcbdec671c",
+ "generated_at": "2026-11-15T12:38:49+00:00",
+ "git_commit": "ee58208caabc66b861f13b6cadba5d2a0bc736dd",
  "scope": "sections 1, 2.1, 2.2 of the group report",
  "panel": {
-  "rows": 966677,
+  "rows": 966406,
   "columns": 35,
   "nodes": 26,
   "months": 51,
@@ -14,43 +14,43 @@
   "rows_fetched": 969072,
   "leading_block_trimmed": 2080,
   "rows_after_trim": 966992,
-  "rows_dropped_no_target": 226,
-  "rows_dropped_no_anchor": 89,
-  "rows_final": 966677,
-  "retention_pct": 99.75,
-  "interpolated_cells": 656,
-  "rows_interpolated": 486,
-  "rows_still_missing": 277,
+  "rows_dropped_no_target": 328,
+  "rows_dropped_no_anchor": 102,
+  "rows_final": 966406,
+  "retention_pct": 99.72,
+  "interpolated_cells": 299,
+  "rows_interpolated": 264,
+  "rows_still_missing": 489,
   "duplicates_removed": 0,
   "grid_rows_added": 0
  },
  "splits": {
   "train": {
-   "rows": 676884,
-   "receptor_rows": 78102,
+   "rows": 676806,
+   "receptor_rows": 78093,
    "start": "2022-08-04 08:00:00",
-   "end": "2025-07-24 01:00:00"
+   "end": "2025-07-23 22:00:00"
   },
   "val": {
-   "rows": 145054,
-   "receptor_rows": 16737,
+   "rows": 144976,
+   "receptor_rows": 16728,
    "start": "2025-07-24 02:00:00",
-   "end": "2026-03-13 12:00:00"
+   "end": "2026-03-13 09:00:00"
   },
   "test": {
-   "rows": 144739,
+   "rows": 144624,
    "receptor_rows": 16728,
    "start": "2026-03-13 13:00:00",
    "end": "2026-10-31 20:00:00"
   }
  },
  "receptor_split": {
-  "train": 78102,
-  "val": 16737,
+  "train": 78093,
+  "val": 16728,
   "test": 16728,
   "test_eligible": 16647,
-  "val_eligible": 16656,
-  "train_eligible": 77753
+  "val_eligible": 16647,
+  "train_eligible": 77744
  },
  "nodes": [
   {
@@ -59,7 +59,7 @@
    "region": "KL",
    "lat": 3.107,
    "lon": 101.726,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 40.29,
    "level3_share_pct": 21.64
   },
@@ -69,7 +69,7 @@
    "region": "KL",
    "lat": 3.0,
    "lon": 101.392,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 20.81,
    "level3_share_pct": 1.94
   },
@@ -79,7 +79,7 @@
    "region": "KL",
    "lat": 2.828,
    "lon": 101.703,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 34.07,
    "level3_share_pct": 13.03
   },
@@ -89,7 +89,7 @@
    "region": "Peninsula",
    "lat": 2.729,
    "lon": 101.938,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 19.63,
    "level3_share_pct": 2.29
   },
@@ -99,7 +99,7 @@
    "region": "Peninsula",
    "lat": 2.189,
    "lon": 102.25,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 13.76,
    "level3_share_pct": 1.27
   },
@@ -109,7 +109,7 @@
    "region": "Peninsula",
    "lat": 1.492,
    "lon": 103.741,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 20.67,
    "level3_share_pct": 2.86
   },
@@ -119,7 +119,7 @@
    "region": "Peninsula",
    "lat": 3.807,
    "lon": 103.326,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 11.41,
    "level3_share_pct": 0.46
   },
@@ -129,7 +129,7 @@
    "region": "Peninsula",
    "lat": 3.45,
    "lon": 102.417,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 14.23,
    "level3_share_pct": 0.81
   },
@@ -139,7 +139,7 @@
    "region": "Peninsula",
    "lat": 6.125,
    "lon": 102.238,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 12.88,
    "level3_share_pct": 0.06
   },
@@ -149,7 +149,7 @@
    "region": "Peninsula",
    "lat": 5.33,
    "lon": 103.14,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 12.67,
    "level3_share_pct": 0.14
   },
@@ -159,7 +159,7 @@
    "region": "Peninsula",
    "lat": 5.414,
    "lon": 100.329,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 18.11,
    "level3_share_pct": 0.64
   },
@@ -169,7 +169,7 @@
    "region": "Peninsula",
    "lat": 6.118,
    "lon": 100.368,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 14.64,
    "level3_share_pct": 0.32
   },
@@ -179,7 +179,7 @@
    "region": "Peninsula",
    "lat": 4.597,
    "lon": 101.09,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 16.1,
    "level3_share_pct": 0.87
   },
@@ -189,7 +189,7 @@
    "region": "Sumatra",
    "lat": 5.548,
    "lon": 95.324,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 10.8,
    "level3_share_pct": 0.04
   },
@@ -199,7 +199,7 @@
    "region": "Sumatra",
    "lat": 3.595,
    "lon": 98.672,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 30.96,
    "level3_share_pct": 8.09
   },
@@ -209,7 +209,7 @@
    "region": "Sumatra",
    "lat": 1.666,
    "lon": 101.45,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 18.86,
    "level3_share_pct": 4.35
   },
@@ -219,7 +219,7 @@
    "region": "Sumatra",
    "lat": 0.507,
    "lon": 101.447,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 20.22,
    "level3_share_pct": 3.27
   },
@@ -229,7 +229,7 @@
    "region": "Sumatra",
    "lat": -0.949,
    "lon": 100.354,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 16.55,
    "level3_share_pct": 1.12
   },
@@ -239,9 +239,9 @@
    "region": "Sumatra",
    "lat": -1.61,
    "lon": 103.613,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 18.38,
-   "level3_share_pct": 3.27
+   "level3_share_pct": 3.26
   },
   {
    "id": "Palembang",
@@ -249,7 +249,7 @@
    "region": "Sumatra",
    "lat": -2.976,
    "lon": 104.775,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 18.85,
    "level3_share_pct": 3.43
   },
@@ -259,7 +259,7 @@
    "region": "Sumatra",
    "lat": -3.8,
    "lon": 102.265,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 9.98,
    "level3_share_pct": 0.0
   },
@@ -269,7 +269,7 @@
    "region": "Borneo",
    "lat": -0.026,
    "lon": 109.342,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 19.06,
    "level3_share_pct": 5.42
   },
@@ -279,9 +279,9 @@
    "region": "Borneo",
    "lat": -2.209,
    "lon": 113.917,
-   "rows": 36952,
-   "mean_pm25": 27.52,
-   "level3_share_pct": 6.87
+   "rows": 36831,
+   "mean_pm25": 25.85,
+   "level3_share_pct": 6.58
   },
   {
    "id": "Banjarmasin",
@@ -289,7 +289,7 @@
    "region": "Borneo",
    "lat": -3.319,
    "lon": 114.59,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 15.28,
    "level3_share_pct": 1.85
   },
@@ -299,9 +299,9 @@
    "region": "Borneo",
    "lat": 1.553,
    "lon": 110.359,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 17.13,
-   "level3_share_pct": 2.84
+   "level3_share_pct": 2.85
   },
   {
    "id": "Bintulu",
@@ -309,7 +309,7 @@
    "region": "Borneo",
    "lat": 3.171,
    "lon": 113.041,
-   "rows": 37189,
+   "rows": 37183,
    "mean_pm25": 10.51,
    "level3_share_pct": 0.65
   }
@@ -363,7 +363,7 @@
   "level_distribution_train": {
    "0": 0.1854,
    "1": 0.5029,
-   "2": 0.2005,
+   "2": 0.2004,
    "3": 0.1113
   },
   "level_distribution_test": {
@@ -439,8 +439,8 @@
    "max_depth": 9,
    "min_samples_leaf": 20
   },
-  "m1_cv_macro_f1": 0.6315,
-  "m1_train_macro_f1": 0.7017,
+  "m1_cv_macro_f1": 0.6281,
+  "m1_train_macro_f1": 0.7013,
   "m1_val_macro_f1": 0.6867,
   "m1_leaves": 384
  },

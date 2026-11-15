@@ -153,8 +153,8 @@ M4 在 val 的 Macro-F1 是 0.7236（三个模型里最高），MAOE 和跳级�
 
 | 口径 | 数值 | 用途 |
 |---|---|---|
-| 面板总行数 | 966,677 × 35 列，26 节点 | 数据完整性校验 |
-| 受体三段行数 | train 78,102 / val 16,737 / test 16,728 | 面板契约（`PANEL_CONTRACT`） |
+| 面板总行数 | 966,406 × 35 列，26 节点 | 数据完整性校验 |
+| 受体三段行数 | train 78,093 / val 16,728 / test 16,728 | 面板契约（`PANEL_CONTRACT`） |
 | **可建模行数** | **train 77,753 / val 16,656 / test 16,647** | **模型训练与评估，一律用这组** |
 
 差值是 02 用 `audit_model_eligible` 筛掉的（349 / 81 / 81 行）。`PANEL_CONTRACT` 里两套都已登记：`receptor_*_rows` 和 `receptor_*_eligible_rows`。

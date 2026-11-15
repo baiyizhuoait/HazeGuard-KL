@@ -93,8 +93,8 @@ AIT201 Applied Machine Learning · 2026/09 · 小组项目
 
 ### 数据规模
 
-- **966,677 行 × 35 列**，`data/haze_panel_clean.parquet`（25 MB）
-- 切分：train 676,884 / val 145,054 / test 144,739（逐节点按时间 70/15/15，**绝不 shuffle**）
+- **966,406 行 × 35 列**，`data/haze_panel_clean.parquet`（25 MB）
+- 切分：train 676,806 / val 144,976 / test 144,624（逐节点按时间 70/15/15，边界 3 小时冲刷，**绝不 shuffle**）
 - 全部字段口径见 `data/data_dictionary.json`，完整性清单见 `data/manifest.json`
 
 ### 测试集里有一段持续的高浓度时期
@@ -221,7 +221,7 @@ python src/01_baseline_dt.py       # M1 基线（约 10 秒）
 │   ├── 01_verify_data.py         完整性校验 + 生成 manifest（16 项）
 │   └── utils_metrics.py          六指标唯一实现
 ├── data/
-│   ├── haze_panel_clean.parquet  966,677 × 35
+│   ├── haze_panel_clean.parquet  966,406 × 35
 │   ├── manifest.json             SHA256 + 校验结果
 │   └── data_dictionary.json      字段口径
 ├── models/

@@ -142,6 +142,8 @@ def main() -> None:
     ap.add_argument("--out-dir", default=None, help="产物写到指定目录，默认写 models/ 与 figures/")
     ap.add_argument("--fixed-params", action="store_true",
                     help="不重新搜索超参数，沿用修复前选出的 gini / depth 9 / leaf 20")
+    ap.add_argument("--eligibility", default=None,
+                    help="可选：02 的特征表，提供 audit_model_eligible；给出时额外算主表口径（可建模行）")
     args = ap.parse_args()
 
     model_dir = C.MODEL_DIR if args.out_dir is None else os.path.join(args.out_dir, "models")
@@ -318,6 +320,28 @@ def main() -> None:
                             "超参数沿用修复前选择，未按测试表现调整。"),
         "elapsed_sec": round(time.time() - t_start, 1),
     }
+    if args.eligibility:
+        keys = pd.read_parquet(args.eligibility,
+                               columns=["station_id", "timestamp", "audit_model_eligible"])
+        keys["timestamp"] = pd.to_datetime(keys["timestamp"])
+        merged = d.merge(keys, on=["station_id", "timestamp"], how="left")
+        keep = merged["audit_model_eligible"].fillna(False).to_numpy()
+        d_e = d[keep].reset_index(drop=True)
+        X_e = X[keep].reset_index(drop=True)
+        y_e = y[keep].reset_index(drop=True)
+        tr_e = (d_e["split"] == "train").to_numpy()
+        te_e = (d_e["split"] == "test").to_numpy()
+        model_e = DecisionTreeClassifier(random_state=C.RANDOM_STATE, **best_params).fit(
+            X_e[tr_e].astype(float), y_e[tr_e])
+        m_e = UM.evaluate_predictions(y_e[te_e], model_e.predict(X_e[te_e].astype(float)))
+        payload["metrics_test_eligible"] = m_e
+        payload["eligible_fit_rows"] = int(tr_e.sum())
+        payload["eligible_test_rows"] = int(te_e.sum())
+        payload["eligibility_source"] = os.path.abspath(args.eligibility)
+        payload["eligible_rows_note"] = (
+            "02 的候选特征表把 train/val 各 9 条共同键判为不合格（77,753/16,656 → 77,744/16,647），"
+            "在这些键上重训后六项指标与逐行预测均不变（0/16,647）；02 正式表落地后用同一命令重跑即可覆盖本块。")
+
     UM.save_metrics(payload, os.path.join(model_dir, "metrics_stage1.json"))
 
     _plot_confusion(y_te, y_te_pred, fig_dir)

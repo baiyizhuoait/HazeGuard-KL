@@ -38,9 +38,9 @@
 
 | 事实 | 数值 | 出处 |
 |---|---|---|
-| 面板规模 | 966,677 行 × 35 列，26 个格点 | `models/cleaning_report.json → rows_final / columns / n_nodes` |
+| 面板规模 | 966,406 行 × 35 列，26 个格点 | `models/cleaning_report.json → rows_final / columns / n_nodes` |
 | 时间范围 | 2022-08-01 → 2026-10-31（51 个月） | `data/manifest.json → date_range` |
-| 切分 | train 676,884 / val 145,054 / test 144,739 | `models/gate0_report.json → split_rows` |
+| 切分 | train 676,806 / val 144,976 / test 144,624 | `models/gate0_report.json → split_rows` |
 | 受体三级占比 | 12.21%（全面板 3.37%） | `gate0_report.json → G0-2_level3_share` |
 | 质控标记 | PM2.5>PM10 303 行；截断 4 行；静风 48,641 行；插值 486 行；仍缺 277 行 | `cleaning_report.json → qc_counts` |
 | 起报接缝（全网） | 3.45 倍（5.82 vs 1.69 µg/m³，26 节点） | `seam_report.json → panel` |

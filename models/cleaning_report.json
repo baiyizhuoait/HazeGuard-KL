@@ -1,7 +1,7 @@
 {
   "duplicates_removed": 0,
   "grid_rows_added": 0,
-  "interpolated_cells": 656,
+  "interpolated_cells": 299,
   "out_of_bounds": {
     "pm2_5": 0,
     "pm10": 0,
@@ -42,7 +42,7 @@
     "Bintulu": 0
   },
   "rows_total": 966992,
-  "rows_with_missing": 277,
+  "rows_with_missing": 489,
   "rows_fetched": 969072,
   "per_node": {
     "KL_City": 37192,
@@ -73,22 +73,24 @@
     "Bintulu": 37192
   },
   "leading_block_trimmed": 2080,
-  "rows_interpolated": 486,
+  "rows_interpolated": 264,
+  "gap_rule": "fill only interior runs with length <= 3h",
   "baseline_low_support_cells": 0,
   "baseline_total_cells": 7488,
-  "baseline_min_support": 85,
+  "baseline_min_support": 84,
   "qc_counts": {
     "pm25_gt_pm10": 303,
     "censored": 4,
     "calm_wind": 48641,
-    "interpolated": 486,
-    "missing": 277
+    "interpolated": 264,
+    "missing": 489
   },
-  "rows_dropped_no_target": 226,
-  "rows_dropped_no_anchor": 89,
-  "generated_at": "2026-11-07T17:50:46",
+  "rows_dropped_split_purge": 156,
+  "rows_dropped_no_target": 328,
+  "rows_dropped_no_anchor": 102,
+  "generated_at": "2026-11-15T20:38:19",
   "n_nodes": 26,
-  "rows_final": 966677,
+  "rows_final": 966406,
   "columns": [
     "station_id",
     "timestamp",
@@ -286,182 +288,182 @@
   ],
   "node_completeness": {
     "Alor_Setar": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.0,
       "pm25_min": 0.1,
       "pm25_max": 84.5
     },
     "Banda_Aceh": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 2.7e-05,
       "pm25_min": 0.4,
       "pm25_max": 71.7
     },
     "Banjarmasin": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 5.4e-05,
       "pm25_min": 0.5,
       "pm25_max": 899.7
     },
     "Bengkulu": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.0,
       "pm25_min": 0.5,
       "pm25_max": 53.6
     },
     "Bintulu": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.0,
       "pm25_min": 0.0,
       "pm25_max": 183.9
     },
     "Dumai": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.000215,
       "pm25_min": 0.3,
       "pm25_max": 888.5
     },
     "Ipoh": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 5.4e-05,
       "pm25_min": 0.1,
       "pm25_max": 158.8
     },
     "Jambi": {
-      "rows": 37189,
-      "missing_rate": 0.000457,
-      "interpolated_rate": 0.000914,
+      "rows": 37183,
+      "missing_rate": 0.001049,
+      "interpolated_rate": 0.000269,
       "pm25_min": 0.1,
       "pm25_max": 480.6
     },
     "Johor_Bahru": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.000108,
       "pm25_min": 0.5,
       "pm25_max": 176.0
     },
     "KL_City": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.000511,
       "pm25_min": 0.6,
       "pm25_max": 224.0
     },
     "Kota_Bharu": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.0,
       "pm25_min": 0.0,
       "pm25_max": 77.1
     },
     "Kuala_Terengganu": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.0,
       "pm25_min": 0.1,
       "pm25_max": 94.5
     },
     "Kuantan": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.0,
       "pm25_min": 0.1,
       "pm25_max": 102.2
     },
     "Kuching": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.0,
       "pm25_min": 0.5,
       "pm25_max": 357.6
     },
     "Malacca": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 5.4e-05,
       "pm25_min": 0.0,
       "pm25_max": 173.2
     },
     "Medan": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 2.7e-05,
       "pm25_min": 0.6,
       "pm25_max": 165.8
     },
     "Padang": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.0,
       "pm25_min": 0.4,
       "pm25_max": 178.8
     },
     "Palangkaraya": {
-      "rows": 36952,
-      "missing_rate": 0.001867,
-      "interpolated_rate": 0.006495,
+      "rows": 36831,
+      "missing_rate": 0.003095,
+      "interpolated_rate": 0.003014,
       "pm25_min": 0.0,
       "pm25_max": 899.7
     },
     "Palembang": {
-      "rows": 37189,
-      "missing_rate": 0.00043,
-      "interpolated_rate": 0.000672,
+      "rows": 37183,
+      "missing_rate": 0.000914,
+      "interpolated_rate": 0.000188,
       "pm25_min": 0.4,
       "pm25_max": 305.5
     },
     "Pekanbaru": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 5.4e-05,
       "pm25_min": 0.4,
       "pm25_max": 359.5
     },
     "Penang": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.0,
       "pm25_min": 0.4,
       "pm25_max": 99.4
     },
     "Pontianak": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 8.1e-05,
       "pm25_min": 0.4,
       "pm25_max": 430.3
     },
     "Port_Klang": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 0.0,
       "pm25_min": 0.5,
       "pm25_max": 170.0
     },
     "Sepang": {
-      "rows": 37189,
-      "missing_rate": 5.4e-05,
-      "interpolated_rate": 0.000296,
+      "rows": 37183,
+      "missing_rate": 0.000134,
+      "interpolated_rate": 0.000215,
       "pm25_min": 0.5,
       "pm25_max": 188.1
     },
     "Seremban": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 2.7e-05,
       "pm25_min": 0.1,
       "pm25_max": 195.6
     },
     "Temerloh": {
-      "rows": 37189,
+      "rows": 37183,
       "missing_rate": 0.0,
       "interpolated_rate": 2.7e-05,
       "pm25_min": 0.0,
@@ -472,7 +474,7 @@
     "qc_pm25_gt_pm10 只标记不修正：PM2.5 是 PM10 的子集，违反者为模式内部不一致。",
     "qc_censored 标记贴近 900 µg/m³ 输出上限的截断值，不可当作真实极值使用。",
     "qc_calm_wind 标记静风时刻，此时风向为数值噪声，上风向权重应置零。",
-    "qc_interpolated 标记经 ≤3h 线性插值补齐的单元格。",
+    "qc_interpolated 标记经 ≤3h 线性插值补齐的单元格；长缺口整段不填。",
     "is_missing 标记仍有变量缺失、未插值的行。"
   ]
 }

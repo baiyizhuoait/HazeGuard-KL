@@ -13,7 +13,7 @@
 
 | 文件 | 形状 | 大小 | SHA256 前 16 位 |
 |---|---|---|---|
-| `data/haze_panel_clean.parquet` | **966,677 行 × 35 列** | 25.1 MB | `97b5db123352861b` |
+| `data/haze_panel_clean.parquet` | **966,406 行 × 35 列** | 25.0 MB | `5cd7c1d3149147b8` |
 | `data/manifest.json` | 清单 + 11 项校验结果 | 6 KB | 每次重跑会变 |
 | `data/data_dictionary.json` | 字段口径 | 4 KB | — |
 

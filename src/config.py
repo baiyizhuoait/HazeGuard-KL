@@ -151,17 +151,19 @@ RANDOM_STATE = 42
 # verify_data.py 会逐项断言；不一致 = 交付被拒绝
 # ---------------------------------------------------------------------------
 PANEL_CONTRACT = {
-    "panel_rows": 966_677,
+    # 2026-11-15 采纳插值规则与切分冲刷修复：966,677 → 966,406
+    # （−156 边界冲刷、−328 无目标、−102 无锚点）
+    "panel_rows": 966_406,
     "panel_cols": 35,
     "n_nodes": 26,
-    "receptor_train_rows": 78_102,
-    "receptor_val_rows": 16_737,
+    "receptor_train_rows": 78_093,
+    "receptor_val_rows": 16_728,
     "receptor_test_rows": 16_728,
     # 2 号按 audit_model_eligible 筛过后的可建模行数（来源：
-    # models/metrics_stage2_features.json → eligibility_by_receptor_split）
-    # 下游模型脚本应核对这一组，而不是上面的面板行数
-    "receptor_train_eligible_rows": 77_753,
-    "receptor_val_eligible_rows": 16_656,
+    # 02 候选逐键审计 models/metrics_stage2_qc_review.json → eligibility）
+    # 切分冲刷后 train/val 各少 9 条共同键，测试段不变
+    "receptor_train_eligible_rows": 77_744,
+    "receptor_val_eligible_rows": 16_647,
     "receptor_test_eligible_rows": 16_647,
     "timestamp_dtype_prefix": "datetime64",
     "max_parquet_mb": 50.0,

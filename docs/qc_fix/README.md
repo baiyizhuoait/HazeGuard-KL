@@ -1,13 +1,15 @@
 # 交接包：插值规则 + 切分冲刷（候选面板）
 
-给 2 号的读取说明。**这是候选数据，不是 main 的数据。** main 上的 `data/haze_panel_clean.parquet`
-没有改动，`models/*.json` 也没有改动。
+**已采纳。** 2026-11-15 晚，候选面板提升为正式 `data/haze_panel_clean.parquet`，
+`models/cleaning_report.json`、`gate0_report.json`、`metrics_stage1.json` 一并更新，
+`PANEL_CONTRACT` 已改成 966,406 / 78,093 / 16,728 / 16,728。本目录保留为审计证据，
+`data/candidate/haze_panel_qcfix.parquet` 已删除（内容与正式文件逐字节相同，SHA256 不变）。
 
 ## 1. 文件
 
 | 文件 | 内容 | 大小 |
 |---|---|---|
-| `data/candidate/haze_panel_qcfix.parquet` | 修复后的整块面板，966,406 × 35，列名与旧面板完全一致 | 24 MB |
+| `data/haze_panel_clean.parquet` | 修复后的整块面板（已提升为正式文件），966,406 × 35 | 25 MB |
 | `docs/qc_fix/drops.parquet` | 新流程剔除的 586 行，带 `reason`（split_purge / no_target / no_anchor）与所属 `split` | 6 KB |
 | `docs/qc_fix/rows_dropped_271.csv` | 相对旧面板**净减少**的 271 行，逐行给原因 | 13 KB |
 | `docs/qc_fix/evidence.json` | 行数对账、271 行拆分、M1 逐行预测比对、训练输入指纹 | 2.5 KB |
@@ -20,7 +22,7 @@
 
 ```python
 import pandas as pd
-df = pd.read_parquet("data/candidate/haze_panel_qcfix.parquet")
+df = pd.read_parquet("data/haze_panel_clean.parquet")
 df.head()
 df.groupby(["role", "split"]).size()
 ```
@@ -32,7 +34,7 @@ df.groupby(["role", "split"]).size()
 
 ```python
 import hashlib
-h = hashlib.sha256(open("data/candidate/haze_panel_qcfix.parquet", "rb").read()).hexdigest()
+h = hashlib.sha256(open("data/haze_panel_clean.parquet", "rb").read()).hexdigest()
 assert h == "5cd7c1d3149147b8..."   # 完整值见 fingerprints.json
 ```
 

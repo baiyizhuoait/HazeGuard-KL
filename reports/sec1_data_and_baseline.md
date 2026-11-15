@@ -177,35 +177,35 @@ single pooled error statistic will describe the city and say nothing useful abou
 
 | Node | Region | Role | Lat | Lon | Rows | Mean PM2.5 | Level 3 share |
 |---|---|---|---|---|---|---|---|
-| KL_City | KL | receptor | 3.107 | 101.726 | 37,189 | 40.29 | 21.64 % |
-| Port_Klang | KL | receptor | 3.000 | 101.392 | 37,189 | 20.81 | 1.94 % |
-| Sepang | KL | receptor | 2.828 | 101.703 | 37,189 | 34.07 | 13.03 % |
-| Seremban | Peninsula | corridor | 2.729 | 101.938 | 37,189 | 19.63 | 2.29 % |
-| Malacca | Peninsula | corridor | 2.189 | 102.250 | 37,189 | 13.76 | 1.27 % |
-| Johor_Bahru | Peninsula | corridor | 1.492 | 103.741 | 37,189 | 20.67 | 2.86 % |
-| Kuantan | Peninsula | corridor | 3.807 | 103.326 | 37,189 | 11.41 | 0.46 % |
-| Temerloh | Peninsula | corridor | 3.450 | 102.417 | 37,189 | 14.23 | 0.81 % |
-| Kota_Bharu | Peninsula | corridor | 6.125 | 102.238 | 37,189 | 12.88 | 0.06 % |
-| Kuala_Terengganu | Peninsula | corridor | 5.330 | 103.140 | 37,189 | 12.67 | 0.14 % |
-| Penang | Peninsula | corridor | 5.414 | 100.329 | 37,189 | 18.11 | 0.64 % |
-| Alor_Setar | Peninsula | corridor | 6.118 | 100.368 | 37,189 | 14.64 | 0.32 % |
-| Ipoh | Peninsula | corridor | 4.597 | 101.090 | 37,189 | 16.10 | 0.87 % |
-| Banda_Aceh | Sumatra | source | 5.548 | 95.324 | 37,189 | 10.80 | 0.04 % |
-| Medan | Sumatra | source | 3.595 | 98.672 | 37,189 | 30.96 | 8.09 % |
-| Dumai | Sumatra | source | 1.666 | 101.450 | 37,189 | 18.86 | 4.35 % |
-| Pekanbaru | Sumatra | source | 0.507 | 101.447 | 37,189 | 20.22 | 3.27 % |
-| Padang | Sumatra | source | −0.949 | 100.354 | 37,189 | 16.55 | 1.12 % |
-| Jambi | Sumatra | source | −1.610 | 103.613 | 37,189 | 18.38 | 3.27 % |
-| Palembang | Sumatra | source | −2.976 | 104.775 | 37,189 | 18.85 | 3.43 % |
-| Bengkulu | Sumatra | source | −3.800 | 102.265 | 37,189 | 9.98 | 0.00 % |
-| Pontianak | Borneo | source | −0.026 | 109.342 | 37,189 | 19.06 | 5.42 % |
-| Palangkaraya | Borneo | source | −2.209 | 113.917 | 36,952 | 27.52 | 6.87 % |
-| Banjarmasin | Borneo | source | −3.319 | 114.590 | 37,189 | 15.28 | 1.85 % |
-| Kuching | Borneo | source | 1.553 | 110.359 | 37,189 | 17.13 | 2.84 % |
-| Bintulu | Borneo | source | 3.171 | 113.041 | 37,189 | 10.51 | 0.65 % |
+| KL_City | KL | receptor | 3.107 | 101.726 | 37,183 | 40.29 | 21.64 % |
+| Port_Klang | KL | receptor | 3.000 | 101.392 | 37,183 | 20.81 | 1.94 % |
+| Sepang | KL | receptor | 2.828 | 101.703 | 37,183 | 34.07 | 13.03 % |
+| Seremban | Peninsula | corridor | 2.729 | 101.938 | 37,183 | 19.63 | 2.29 % |
+| Malacca | Peninsula | corridor | 2.189 | 102.250 | 37,183 | 13.76 | 1.27 % |
+| Johor_Bahru | Peninsula | corridor | 1.492 | 103.741 | 37,183 | 20.67 | 2.86 % |
+| Kuantan | Peninsula | corridor | 3.807 | 103.326 | 37,183 | 11.41 | 0.46 % |
+| Temerloh | Peninsula | corridor | 3.450 | 102.417 | 37,183 | 14.23 | 0.81 % |
+| Kota_Bharu | Peninsula | corridor | 6.125 | 102.238 | 37,183 | 12.88 | 0.06 % |
+| Kuala_Terengganu | Peninsula | corridor | 5.330 | 103.140 | 37,183 | 12.67 | 0.14 % |
+| Penang | Peninsula | corridor | 5.414 | 100.329 | 37,183 | 18.11 | 0.64 % |
+| Alor_Setar | Peninsula | corridor | 6.118 | 100.368 | 37,183 | 14.64 | 0.32 % |
+| Ipoh | Peninsula | corridor | 4.597 | 101.090 | 37,183 | 16.10 | 0.87 % |
+| Banda_Aceh | Sumatra | source | 5.548 | 95.324 | 37,183 | 10.80 | 0.04 % |
+| Medan | Sumatra | source | 3.595 | 98.672 | 37,183 | 30.96 | 8.09 % |
+| Dumai | Sumatra | source | 1.666 | 101.450 | 37,183 | 18.86 | 4.35 % |
+| Pekanbaru | Sumatra | source | 0.507 | 101.447 | 37,183 | 20.22 | 3.27 % |
+| Padang | Sumatra | source | −0.949 | 100.354 | 37,183 | 16.55 | 1.12 % |
+| Jambi | Sumatra | source | −1.610 | 103.613 | 37,183 | 18.38 | 3.26 % |
+| Palembang | Sumatra | source | −2.976 | 104.775 | 37,183 | 18.85 | 3.43 % |
+| Bengkulu | Sumatra | source | −3.800 | 102.265 | 37,183 | 9.98 | 0.00 % |
+| Pontianak | Borneo | source | −0.026 | 109.342 | 37,183 | 19.06 | 5.42 % |
+| Palangkaraya | Borneo | source | −2.209 | 113.917 | 36,831 | 25.85 | 6.58 % |
+| Banjarmasin | Borneo | source | −3.319 | 114.590 | 37,183 | 15.28 | 1.85 % |
+| Kuching | Borneo | source | 1.553 | 110.359 | 37,183 | 17.13 | 2.85 % |
+| Bintulu | Borneo | source | 3.171 | 113.041 | 37,183 | 10.51 | 0.65 % |
 
 *The 26 cells. Level 3 share is the proportion of rows whose three-hour-ahead
-target reaches or exceeds 55 µg/m³. Palangkaraya has 237 fewer rows because of a 37-hour
+target reaches or exceeds 55 µg/m³. Palangkaraya has 352 fewer rows because of a 37-hour
 gap that is retained rather than interpolated (Section 2.1.7).*
 
 ### 2.1.3 Variables and units
@@ -235,9 +235,10 @@ Applied per node, in this order.
 | 2 | rebuild a complete hourly index with `reindex` | 0 rows added |
 | 3 | trim the leading null block at the CAMS archive edge | 2,080 rows (80 h × 26 nodes) |
 | 4 | set values outside physical bounds to NaN | 0 violations |
-| 5 | linear interpolation of interior gaps of at most 3 hours | 656 cells in 486 rows |
-| 6 | flag rows with any variable still null (`is_missing`) | 277 rows |
-| 7 | drop rows without a valid target or without a current PM2.5 anchor | 226 + 89 rows |
+| 5 | linear interpolation of interior gaps of at most 3 hours | 299 cells in 264 rows |
+| 6 | flag rows with any variable still null (`is_missing`) | 489 rows |
+| 7 | drop boundary rows whose label falls in the next split (3-hour purge) | 156 rows |
+| 8 | drop rows without a valid target or without a current PM2.5 anchor | 328 + 102 rows |
 
 Step 2 matters more than its zero suggests. Without a complete index, `shift(1)` means
 "the previous row", not "one hour ago", so every lag goes wrong wherever a row is missing.
@@ -254,15 +255,16 @@ as NaN and are flagged. This is a deliberate refusal to extrapolate: a 37-hour g
 `Palangkaraya` is kept as a gap, because filling it would have manufactured a haze
 episode that never happened.
 
-Counts in steps 3 to 6 are taken at the moment they are applied, before step 7 removes
-rows. That is why `src/01_verify_data.py`, which recounts the finished panel, reports 356
-interpolated rows rather than 486: 130 of the interpolated rows are among the 315 rows
-dropped at the end.
+Counts in steps 3 to 6 are taken at the moment they are applied, before steps 7 and 8
+remove rows. That is why `src/01_verify_data.py`, which recounts the finished panel,
+reports 182 interpolated rows rather than 264: 82 of the interpolated rows are among the
+586 rows dropped at the end.
 
-The counts reconcile exactly: 969,072 fetched − 2,080 trimmed − 226 without a target − 89
-without an anchor = **966,677 rows**, a retention of 99.75 %. The 89 rows are the ones
-that survive interpolation with the current hour still missing; they cannot be used,
-because the anomaly and the persistence baseline both need a value at `t`.
+The counts reconcile exactly: 969,072 fetched − 2,080 trimmed − 156 across a split
+boundary − 328 without a target − 102 without an anchor = **966,406 rows**, a retention
+of 99.72 %. The 102 rows are the ones that survive interpolation with the current hour
+still missing; they cannot be used, because the anomaly and the persistence baseline both
+need a value at `t`.
 
 ### 2.1.5 A step at the model-run boundary
 
@@ -336,8 +338,8 @@ distribution and read inter-annual variability as drift.
 
 | Gate | Criterion | Result | Verdict |
 |---|---|---|---|
-| G0-1 | ≥ 100,000 rows, ≥ 12,000 per node | 966,677 rows; minimum 36,952 | pass |
-| G0-2 | receptor Level 3 share ≥ 1 % | 12.21 % (panel 3.37 %) | pass |
+| G0-1 | ≥ 100,000 rows, ≥ 12,000 per node | 966,406 rows; minimum 36,831 | pass |
+| G0-2 | receptor Level 3 share ≥ 1 % | 12.21 % (panel 3.35 %) | pass |
 | G0-3 | longest receptor gap ≤ 24 h | 5 h (panel maximum 37 h at `Palangkaraya`) | pass |
 | G0-4 | train/test Level 3 ratio ≤ 3× | 11.13 % against 18.85 % (1.69×) | pass |
 
@@ -387,16 +389,16 @@ shift a boundary.
 
 | Split | Window | Rows (panel) | Receptor rows | Permitted use |
 |---|---|---|---|---|
-| train | 2022-08-04 → 2025-07-24 | 676,884 | 78,102 | baseline fitting, model fitting, cross-validation, hyperparameter search |
-| validation | 2025-07-24 → 2026-03-13 | 145,054 | 16,737 | model selection, threshold search, interval calibration |
-| test | 2026-03-13 → 2026-10-31 | 144,739 | 16,728 | final reporting, evaluated once |
+| train | 2022-08-04 → 2025-07-23 | 676,806 | 78,093 | baseline fitting, model fitting, cross-validation, hyperparameter search |
+| validation | 2025-07-24 → 2026-03-13 | 144,976 | 16,728 | model selection, threshold search, interval calibration |
+| test | 2026-03-13 → 2026-10-31 | 144,624 | 16,728 | final reporting, evaluated once |
 
 No shuffling, no `KFold` and no random subsampling appears anywhere in the pipeline. The
 only cross-validation used is `TimeSeriesSplit(n_splits=5)` inside the training block, and
 it never touches validation or test rows.
 
 After the eligibility audit described in Section 2.4, the receptor rows used by every
-model are 77,753 train, 16,656 validation and 16,647 test. The main results table is
+model are 77,744 train, 16,647 validation and 16,647 test. The main results table is
 computed on those 16,647 rows so that the baselines and the later models are compared on
 identical rows.
 
@@ -439,7 +441,7 @@ aggregation. Hyperparameters are chosen by `TimeSeriesSplit(n_splits=5)` grid se
 scored on macro-F1 over `max_depth` ∈ {3, 5, 7, 9, 12, none}, `min_samples_leaf` ∈ {5, 20,
 50, 100} and `criterion` ∈ {gini, entropy}, which is 48 configurations. The selected
 tree is `gini`, depth 9, minimum leaf 20, giving 384 leaves and a cross-validated
-macro-F1 of 0.6315. Training macro-F1 is 0.7017 against 0.6867 on validation, a gap of
+macro-F1 of 0.6281. Training macro-F1 is 0.7013 against 0.6867 on validation, a gap of
 0.015, so the tree is not memorising the training set; what it cannot reach comes from
 the features.
 

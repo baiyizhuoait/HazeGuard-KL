@@ -497,7 +497,7 @@ Severe_Jumping_Error_Rate, Avg_Asymmetric_Cost, n_samples`。
 1. **M1 输给持续性**（2.1 节前那段），这是整个项目的起点；
 2. **空间特征无增益**（2.2 节），附 Top-25 里没有 `upwind_*` 的证据；
 3. **val 与 test 排序不一致**（2.3 节），说明为什么选择看 val、报数看 test；
-4. **数据是 CAMS 模式产品不是地面实测**，KL 均值 41 µg/m³ 有系统性正偏。
+4. **数据是 CAMS 模式产品不是地面实测**，`KL_City` 全期均值 40.29 µg/m³（51 个月），有系统性正偏。
 
 写这四段之前，先跑 `python tools/check_prose.py reports/`，第 9 节有对照表。课程对 AI 生成文本是 0 分条款。
 

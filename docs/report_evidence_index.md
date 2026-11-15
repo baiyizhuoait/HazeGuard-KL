@@ -61,7 +61,10 @@
 | M7 代价敏感 | v1 | 0.6659 | **0.9376** | 0.3300 | **0.5405** |
 | M8 v2 对照 | v2 | **0.7109** | 0.8770 | 0.2852 | 0.6711 |
 
-出处：`models/all_models_benchmark.csv`（M0 除外，见 `metrics_stage1.json → metrics_persistence_M0_test`）。
+出处：`models/all_models_benchmark.csv`（M0 除外）。M0 有两种口径：
+`metrics_stage1.json → metrics_persistence_M0_test` 是受体全部行（n = 16,728）；
+主表用的可建模行版本（n = 16,647，0.6231 / 0.7757）在 `metrics_stage4.json`，
+并在 `models/sec1_audit.json → m0_m1_eligible` 里重算过一次。
 
 ### 2.3 消融（val，3 种子均值，v2 表）
 

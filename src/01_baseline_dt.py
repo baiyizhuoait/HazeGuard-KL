@@ -28,6 +28,7 @@ python src/01_baseline_dt.py
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -254,6 +255,20 @@ def main() -> None:
     model_path = os.path.join(model_dir, "baseline_dt.joblib")
     joblib.dump({"model": best, "features": feats}, model_path, compress=3)
 
+    def _sha_file(path: str) -> str:
+        h = hashlib.sha256()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        return h.hexdigest()
+
+    def _sha_fit(Xf: pd.DataFrame, yf: np.ndarray) -> str:
+        h = hashlib.sha256()
+        h.update(np.ascontiguousarray(Xf.to_numpy(dtype="float64")).tobytes())
+        h.update(np.ascontiguousarray(np.asarray(yf, dtype="int64")).tobytes())
+        h.update("|".join(Xf.columns).encode("utf-8"))
+        return h.hexdigest()
+
     payload = {
         "module": "01 数据工程与基线",
         "owner": "1号（组长）",
@@ -285,6 +300,14 @@ def main() -> None:
         "class_distribution_train": {str(k): int(v) for k, v in pd.Series(y_tr).value_counts().sort_index().items()},
         "class_distribution_test": {str(k): int(v) for k, v in pd.Series(y_te).value_counts().sort_index().items()},
         "tree_structure": {"n_leaves": int(best.get_n_leaves()), "depth": int(best.get_depth())},
+        "fit_rows": int(len(X_tr_refit)),
+        "fit_features": feats,
+        "fit_input_sha256": _sha_fit(X_tr_refit, y_tr),
+        "panel_path": os.path.abspath(args.panel),
+        "panel_sha256": _sha_file(args.panel),
+        "model_file_sha256": _sha_file(model_path),
+        "trained_at": pd.Timestamp.utcnow().isoformat(timespec="seconds"),
+        "model_loaded_from_disk": False,
         "train_universe": "receptor nodes only (KL_City, Port_Klang, Sepang)",
         "train_universe_note": "主实验统一只在 3 个受体节点上训练与验证；23 个走廊/源区节点只作特征输入与泛化实验对照",
         "metric_version": "High_Risk_Recall = P(ŷ∈{2,3} | y∈{2,3})，诊断项 diag_* 不参与横向排序",

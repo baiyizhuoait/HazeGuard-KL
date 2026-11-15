@@ -404,6 +404,8 @@ def main() -> None:
     ap.add_argument("--force-refresh", action="store_true")
     ap.add_argument("--out-dir", default=None,
                     help="把面板与报告写到指定目录（修复前后对比用）；默认仍写 data/ 与 models/")
+    ap.add_argument("--dump-drops", action="store_true",
+                    help="把被剔除的行连原因写到 drops.parquet（新旧对账用）")
     args = ap.parse_args()
 
     out_data = C.DATA_DIR if args.out_dir is None else os.path.join(args.out_dir, "data")
@@ -449,13 +451,26 @@ def main() -> None:
     # 建模行：目标必须存在，且当前 pm2_5 必须存在
     # pm2_5 既是锚点特征又是 anomaly 的基底，缺了它任何模型都用不了，
     # 因此在这里直接剔除，而不是留给下游每位组员 各自记得过滤。
+    drops = []
+    if args.dump_drops:
+        drops.append(df.loc[df["split"] == "purged",
+                            ["station_id", "timestamp", "split"]].assign(reason="split_purge"))
+
     before = len(df)
     df = df[df["split"] != "purged"].reset_index(drop=True)
     rep["rows_dropped_split_purge"] = before - len(df)
 
+    if args.dump_drops:
+        drops.append(df.loc[df["target_pm25_3h"].isna(),
+                            ["station_id", "timestamp", "split"]].assign(reason="no_target"))
+
     before = len(df)
     df = df[df["target_pm25_3h"].notna()].reset_index(drop=True)
     rep["rows_dropped_no_target"] = before - len(df)
+
+    if args.dump_drops:
+        drops.append(df.loc[df["pm2_5"].isna(),
+                            ["station_id", "timestamp", "split"]].assign(reason="no_anchor"))
 
     before = len(df)
     df = df[df["pm2_5"].notna()].reset_index(drop=True)
@@ -507,6 +522,10 @@ def main() -> None:
         json.dump(rep, f, ensure_ascii=False, indent=2)
     with open(os.path.join(out_model, "gate0_report.json"), "w", encoding="utf-8") as f:
         json.dump(g0, f, ensure_ascii=False, indent=2)
+    if args.dump_drops:
+        dd = pd.concat(drops, ignore_index=True)
+        dd.to_parquet(os.path.join(out_model, "drops.parquet"), index=False)
+        print(f"  drops: {len(dd):,} 行 -> {os.path.join(out_model, 'drops.parquet')}")
     with open(os.path.join(out_data, "data_dictionary.json"), "w", encoding="utf-8") as f:
         json.dump(_dictionary(g0), f, ensure_ascii=False, indent=2)
 

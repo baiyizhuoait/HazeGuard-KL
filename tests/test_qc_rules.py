@@ -82,3 +82,47 @@ def test_purged_folds_never_see_validation_labels():
     label = stamps + np.timedelta64(3, "h")
     for tr_idx, va_idx in folds:
         assert label[tr_idx].max() < stamps[va_idx].min()
+
+
+def _panel_frame(n_rows, start, pm_base):
+    ts = pd.date_range(start, periods=n_rows, freq="h")
+    return pd.DataFrame({
+        "station_id": "KL_City",
+        "timestamp": ts,
+        "month": ts.month,
+        "hour": ts.hour,
+        "pm2_5": pm_base + np.arange(n_rows) % 5,
+        "temperature_2m": 27.0 + (np.arange(n_rows) % 3),
+        # 真实面板里这两列已存在，折内重算时会被覆盖
+        "pm2_5_anomaly": np.nan,
+        "temp_anomaly": np.nan,
+    })
+
+
+def test_infold_baseline_ignores_validation_values():
+    """只改折内验证段的数据，折内训练所得气候态与训练特征必须一动不动。"""
+    feats = ["pm2_5", "temperature_2m", "pm2_5_anomaly", "temp_anomaly"]
+    tr = _panel_frame(240, "2026-01-01", 10.0)
+    va = _panel_frame(48, "2026-01-11", 80.0)
+
+    stamps = np.concatenate([tr["timestamp"].to_numpy(), va["timestamp"].to_numpy()])
+    combined = pd.concat([tr, va], ignore_index=True)
+    tr_idx, va_idx = list(B._folds_by_timestamp(stamps, 3, horizon=3))[-1]
+
+    look_before = B._baseline_lookup(combined.iloc[tr_idx])
+    X_before = B._anomaly_matrix(combined.iloc[tr_idx], look_before, feats)
+
+    # 只动验证段：把浓度改成不可能的值
+    mutated = combined.copy()
+    mutated.loc[va_idx, "pm2_5"] = -999.0
+    mutated.loc[va_idx, "temperature_2m"] = 99.0
+
+    look_after = B._baseline_lookup(mutated.iloc[tr_idx])
+    X_after = B._anomaly_matrix(mutated.iloc[tr_idx], look_after, feats)
+
+    pd.testing.assert_frame_equal(X_before, X_after)
+    pd.testing.assert_frame_equal(look_before, look_after)
+
+    # 反向对照：如果误把验证段并进训练段，气候态必须变，否则这条测试是空的
+    look_wrong = B._baseline_lookup(pd.concat([mutated.iloc[tr_idx], mutated.iloc[va_idx]]))
+    assert not look_before.equals(look_wrong)

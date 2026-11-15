@@ -1,0 +1,105 @@
+{
+ "reconciliation": {
+  "fetched_station_hours": 969072,
+  "leading_block_trimmed": 2080,
+  "trimmed_grid_rows": 966992,
+  "old": {
+   "rows_final": 966677,
+   "dropped_total": 315,
+   "dropped_no_target": 226,
+   "dropped_no_anchor": 89
+  },
+  "new": {
+   "rows_final": 966406,
+   "dropped_total": 586,
+   "dropped_split_purge": 156,
+   "dropped_no_target": 328,
+   "dropped_no_anchor": 102
+  },
+  "net_row_change": -271,
+  "rows_kept_before_dropped_now": 271,
+  "partition_of_net_decrease": {
+   "split_purge": 156,
+   "no_target": 102,
+   "no_anchor": 13
+  },
+  "partition_sums": 271,
+  "identity_check": {
+   "purge": 156,
+   "extra_no_target": 102,
+   "extra_no_anchor": 13,
+   "sum": 271
+  },
+  "dropped_by_reason_and_split": [
+   {
+    "reason": "no_anchor",
+    "split": "test",
+    "rows": 13
+   },
+   {
+    "reason": "no_target",
+    "split": "test",
+    "rows": 102
+   },
+   {
+    "reason": "split_purge",
+    "split": "purged",
+    "rows": 156
+   }
+  ]
+ },
+ "prediction_comparison": {
+  "test_keys": 16647,
+  "identical_predictions": 16647,
+  "different_predictions": 0,
+  "max_abs_level_shift": 0,
+  "shift_distribution": {},
+  "old_unrounded": {
+   "Macro_F1": 0.6658279850915488,
+   "Balanced_Accuracy": 0.6473499116501317,
+   "High_Risk_Recall": 0.7675233644859814,
+   "MAOE": 0.3199375262810116,
+   "Severe_Jumping_Error_Rate": 0.020964738391301738,
+   "Avg_Asymmetric_Cost": 0.9047275785426804,
+   "n": 16647
+  },
+  "new_unrounded": {
+   "Macro_F1": 0.6658279850915488,
+   "Balanced_Accuracy": 0.6473499116501317,
+   "High_Risk_Recall": 0.7675233644859814,
+   "MAOE": 0.3199375262810116,
+   "Severe_Jumping_Error_Rate": 0.020964738391301738,
+   "Avg_Asymmetric_Cost": 0.9047275785426804,
+   "n": 16647
+  },
+  "old_fit_rows": 77753,
+  "new_fit_rows": 77753,
+  "old_fit_input_sha256": "4584beaaafc40824f2714c2500256d0bfbb457756f14d24f0c596b82405d0c9c",
+  "new_fit_input_sha256": "9a83f025770a834ed549f18f6eac550b29113b5845eeee3c8f7d104bbc3b7a13",
+  "features": [
+   "pm2_5",
+   "pm10",
+   "no2",
+   "so2",
+   "o3",
+   "co",
+   "temperature_2m",
+   "relative_humidity_2m",
+   "wind_speed_ms",
+   "wind_direction_10m",
+   "precipitation",
+   "pm2_5_anomaly",
+   "temp_anomaly",
+   "hour",
+   "month",
+   "dayofweek",
+   "wd_sin",
+   "wd_cos"
+  ],
+  "hyperparameters": {
+   "criterion": "gini",
+   "max_depth": 9,
+   "min_samples_leaf": 20
+  }
+ }
+}

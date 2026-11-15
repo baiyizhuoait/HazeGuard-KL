@@ -440,8 +440,8 @@ and cosine pair, which is 18 columns. No lag, no rolling statistic, no spatial
 aggregation. Hyperparameters are chosen by `TimeSeriesSplit(n_splits=5)` grid search
 scored on macro-F1 over `max_depth` ∈ {3, 5, 7, 9, 12, none}, `min_samples_leaf` ∈ {5, 20,
 50, 100} and `criterion` ∈ {gini, entropy}, which is 48 configurations. The selected
-tree is `gini`, depth 9, minimum leaf 20, giving 384 leaves and a cross-validated
-macro-F1 of 0.6281. Training macro-F1 is 0.7013 against 0.6867 on validation, a gap of
+tree is `gini`, depth 9, minimum leaf 20, giving 385 leaves and a cross-validated
+macro-F1 of 0.6277. Training macro-F1 is 0.7013 against 0.6867 on validation, a gap of
 0.015, so the tree is not memorising the training set; what it cannot reach comes from
 the features.
 

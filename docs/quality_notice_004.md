@@ -12,7 +12,7 @@
 | 受体 train / val / test | 78,102 / 16,737 / 16,728 | **78,093 / 16,728 / 16,728** |
 | 可建模受体（02 口径） | 77,753 / 16,656 / 16,647 | **77,744 / 16,647 / 16,647** |
 | 插值单元格 / 缺失行 | 656 / 277 | **299 / 489** |
-| M1 交叉验证 | 0.6315（泄漏折） | **0.6281**（std 0.0105） |
+| M1 交叉验证 | 0.6315（泄漏折） | **0.6277**（std 0.0107） |
 | M1 六项测试指标 | 0.6658 / 0.7675 / 0.9047 … | **不变**（16,647 键逐行 0 差异） |
 
 测试段受体一行没少；`target_level_3h` 与 `target_pm25_3h` 在共同键上**没有任何一行改变**。
@@ -61,7 +61,7 @@
 
 - 看板读的 `models/baseline_dt.joblib` 已经被新面板的模型替换（叶 384、深度 9，指标不变），
   不需要改代码。
-- 报告里的 CV 数改成 **0.6281**；测试六项指标不动。
+- 报告里的 CV 数改成 **0.6277**；测试六项指标不动。
 - `reports/HazeGuard_KL_Demonstration_Report.md` 仍然是空的，闸门因此判 07 `PARTIAL`。
   A7 还是唯一让总判定 FAIL 的项。
 
@@ -76,8 +76,10 @@ python tools/check_report_numbers.py        # 只剩差值待复核
 
 M1 的训练输入指纹在 `models/metrics_stage1.json`：
 `panel_sha256 = 5cd7c1d3…`、`fit_input_sha256 = 1714a634…`、`fit_rows = 78,088`；
-主表口径（可建模行）另存 `metrics_test_eligible`，`eligible_fit_rows = 77,753`
-（02 候选判为 77,744，在这 9 行上重训六项指标不变，02 正式表落地后重跑即可覆盖）。
+主表口径（可建模行）就是保存下来的 `baseline_dt.joblib`：`fit_rows = 77,744`，
+模型文件里带同一份气候态（`preprocess.sha256`），重新加载能复现 `metrics_test_eligible`。
+全受体行模型另存 `baseline_dt_allrows.joblib`，两模型在同一批测试键上的逐行差异
+已由脚本计算并写入 `metrics_stage1.json → eligibility.vs_all_rows_diff_rows`。
 
 ## 6. 证据留在哪
 

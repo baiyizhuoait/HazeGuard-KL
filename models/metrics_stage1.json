@@ -2,8 +2,19 @@
   "module": "01 数据工程与基线",
   "owner": "1号（组长）",
   "model": "DecisionTreeClassifier (baseline)",
+  "model_role": "eligible_rows",
   "stage": "test",
   "metrics": {
+    "Macro_F1": 0.6658,
+    "Balanced_Accuracy": 0.6473,
+    "High_Risk_Recall": 0.7675,
+    "MAOE": 0.3199,
+    "Severe_Jumping_Error_Rate": 0.021,
+    "Avg_Asymmetric_Cost": 0.9047,
+    "n_samples": 16647,
+    "n_high_risk": 6848
+  },
+  "metrics_test_all_rows": {
     "Macro_F1": 0.662,
     "Balanced_Accuracy": 0.6443,
     "High_Risk_Recall": 0.7693,
@@ -14,16 +25,16 @@
     "n_high_risk": 6865
   },
   "metrics_persistence_M0_test": {
-    "Macro_F1": 0.6222,
-    "Balanced_Accuracy": 0.6222,
-    "High_Risk_Recall": 0.7752,
-    "MAOE": 0.393,
-    "Severe_Jumping_Error_Rate": 0.0375,
-    "Avg_Asymmetric_Cost": 0.9986,
-    "n_samples": 16728,
-    "n_high_risk": 6865,
-    "diag_High_Risk_Exact_Recall": 0.5576,
-    "diag_Level3_Recall": 0.6766
+    "Macro_F1": 0.6231,
+    "Balanced_Accuracy": 0.6232,
+    "High_Risk_Recall": 0.7757,
+    "MAOE": 0.3925,
+    "Severe_Jumping_Error_Rate": 0.0374,
+    "Avg_Asymmetric_Cost": 0.9978,
+    "n_samples": 16647,
+    "n_high_risk": 6848,
+    "diag_High_Risk_Exact_Recall": 0.5584,
+    "diag_Level3_Recall": 0.6777
   },
   "metrics_persistence_M0_val": {
     "Macro_F1": 0.6098,
@@ -63,40 +74,40 @@
   },
   "per_node_test": {
     "KL_City": {
-      "Macro_F1": 0.6007,
-      "Balanced_Accuracy": 0.586,
-      "High_Risk_Recall": 0.8078,
-      "MAOE": 0.3481,
-      "Severe_Jumping_Error_Rate": 0.0305,
-      "Avg_Asymmetric_Cost": 1.0791,
-      "n_samples": 5576,
-      "n_high_risk": 3278,
-      "diag_High_Risk_Exact_Recall": 0.6037,
-      "diag_Level3_Recall": 0.7159
+      "Macro_F1": 0.6039,
+      "Balanced_Accuracy": 0.5885,
+      "High_Risk_Recall": 0.8032,
+      "MAOE": 0.3476,
+      "Severe_Jumping_Error_Rate": 0.0294,
+      "Avg_Asymmetric_Cost": 1.1079,
+      "n_samples": 5549,
+      "n_high_risk": 3268,
+      "diag_High_Risk_Exact_Recall": 0.5994,
+      "diag_Level3_Recall": 0.6991
     },
     "Port_Klang": {
-      "Macro_F1": 0.6741,
-      "Balanced_Accuracy": 0.6516,
+      "Macro_F1": 0.6827,
+      "Balanced_Accuracy": 0.6571,
       "High_Risk_Recall": 0.6724,
-      "MAOE": 0.2724,
-      "Severe_Jumping_Error_Rate": 0.0117,
-      "Avg_Asymmetric_Cost": 0.6264,
-      "n_samples": 5576,
+      "MAOE": 0.2698,
+      "Severe_Jumping_Error_Rate": 0.0115,
+      "Avg_Asymmetric_Cost": 0.6289,
+      "n_samples": 5549,
       "n_high_risk": 1105,
-      "diag_High_Risk_Exact_Recall": 0.5222,
-      "diag_Level3_Recall": 0.6293
+      "diag_High_Risk_Exact_Recall": 0.5357,
+      "diag_Level3_Recall": 0.624
     },
     "Sepang": {
-      "Macro_F1": 0.6152,
-      "Balanced_Accuracy": 0.5964,
-      "High_Risk_Recall": 0.7615,
-      "MAOE": 0.3454,
-      "Severe_Jumping_Error_Rate": 0.0231,
-      "Avg_Asymmetric_Cost": 0.9659,
-      "n_samples": 5576,
-      "n_high_risk": 2482,
-      "diag_High_Risk_Exact_Recall": 0.5488,
-      "diag_Level3_Recall": 0.6626
+      "Macro_F1": 0.6224,
+      "Balanced_Accuracy": 0.6028,
+      "High_Risk_Recall": 0.7628,
+      "MAOE": 0.3424,
+      "Severe_Jumping_Error_Rate": 0.022,
+      "Avg_Asymmetric_Cost": 0.9773,
+      "n_samples": 5549,
+      "n_high_risk": 2475,
+      "diag_High_Risk_Exact_Recall": 0.5572,
+      "diag_Level3_Recall": 0.644
     }
   },
   "best_params": {
@@ -104,18 +115,26 @@
     "max_depth": 9,
     "min_samples_leaf": 20
   },
-  "params_source": "carried over from the pre-fix run, no re-tuning",
-  "cv_macro_f1": 0.6281,
-  "cv_macro_f1_std": 0.0105,
+  "params_source": "fixed a priori (carried over from the pre-fix run); search disabled",
+  "search_disabled": true,
+  "search_disabled_reason": "inner TimeSeriesSplit cannot satisfy label isolation; see KD-05",
+  "cv_macro_f1": 0.6277,
+  "cv_macro_f1_std": 0.0107,
   "cv_fold_scores": [
-    0.6235,
-    0.6311,
+    0.623,
+    0.6301,
     0.6335,
     0.6419,
-    0.6106
+    0.6102
   ],
-  "cv_scheme": "unique-timestamp blocks, train label_time < val start, 3h horizon",
-  "baseline_refit_in_fold": true,
+  "cv_scheme": "unique-timestamp blocks; train label_time < val start; tail included; baseline refit per fold",
+  "preprocess": {
+    "fit_on": "train split only",
+    "applied_to": "train, val, test",
+    "cells": 864,
+    "sha256": "368e1392a04d83ecdcb3f73d0aad87dfed076000b803a1e599d58986405c2f05",
+    "min_support": 30
+  },
   "split_protocol": "outer split assigned by label timestamp (t+3h)",
   "overfit_gap_train_minus_val": 0.0146,
   "features": [
@@ -139,26 +158,26 @@
     "wd_cos"
   ],
   "n_features": 18,
-  "n_train": 78088,
+  "n_train": 77744,
   "n_val": 16728,
-  "n_test": 16728,
+  "n_test": 16647,
   "class_distribution_train": {
-    "0": 14478,
-    "1": 39276,
-    "2": 15649,
-    "3": 8685
+    "0": 14472,
+    "1": 39091,
+    "2": 15547,
+    "3": 8634
   },
   "class_distribution_test": {
-    "0": 1970,
-    "1": 7893,
-    "2": 3711,
-    "3": 3154
+    "0": 1959,
+    "1": 7840,
+    "2": 3699,
+    "3": 3149
   },
   "tree_structure": {
-    "n_leaves": 384,
+    "n_leaves": 385,
     "depth": 9
   },
-  "fit_rows": 78088,
+  "fit_rows": 77744,
   "fit_features": [
     "pm2_5",
     "pm10",
@@ -179,19 +198,26 @@
     "wd_sin",
     "wd_cos"
   ],
-  "fit_input_sha256": "1714a6342ec77f2a46589e4dd51810c9bced30683844c5d7f349b24720145147",
+  "fit_input_sha256": "0ed7b3d493f48dd6c55ea06a493d5737dbf1d55d420f338621151b4dd98397ff",
   "panel_path": "D:\\Projects\\HazeGuard-KL\\data\\haze_panel_clean.parquet",
   "panel_sha256": "5cd7c1d3149147b85259bcf5d48dfda5a88d8cff7a42b4030ed2cb129e4a5bc6",
-  "model_file_sha256": "b72a26239e39ddf511b3d9ae62152e4dc88860e780c978f31c6b1bc75dbc8cdb",
-  "trained_at": "2026-11-15T12:38:27+00:00",
-  "model_loaded_from_disk": false,
+  "model_path": "models\\baseline_dt.joblib",
+  "model_file_sha256": "9bc0138ef34e1dc26059d28c411d7cde91bb4c605aac52bbb9e75576a91789dc",
+  "trained_at": "2026-11-15T15:40:05+00:00",
   "train_universe": "receptor nodes only (KL_City, Port_Klang, Sepang)",
   "train_universe_note": "主实验统一只在 3 个受体节点上训练与验证；23 个走廊/源区节点只作特征输入与泛化实验对照",
   "metric_version": "High_Risk_Recall = P(ŷ∈{2,3} | y∈{2,3})，诊断项 diag_* 不参与横向排序",
   "evaluation_status": "post-fix re-evaluation",
   "test_previously_viewed": true,
   "evaluation_note": "插值规则与切分修复后重评。测试集此前已查看过一次，本次结果不构成「从未看过测试集」的声明；超参数沿用修复前选择，未按测试表现调整。",
-  "elapsed_sec": 2.2,
+  "elapsed_sec": 2.7,
+  "eligibility": {
+    "source": "D:\\Projects\\HazeGuard-KL\\data\\feat_spatiotemporal.parquet",
+    "fit_rows": 77744,
+    "test_rows": 16647,
+    "vs_all_rows_diff_rows": 451,
+    "vs_all_rows_max_shift": 2
+  },
   "metrics_test_eligible": {
     "Macro_F1": 0.6658,
     "Balanced_Accuracy": 0.6473,
@@ -204,8 +230,5 @@
     "diag_High_Risk_Exact_Recall": 0.5739,
     "diag_Level3_Recall": 0.6716
   },
-  "eligible_fit_rows": 77753,
-  "eligible_test_rows": 16647,
-  "eligibility_source": "D:\\Projects\\HazeGuard-KL\\data\\feat_spatiotemporal.parquet",
-  "eligible_rows_note": "02 的候选特征表把 train/val 各 9 条共同键判为不合格（77,753/16,656 → 77,744/16,647），在这些键上重训后六项指标与逐行预测均不变（0/16,647）；02 正式表落地后用同一命令重跑即可覆盖本块。"
+  "allrows_model_path": "models\\baseline_dt_allrows.joblib"
 }

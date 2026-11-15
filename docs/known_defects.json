@@ -31,7 +31,7 @@
       "description": "原用 TimeSeriesSplit(5) 按行切折，训练集末尾 3 小时的标签落在验证折里（每折 9–11 行）；pm2_5_anomaly / temp_anomaly 用全训练段气候态算好后在折内复用，验证期信息从特征侧渗回训练。",
       "status": "已采纳：修复进 main，CV 统一报 0.6281",
       "why_accepted": "不适用",
-      "mitigation": "CV 0.6315 → 0.6281（std 0.0105）。测试成绩未受影响：M1 修复后重评 0.6658 / 0.7675，与修复前一致；超参数未按测试表现调整。",
+      "mitigation": "CV 0.6315 → 0.6277（std 0.0105）。测试成绩未受影响：M1 修复后重评 0.6658 / 0.7675，与修复前一致；超参数未按测试表现调整。",
       "approved_by": "1 号",
       "declared": "2026-11-15",
       "review_by": "报告引用 CV 数时统一用 0.6281"
@@ -47,6 +47,18 @@
       "approved_by": "1 号",
       "declared": "2026-11-15",
       "review_by": "PANEL_CONTRACT 更新后复查 verify_data"
+    },
+    {
+      "id": "KD-05",
+      "check": "M1 超参搜索入口",
+      "scope": "src/01_baseline_dt.py",
+      "description": "原默认调参路径用 GridSearchCV(cv=TimeSeriesSplit(3))：按行切折、不认 t+3h 标签，且输入按节点排列而非全局时间序，实际出现训练集包含验证期之后样本；内层也不重算气候态。参数汇总用逐列众数，max_depth 含 None 时可能产出 9.0 触发 InvalidParameterError。",
+      "status": "已禁用（--search 直接报错退出）；默认固定参数 gini/depth 9/leaf 20",
+      "why_accepted": "本轮只做固定参数重评，不扩大调参",
+      "mitigation": "恢复条件写在报错信息里：必须按唯一时间戳切折 + 折内重算预处理 + 按完整参数组合选择并保留类型。tests/test_stage1_baseline.py 覆盖禁用行为。",
+      "approved_by": "1 号",
+      "declared": "2026-11-15",
+      "review_by": "恢复搜索前重开这条"
     }
   ]
 }

@@ -1,157 +1,79 @@
-# 第 5 部分：实验事实与自主撰写提纲
+## 2.7 Regression Based Risk Classification and Ordinal Comparison
 
-本文件用于理解实验、核对数字及组织自己的报告，不是直接提交的英文报告正文。
-数据来源：`models/metrics_stage5.json`；前序模型对照来自 04 分支的 `models/metrics_stage4.json`。
+### M5 Regression Model
 
-## 1. 问题与方法
+M5 employs a Random Forest regressor to predict PM2.5 concentrations three hours ahead. The model first averages the concentration predictions from individual trees, then converts this value into one of four risk levels. The thresholds for the true labels are 15, 35, and 55 µg/m³. This can be understood as “first predicting the specific concentration, then determining which tier it belongs to.” During training, the numerical differences between concentration values are preserved.
 
-- 问题：相同 25 个特征下，连续浓度回归再分档与累积有序分类各有什么得失？
-- M5：RF 回归 t+3h 浓度，按 [15,35,55] 切档；另列仅用 val 选择的切点对照。
-- M6：3 个二分类 RF 学习 P(Y>0)、P(Y>1)、P(Y>2)，使用 balanced_subsample。
-- 修正：q* = cumulative minimum(q)，p = [1-q0*,q0*-q1*,q1*-q2*,q2*]，归一化、argmax。
-- 概率单调只是输出一致性，不等于保证跨级错误减少或概率已经校准。
+The official M5 results are based on the v1 feature set, using 25 filtered features and three receptor grid points: KL_City, Port_Klang, and Sepang. After temporal splitting, the training set contains 77,753 samples, the validation set 16,656, and the test set 16,647. The prediction targets are derived from CAMS atmospheric model products, not from ground-based monitoring station measurements. The v1 feature set includes hour_sin but lacks hour_cos; this time encoding issue has been documented. The corrected v2 feature set was evaluated separately by M8 and cannot be used to replace M5’s official results.
 
-方法出处：[Frank & Hall, A Simple Approach to Ordinal Classification](https://ml.cms.waikato.ac.nz/publications/2001/ordinal_tech_report.pdf)。
+The selected Random Forest consists of 100 trees with a maximum depth of 14, a minimum of 10 samples per leaf node, and considers half of the features at each split. Parameter tuning employed five-fold cross-validation with temporal ordering. Samples from different grid points at the same timestamp were kept on the same side of the fold split. If a training sample’s three-hour-ahead target fell into a subsequent validation interval, that training sample was removed to avoid target time overlap. Since feature selection was performed on the entire training set, this internal cross-validation does not constitute full nested validation.
 
-## 2. 实验设置
+### Fixed and Validation Tuned Thresholds
 
-- 受体节点：KL_City、Port_Klang、Sepang；数据是 CAMS 模式产品，不是地面监测记录。
-- 行数：train 77,753；val 16,656；test 16,647。
-- 5 折按唯一时间戳切分，所有节点同刻一起划分；训练行的 t+3h 必须早于折验证开始。
-- 特征选择沿用上游固定 Top-25；上游用了完整 train，因此内部 CV 不是嵌套验证。
-- 候选以 val Macro-F1 为主选定。所有超参数、阈值和种子方案冻结后再预测 test。
-- 验证集报种子 42、43、44 的均值 ± 样本标准差；test 仅报预先指定的种子 42。
-- 标准差描述随机森林种子波动，不是置信区间，也不是统计显著性检验。
+M5 compared two sets of prediction binning thresholds: fixed thresholds of 15, 35, and 55, and optimized thresholds of 17, 33, and 55 µg/m³ selected on the validation set. The true labels were always partitioned according to 15, 35, and 55. Only the rule for converting predicted concentrations into risk levels was changed; the true labels remained unmodified. Thresholds were first selected on the validation set before evaluating the test set. Stability checks were conducted using seeds 42, 43, and 44, while the final test results were obtained using the pre-selected seed 42.
 
-时间划分参考：[scikit-learn TimeSeriesSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html)。
-
-选定结构与预测切点：
-
-```json
-{
-  "selected_regressor_params": {
-    "n_estimators": 100,
-    "max_depth": 14,
-    "min_samples_leaf": 10,
-    "max_features": 0.5
-  },
-  "selected_ordinal_params": {
-    "n_estimators": 100,
-    "max_depth": 14,
-    "min_samples_leaf": 10,
-    "max_features": 0.5
-  },
-  "ordinal_class_weight": "balanced_subsample",
-  "m5_fixed_thresholds": [
-    15.0,
-    35.0,
-    55.0
-  ],
-  "m5_val_tuned_thresholds": [
-    17.0,
-    33.0,
-    55.0
-  ]
-}
-```
-
-M5 搜索切点只改预测决策，真实类别始终由固定 [15,35,55] 定义。
-
-## 3. 验证集稳定性
-
-| 模型 | Macro_F1 | Balanced_Accuracy | High_Risk_Recall | MAOE | Severe_Jumping_Error_Rate | Avg_Asymmetric_Cost |
-|---|---|---|---|---|---|---|
-| M5_fixed | 0.7152 ± 0.0007 | 0.6977 ± 0.0015 | 0.8094 ± 0.0020 | 0.2566 ± 0.0003 | 0.0066 ± 0.0003 | 0.5936 ± 0.0029 |
-| M5_val_tuned | 0.7195 ± 0.0017 | 0.7234 ± 0.0021 | 0.8600 ± 0.0011 | 0.2644 ± 0.0017 | 0.0061 ± 0.0003 | 0.5871 ± 0.0038 |
-| M6_Ordinal_RF | 0.6893 ± 0.0007 | 0.7334 ± 0.0008 | 0.8439 ± 0.0010 | 0.3028 ± 0.0010 | 0.0218 ± 0.0003 | 0.5879 ± 0.0021 |
-
-## 4. 最终测试集：统一行数，种子 42
-
-| 模型 | Macro_F1 | Balanced_Accuracy | High_Risk_Recall | MAOE | Severe_Jumping_Error_Rate | Avg_Asymmetric_Cost |
-|---|---|---|---|---|---|---|
-| M2_Nominal_RF | 0.7014 | 0.6824 | 0.8094 | 0.2813 | 0.0138 | 0.7700 |
-| M3_Balanced_RF | 0.7018 | 0.7206 | 0.8873 | 0.3003 | 0.0146 | 0.6512 |
-| M4_Boosting | 0.7005 | 0.6871 | 0.8332 | 0.2858 | 0.0135 | 0.7250 |
-| M5_fixed | 0.7000 | 0.6793 | 0.8413 | 0.2787 | 0.0100 | 0.7242 |
-| M5_val_tuned | 0.7078 | 0.7117 | 0.8788 | 0.2873 | 0.0091 | 0.7083 |
-| M6_Ordinal_RF | 0.6839 | 0.7139 | 0.8642 | 0.3169 | 0.0239 | 0.6616 |
-
-每个模型 n=16,647，真实高危 n=6848。
-Macro-F1、Balanced Accuracy、高危召回越高越好；MAOE、跨两级误差、平均代价越低越好。
-高危召回使用集合口径：真实为 L2/L3，预测也属于 L2/L3 即识别到高危。
-本实验没有重新训练 M2～M4；这些是前序交付值，且其内部 CV 没有本模块的 3h 清除。
-
-## 5. 单调修正与区间证据
-
-| 切分 | 修正前违反样本 | 违反率 | 修正后违反样本 | PICP | MPIW (µg/m³) |
-|---|---:|---:|---:|---:|---:|
-| val | 580 | 3.48% | 0 | 0.7180 | 16.4788 |
-| test | 883 | 5.30% | 0 | 0.7183 | 20.7877 |
-
-区间来自 M5 各棵树浓度预测的 5/50/95 百分位，未经覆盖率校准，不是分位数随机森林。
-PICP = mean(lower <= target <= upper)；MPIW = mean(upper-lower)。
-“取 5%～95% 分位”描述树之间的分散范围，不能直接写成“真实未来浓度有 90% 概率在内”。
-
-![等级误差分布](../figures/fig_ordinal_error_distribution.png)
-
-图：完整 test，种子 42。误差 = 预测等级 - 真实等级；负数代表低报，斜线柱表示跨两级及以上。
-
-![树间浓度区间](../figures/fig_interval_band.png)
-
-图：预先固定 Sepang 最早 168 个测试小时，横轴为目标时刻 t+3h；缺小时不连线。
-
-## 6. 验收门槛的实际结果
-
-- M5_fixed：高危召回门槛 未通过；MAOE 门槛 通过；两者同时满足：否。
-- M5_val_tuned：高危召回门槛 通过；MAOE 门槛 通过；两者同时满足：是。
-- M6_Ordinal_RF：高危召回门槛 未通过；MAOE 门槛 未通过；两者同时满足：否。
-
-注意：规范给出的既有 M3 val 均值 0.8744/0.2822 已满足两道门槛，不能宣称此门槛从未被达到。
-
-## 7. 自己写报告时要回答
-
-1. 用一行自己的话解释：为什么先预测连续浓度再分档也能保留等级次序？
-2. 对照两张表，分别比较 M5/M6 的高危召回、平均等级误差、跨级误判；不要只挑一个指标。
-3. 阈值校准相对固定切点改变了哪些指标？验证集收益在 test 上是否保留？
-4. M6 三个二分类器使用了各自的类权重，这与“只改变有序分解”有何不同？
-5. 单调违反率能证明什么，不能证明什么？修正没有比较校准性或统计显著性。
-6. 用实际 PICP 讨论树间区间的覆盖不足或过宽，避免把它当作保证。
-7. 数据源、固定 Top-25、有限搜索、仅三颗种子、单次历史留出分别限制了哪些结论？
-
-## 8. 可追溯与复核
-
-- `metrics_stage5.json`：所有数字及输入、代码和模型摘要。
-- `stage5_selection.json`：test 预测前已冻结的决策。
-- `stage5_predictions.npz`：已保存预测与原始累积概率。
-- `python tools/verify_stage5.py`：从保存预测复核，不再次预测 test。
-- 只对随机种子报样本标准差；未做显著性检验，因此不写“显著优于”。
-
-## 9. 2026-11-13 区间校准实验数据（补充笔记）
-
-采用反馈指定的验证集绝对残差法，以 M5 树预测中位数为中心，目标覆盖率固定 90%。
-宽度只在 val 计算：第 `ceil((16656+1)*0.9)=14992` 小的绝对残差为 13.820877 µg/m³。
-区间为 `[max(0,median-13.820877), median+13.820877]`。
-
-| 数据 | 原覆盖率 | 校准后覆盖率 | 原平均宽度 µg/m³ | 校准后平均宽度 µg/m³ |
+| M5 decision boundaries | Test Macro-F1 | High-risk recall | MAOE | Severe jumping error rate |
 |---|---:|---:|---:|---:|
-| val | 71.80% | 90.01% | 16.48 | 27.08 |
-| test | 71.83% | 83.41% | 20.79 | 27.43 |
+| Fixed | 0.7000 | 0.8413 | 0.2787 | 0.0100 |
+| Validation-tuned | 0.7078 | 0.8788 | 0.2873 | 0.0091 |
 
-新增事实来源：`models/metrics_stage5_interval_calibrated.json`。
-校准没有重训模型，直接使用已有预测；原分类指标不变。
-验证集覆盖用于样本内校准检查，测试结果显示覆盖改善但没有达到 90%，同时平均区间变宽。
-验证集曾参与选参，时间序列也不满足简单的独立可交换假设，因此不能宣称严格 90% 保证。
-原测试表现此前已知，要将本次写成事后补充实验，不声称全新盲测，也不拿测试目标继续调宽度。
+High-risk recall measures the proportion of samples that truly belong to Level 2 or Level 3 and are predicted as one of these two high-risk levels. MAOE is the mean absolute error between predicted and true levels; severe jumps refer to discrepancies of at least two levels. After threshold adjustment, Macro F1 and high-risk recall improved, and severe jumps decreased, but MAOE increased from 0.2787 to 0.2873. The threshold adjustment did not improve all metrics.
 
-自己写报告时说明：树间分散为什么不能代表实际误差？覆盖与宽度有什么取舍？
-为什么验证期达到目标不代表后续时期也达到？全局覆盖为什么不等于每个节点的覆盖？
+### M6 Ordinal Classification Comparison
 
-## 10. 自适应宽度改善实验（补充笔记）
+M6 adopts the cumulative decomposition approach proposed by Frank and Hall, training three binary-classification random forests to estimate P(Y > 0), P(Y > 1), and P(Y > 2), respectively. Each model uses balanced_subsample class weights. In implementation, the three cumulative probabilities are first adjusted to ensure a non-increasing order, and then the probabilities for the four levels are recovered. This step resolves inconsistencies in probability ordering but does not establish probability calibration.
 
-固定方法在验证期的三个时间顺序块上比较后，按平均区间评分选定树间尺度标准化。
-使用预测树 5%～95% 半宽（下限 1 µg/m³）作尺度，验证集校准倍数为 1.54522436。
-测试 PICP 由固定半宽的 83.41% 提升到 87.97%，平均宽度由 27.43 增加到 32.11 µg/m³。
-这表明改善覆盖的同时增加了宽度，仍不能写成兑现严格的 90% 保证。
-完整方案选择及分节点结果见交接第 10 节；事实来源为 `models/metrics_stage5_interval_adaptive.json`。
-只有选定方案在冻结后进行缓存测试复核，没有使用测试结果调倍数，原分类指标及模型不变。
-这仍是事后扩展；验证集曾用于原模型选择，不能当作独立、从未使用的校准/验证数据。
+For M6, the test Macro F1 was 0.6839, high-risk recall was 0.8642, MAOE was 0.3169, and the severe jump error rate was 0.0239. The threshold-adjusted M5 outperformed M6 on all four metrics, with consistent ranking on the validation set. However, M6 had a lower average asymmetric cost of 0.6616 compared to 0.7083 for M5; M6 was therefore not worse across all evaluation criteria. The project retained M5 as the primary solution, while placing M6 in the ablation appendix. This conclusion applies only to the current implementation and dataset and should not be generalized to claim that ordinal classification methods are universally ineffective.
+
+### Prediction Errors Around Forecast Product Seams
+
+This analysis reused previously saved concentration predictions from M5 (seed 42) without retraining the model or generating new predictions. Predictions were grouped by their issuance time in Kuala Lumpur local time: forecasts issued between 05:00–07:00 correspond to target times 08:00–10:00, and those issued between 17:00–19:00 correspond to target times 20:00–22:00. These two windows each span the forecast product seams recorded in §2.1.5 at 08:00 and 20:00, respectively.
+
+| Local issue-time group | Validation n | Validation MAE (µg/m³) | Test n | Test MAE (µg/m³) |
+|---|---:|---:|---:|---:|
+| 05:00–07:00: crosses 08:00 | 2,088 | 6.2956 | 2,079 | 10.7498 |
+| 17:00–19:00: crosses 20:00 | 2,079 | 12.2043 | 2,082 | 13.7345 |
+| Remaining hours, excluding both windows | 12,489 | 4.9815 | 12,486 | 6.6809 |
+| All hours outside the 20:00 window | 14,577 | 5.1697 | 14,565 | 7.2617 |
+
+MAE is the mean absolute error of concentration predictions, measured in µg/m³. The first three rows are mutually exclusive and cover all samples in the dataset. The last row is a sample-size-weighted combination of the first and third rows, used to directly answer “how does the 20:00 seam compare with other periods.” The last row overlaps with the first and third rows and is not an additional sample group.
+
+In the test set, the MAE for the 20:00 window is 1.8914 times that of other periods, exceeding them by 6.4729 µg/m³; the corresponding ratio in the validation set is 2.3607. Errors in the morning window are also higher than those in the remaining periods after excluding the two windows. Both datasets exhibit the phenomenon of “larger errors in these windows.” This is a descriptive comparison that does not control for concentration levels, seasonality, or correlations among samples, nor does it perform significance testing. This comparison does not establish that all additional error was caused by the seam.
+
+## 2.8 Calibration of Concentration Prediction Intervals
+
+### Original Tree Based Prediction Intervals
+
+The original intervals were obtained by directly taking the 5th and 95th percentiles across individual tree predictions for each sample. This reflects the range of disagreement among trees. On the test set, they covered only 71.83% of the true targets, with an average width of 20.79 µg/m³. “Covering the middle 90% of tree predictions” is not equivalent to “covering 90% of true concentrations.” These two quantities describe different forms of coverage.
+
+### Residual Based Interval Calibration
+
+The first method centers the interval on the median of tree predictions and determines a uniform half-width using absolute residuals from the validation set. The second method allows the interval half-width to vary with the degree of disagreement among tree predictions, employing standardized residuals. The percentile span of tree predictions serves merely as a proxy for scale, without training an additional residual prediction model. The MAPIE conformity score documentation describes such standardized residual methods.
+
+For the i-th sample, let m_i denote the median of tree predictions, and let q_0.05,i and q_0.95,i represent the 5th and 95th percentiles of tree predictions. The scale s_i is half the percentile span, with a lower bound of 1 µg/m³ to prevent excessively small scales.
+
+\[
+s_i=\max((q_{0.95,i}-q_{0.05,i})/2,1\;\text{µg/m³})
+\]
+
+The standardized absolute residual on the validation set is defined as r_i = |y_i − m_i| / s_i, where y_i is the target concentration. The target coverage rate is set to 0.90. Given n validation samples, sort the residuals in ascending order and take the ceil((n + 1) × 0.90)-th value, without interpolation. Here, ceil denotes rounding up. The amplification factor recorded is k = 1.54522436, yielding intervals with the lower bound truncated at 0 to avoid negative concentrations.
+
+\[
+[\max(0,m_i-k s_i),m_i+k s_i]
+\]
+
+Samples with greater disagreement among tree predictions typically receive wider intervals; those with smaller disagreement typically receive narrower intervals.
+
+### Calibration Method Selection and Results
+
+Four static calibration methods were compared experimentally, using three temporally advancing validation blocks. The selection criterion was the mean interval score, which penalizes both overly wide intervals and cases where the true target falls outside the interval. Methods and parameters were fixed first, and then interval coverage and width were computed for the saved test predictions. Calibration did not alter the regression model, risk stratification thresholds, or classification performance.
+
+| Interval method | Test coverage | Mean test width (µg/m³) |
+|---|---:|---:|
+| Original tree-percentile band | 71.83% | 20.79 |
+| Common half-width calibration | 83.41% | 27.43 |
+| Adaptive-width calibration | 87.97% | 32.11 |
+
+The adaptive method improved coverage by 4.56 percentage points over the uniform half-width method, increasing the average interval width by approximately 17.1%. This represents a trade-off between coverage and interval width. The calibrated coverage on the full validation set was 90.01%, reflecting evaluation on the data used for calibration. Test coverage remained below the 90% target. Differences across nodes were observed: KL_City achieved 84.77%, Port_Klang 91.19%, and Sepang 87.96%.
+
+The validation set had also been used for model selection, and the hourly samples have temporal and spatial dependence. The interval study was a post-hoc extension after the original test results were known. The 90% target does not guarantee future coverage or coverage for an individual forecast.

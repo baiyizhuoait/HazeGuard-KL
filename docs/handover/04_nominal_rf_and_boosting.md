@@ -1,28 +1,30 @@
 # 04 模块交接：名义随机森林、平衡随机森林与提升法
 
-本模块实现 M2、M3、M4，并用同一批受体样本、同一组 Top-25 特征和同一套指标比较三者。数值证据以 `models/metrics_stage4.json` 为准，英文报告章节见 `reports/sec2_6_models.md`。
+本模块实现 M2、M3、M4，并在 `main@7a46440` 的 QC 修复面板与正式 v3 特征表上完成重训。候选网格、种子和验证集选择规则保持冻结。数值证据以 `models/metrics_stage4.json` 为准，旧产物保存在 `docs/qc_fix/pre_refit/`，英文报告章节见 `reports/sec2_6_models.md`。
 
 ## 1. 我产出了什么
 
-训练域只包含 `role == receptor` 的 KL_City、Port_Klang、Sepang。进入本阶段的有效行数为 train 77,753、val 16,656、test 16,647，每行有 25 个有限数值特征和一个四级标签。代码按 `timestamp, station_id` 排序，并按唯一时间戳建立 5 折时间序列划分。
+训练域只包含 `role == receptor` 的 KL_City、Port_Klang、Sepang。正式特征表为 111,038 × 32，包含 `gran_low_12h`。进入本阶段的有效行数为 train 77,744、val 16,647、test 16,647，与 `PANEL_CONTRACT` 逐项相等。每行使用25个有限数值特征和一个四级标签。代码按 `timestamp, station_id` 排序，并按唯一时间戳建立5折时间序列划分。
 
 | 类别 | 文件 | 内容或形状 |
 |---|---|---|
 | 训练代码 | `src/04_rf_and_boosting.py` | M0、M2、M3、M4 的选参、三种子验证、一次测试和产物保存 |
 | 实验代码 | `src/04_complexity_experiments.py` | 深度 2–25 的复杂度曲线，以及 3/6/12/24 小时时间窗敏感性 |
-| M2 | `models/rf_nominal.joblib` | `RandomForestClassifier`，25 个输入特征，4 个输出类别，4,152,596 bytes |
-| M3 | `models/rf_balanced.joblib` | `RandomForestClassifier`，25 个输入特征，4 个输出类别，10,159,600 bytes |
-| M4 | `models/boosting.joblib` | `HistGradientBoostingClassifier`，25 个输入特征，4 个输出类别，1,866,896 bytes |
-| 数值证据 | `models/metrics_stage4.json` | 36,034 bytes；含 12 组 RF、24 组 Boosting 搜索记录，三种子验证统计和 `test_evaluation_count=1` |
+| M2 | `models/rf_nominal.joblib` | `RandomForestClassifier`，25 个输入特征，4 个输出类别，4,146,728 bytes |
+| M3 | `models/rf_balanced.joblib` | `RandomForestClassifier`，25 个输入特征，4 个输出类别，10,100,432 bytes |
+| M4 | `models/boosting.joblib` | `HistGradientBoostingClassifier`，25 个输入特征，4 个输出类别，1,841,984 bytes |
+| 数值证据 | `models/metrics_stage4.json` | 36,039 bytes；含12组 RF、24组 Boosting 搜索记录，三种子验证统计和 `test_evaluation_count=1` |
+| 总模型表 | `models/all_models_benchmark.csv` | 保留其他模型行，只用新 M2/M3/M4 固定 test 指标替换旧行 |
+| 指纹清单 | `docs/qc_fix/stage4_refit_fingerprints.json` | 记录修复前备份与重训后三个二进制模型的字节数及稳定 SHA256 |
 | 图 | `figures/fig_rf_complexity_curve.png` | 3511 × 1318 px；训练/验证 Macro-F1 与 log-loss 随深度变化 |
 | 图 | `figures/fig_window_sensitivity.png` | 2309 × 1409 px；时间窗、验证 Macro-F1 与单样本延迟 |
 | 图 | `figures/fig_boosting_vs_rf.png` | 3904 × 1276 px；M0/M2/M3/M4 固定测试集对比 |
 
 三个模型的 SHA256 分别为：
 
-- `rf_nominal.joblib`: `baa4cf77392bc9e1d98122b7f70cfc541652506a0509e416246d9516f0436874`
-- `rf_balanced.joblib`: `f8f58f1227c128b33ab0d4e393ddcad95c968d35ff5f77c4e29c19cb6b4d147e`
-- `boosting.joblib`: `3a8102172463125a16e89527eaa3e9a59dee3fbee2544bc42c1f53c9c8717f48`
+- `rf_nominal.joblib`: `b18387c717e31b6e27fbd9bcf2afa4b83ad44f6be6d70cc0efdec6ea0d39120f`
+- `rf_balanced.joblib`: `94df87375e259c2e1830d0b4c8c83cda5e224942fe95fe732ff3d258dceaae18`
+- `boosting.joblib`: `8b42584ee8e8b815c99ab3e33f2f80cc66d6b08d68b6803b102e23a6bab2acc5`
 
 ## 2. 字段/接口说明
 
@@ -30,7 +32,7 @@
 
 输入 `X` 必须是形状 `(n, 25)` 的有限数值矩阵。特征顺序不能由调用方猜测，必须读取 `metrics_stage4.json -> feature_names` 后按该顺序取列。训练入口会拒绝任一 Top-25 特征含 NaN 或无穷值；虽然 M4 算法本身能处理 NaN，本次保存模型的接口仍以“25 列全部有限”为契约。
 
-M2 和 M3 的结构参数相同：100 棵树、`max_depth=14`、`min_samples_leaf=20`、`max_features=0.5`。两者唯一的建模差异是 M2 使用 `class_weight=None`，M3 使用 `class_weight='balanced_subsample'`。M4 使用 `learning_rate=0.06`、`max_iter=400`、`max_leaf_nodes=31`、`min_samples_leaf=20`，并固定 `random_state=42`、`early_stopping=False`。
+M2 和 M3 的结构参数相同：100棵树、`max_depth=14`、`min_samples_leaf=20`、`max_features=0.5`。两者唯一的建模差异是 M2 使用 `class_weight=None`，M3 使用 `class_weight='balanced_subsample'`。M4 使用 `learning_rate=0.03`、`max_iter=400`、`max_leaf_nodes=31`、`min_samples_leaf=20`，并固定 `random_state=42`、`early_stopping=False`。M4 的候选网格没有改变；修复后的验证集按原规则选中了0.03，而旧数据选中0.06。
 
 产物使用 Python 3.11–3.13 项目的锁定依赖生成，其中 scikit-learn 为 1.9.0、joblib 为 1.5.3。joblib 反序列化能够执行对象构造逻辑，只应加载仓库中已核对摘要的可信文件。
 
@@ -38,9 +40,9 @@ M2 和 M3 的结构参数相同：100 棵树、`max_depth=14`、`min_samples_lea
 
 ### 为什么 RF 固定 `max_depth=14`
 
-12 组 RF 搜索中，不限深度候选的 M2 验证 Macro-F1 达到 0.7190，但用同一组结构参数训练 M3 后，压缩模型仍超过仓库规定的单文件 20 MiB 上限。不能只裁剪 M3，因为 M2/M3 对照要求除类别权重外保持相同。最终选择规则因此先排除不限深度候选，再在可交付候选中按验证 Macro-F1 选择。深度 14、100 棵树、叶节点最少 20 个样本的候选在该集合中最好，M2 验证 Macro-F1 为 0.7142，两个 RF 文件也都满足大小约束。
+12组 RF 搜索中，不限深度候选的最高 M2 验证 Macro-F1 为0.7166。旧训练已经证明这类配置会使对应 M3 压缩模型超过仓库规定的单文件20 MiB上限。不能只裁剪 M3，因为 M2/M3 对照要求除类别权重外保持相同。最终选择规则继续先排除不限深度候选，再在可交付候选中按验证 Macro-F1 选择。深度14、100棵树、叶节点最少20个样本的候选在该集合中最好，M2 验证 Macro-F1 为0.7155，两个 RF 文件也都满足大小约束。
 
-独立深度扫描显示 M3 的验证 Macro-F1 从深度 13 起进入平台区，深度 14 为 0.7097，深度 21 的最高值为 0.7136。继续加深只带来约 0.004 的验证差异，同时训练分数继续上升，序列化体积也更难控制。因此深度 14 是验证表现、对照公平性和仓库约束共同作用的结果，不应写成无约束搜索的绝对最优。
+独立深度扫描显示 M3 的验证 Macro-F1 从深度13起进入平台区，深度14为0.7115，扫描最高值为深度24的0.7147。继续加深只带来约0.003的验证差异，同时训练分数继续上升，序列化体积也更难控制。因此深度14是验证表现、对照公平性和仓库约束共同作用的结果，不应写成无约束搜索的绝对最优。
 
 ### 为什么 M4 用 HistGradientBoosting，而不是 AdaBoost
 
@@ -48,7 +50,19 @@ M2 和 M3 的结构参数相同：100 棵树、`max_depth=14`、`min_samples_lea
 
 ### 模型选择纪律
 
-超参数只由 train 内 5 折和固定 val 决定。固定方案后，种子 42/43/44 只用于 val 稳定性统计；所有选择落盘后才用种子 42 对 test 评估一批，JSON 明确记录 `test_evaluation_count=1`。M4 的验证 Macro-F1 为 0.7236，三模型最高，但 test 只有 0.7005。M3 在 test 的 Macro-F1 为 0.7018，高危召回为 0.8873，平均非对称代价为 0.6512，所以本阶段把 M3 作为风险目标下的首选模型，同时保留 M4 的验证集优势与较低 MAOE 结论。
+超参数只由 train 内5折和固定 val 决定。固定方案后，种子42/43/44只用于 val 稳定性统计；所有选择落盘后才用种子42对 test 评估一批，JSON 明确记录 `test_evaluation_count=1`。M4 的验证 Macro-F1 为0.7251，固定 test Macro-F1 为0.7081，均是三模型最高。M3 在 test 的高危召回为0.8900，平均非对称代价为0.6527，所以风险目标仍首选 M3；若强调总体 Macro-F1、MAOE 和跳级误差，则 M4 更好。
+
+### QC 修复前后对照
+
+下表使用相同 test 样本数、相同指标函数、相同候选网格、相同种子和相同选择规则。RF 最终超参数完全相同；M4 的最终学习率由冻结的验证规则从0.06改选为0.03。
+
+| 模型 | Macro-F1 旧→新（Δ） | Balanced Accuracy 旧→新（Δ） | 高危召回 旧→新（Δ） | MAOE 旧→新（Δ） | 跳级误差 旧→新（Δ） | 平均代价 旧→新（Δ） |
+|---|---:|---:|---:|---:|---:|---:|
+| M2 | 0.7014→0.7021（+0.0007） | 0.6824→0.6821（−0.0003） | 0.8094→0.8088（−0.0006） | 0.2813→0.2808（−0.0005） | 0.0138→0.0141（+0.0003） | 0.7700→0.7747（+0.0047） |
+| M3 | 0.7018→0.7058（+0.0040） | 0.7206→0.7235（+0.0029） | 0.8873→0.8900（+0.0027） | 0.3003→0.2963（−0.0040） | 0.0146→0.0146（+0.0000） | 0.6512→0.6527（+0.0015） |
+| M4 | 0.7005→0.7081（+0.0076） | 0.6871→0.6945（+0.0074） | 0.8332→0.8427（+0.0095） | 0.2858→0.2758（−0.0100） | 0.0135→0.0110（−0.0025） | 0.7250→0.6929（−0.0321） |
+
+固定 test 中超过0.005的变化全部出现在 M4 的 Macro-F1、Balanced Accuracy、高危召回、MAOE 和平均代价。原因是本次输入换成修复后的有效行与正式 Top-25，`hour_cos` 替换了 `pm2_5_mean_6h`，而冻结的验证规则又选中了更低的学习率；本次没有再做消融，不能把变化单独归因于其中一项。验证集上另有 M2 三种子平均代价从0.6465降到0.6371，变化0.0094，原因同样是有效行和 Top-25 输入修复。
 
 ## 4. 已知缺陷和坑
 
@@ -56,12 +70,12 @@ M2 和 M3 的结构参数相同：100 棵树、`max_depth=14`、`min_samples_lea
 2. **不能直接传 API 原始字段。** 模型前面没有缺失值填补、滞后构造或 Top-25 选择器。调用方要先复现 02/03 阶段处理，并保证 25 列全部有限。
 3. **内部时间 CV 不是完整嵌套验证。** Top-25 是 03 阶段用全部 train 标签选出的，本阶段没有在每个时间折内重做特征选择。CV 分数可能偏乐观，val/test 没有参与特征选择。
 4. **M4 的三种子标准差为 0。** 当前 HistGradientBoosting 配置没有随机子采样，三个 `random_state` 运行得到相同结果。这不等于在不同时间段或不同节点上稳定。
-5. **val 与 test 的类别构成不同。** 高危样本由 val 的 4,842 增至 test 的 6,848，模型排序发生变化。不能用 test 排名返回去改超参数或阈值。
-6. **M3 的收益有代价。** 相对 M2，test 高危召回从 0.8094 提高到 0.8873，平均代价从 0.7700 降到 0.6512，但 MAOE 从 0.2813 升到 0.3003。类权重把决策边界推向更高风险等级，误报也随之增加。
+5. **val 与 test 的类别构成不同。** 高危样本由 val 的4,842增至 test 的6,848。不能用 test 排名返回去改超参数或阈值。
+6. **M3 的收益有代价。** 相对 M2，test 高危召回从0.8088提高到0.8900，平均代价从0.7747降到0.6527，但 MAOE 从0.2808升到0.2963。类权重把决策边界推向更高风险等级，误报也随之增加。
 7. **版本和安全性有约束。** 不匹配的 sklearn 版本可能无法稳定加载模型；来源不明的 joblib 不能加载。先核对上面的 SHA256。
 8. **训练数据是模式产品上的教学实验。** 等级阈值是项目实验定义，不能解释成官方小时 AQI，也不能声称结果代表地面监测或个人暴露。
 
-需要组长在总报告中保持三处口径一致：`max_depth=14` 是带文件大小约束的选择；“M3 是赢家”限定在本阶段的高危召回和代价目标；M4 三种子零标准差源于算法在当前配置下确定，不是额外的泛化证据。
+需要组长在总报告中保持三处口径一致：`max_depth=14` 是带文件大小约束的选择；M4 现在是 Macro-F1、MAOE 和跳级误差最优，M3 只在高危召回和平均代价目标上胜出；M4 三种子零标准差源于算法在当前配置下确定，不是额外的泛化证据。
 
 ## 5. 下一棒怎么用
 
@@ -80,7 +94,7 @@ metrics = json.loads((root / "models/metrics_stage4.json").read_text(encoding="u
 features = metrics["feature_names"]
 
 model_path = root / "models/rf_balanced.joblib"
-expected_sha256 = "f8f58f1227c128b33ab0d4e393ddcad95c968d35ff5f77c4e29c19cb6b4d147e"
+expected_sha256 = "94df87375e259c2e1830d0b4c8c83cda5e224942fe95fe732ff3d258dceaae18"
 assert hashlib.sha256(model_path.read_bytes()).hexdigest() == expected_sha256
 
 model = joblib.load(model_path)
@@ -103,9 +117,9 @@ python src/04_complexity_experiments.py
 
 ## 6. 我没做的事
 
-- 没有用 test 调参、选阈值或选模型，也没有在补文档时重新预测 test。
+- 没有用 test 调参、选阈值或选模型；本次数据修复重评只按冻结流程评估 test 一次。
 - 没有做概率校准、ROC 阈值寻优、代价敏感训练、LOSO 泛化或特征解释；这些属于后续模块。
 - 没有比较 AdaBoost、XGBoost、LightGBM 或其他新增算法，也没有增加项目依赖。
 - 没有重做 03 阶段的 Top-25 特征选择，没有改 01–03 的代码、数据或指标。
-- 没有把 M3 的高危召回优势写成所有指标都占优；M4 的验证集表现和 M2/M4 的较低 MAOE 均保留报告。
+- 没有把 M3 的高危召回优势写成所有指标都占优；M4 的验证/test Macro-F1 与较低 MAOE 均保留报告。
 - 没有把四级标签、模型概率或树集成分散度解释成临床风险、官方 AQI 或经过校准的不确定性。

@@ -77,3 +77,9 @@ Four static calibration methods were compared experimentally, using three tempor
 The adaptive method improved coverage by 4.56 percentage points over the uniform half-width method, increasing the average interval width by approximately 17.1%. This represents a trade-off between coverage and interval width. The calibrated coverage on the full validation set was 90.01%, reflecting evaluation on the data used for calibration. Test coverage remained below the 90% target. Differences across nodes were observed: KL_City achieved 84.77%, Port_Klang 91.19%, and Sepang 87.96%.
 
 The validation set had also been used for model selection, and the hourly samples have temporal and spatial dependence. The interval study was a post-hoc extension after the original test results were known. The 90% target does not guarantee future coverage or coverage for an individual forecast.
+
+### Reproduction Entry and Data Version
+
+The interval results above belong to the original M5 prediction cache. The application entry is `python src/05_apply_adaptive_interval.py`. It reads frozen adaptive parameters and saved tree percentiles, checks their data fingerprints and row identities, and writes the dashboard's existing JSON and NPZ interfaces. It does not fit models or select calibration parameters. Both output files must be archived before running; existing files are never overwritten.
+
+The QC feature table promoted in commit `7a46440` has 16,647 validation rows. The saved M5 cache and calibration still refer to 16,656 validation rows. Applying the new entry to the original inputs reproduces all reported interval scores and all six saved arrays exactly. Combining the QC table with the original cache is rejected before any output is written. The results above have not been re-evaluated on the QC table, and no change in interval width can yet be attributed to that repair.

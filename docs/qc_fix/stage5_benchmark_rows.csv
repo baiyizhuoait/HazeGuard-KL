@@ -1,0 +1,3 @@
+model,feature_sha256,split,seed,Macro_F1,Balanced_Accuracy,High_Risk_Recall,MAOE,Severe_Jumping_Error_Rate,Avg_Asymmetric_Cost,n_samples
+M5_fixed,e0f27fe33847f170cfb7b7690afed56407ea66cc7247ad3c9172eed9f517e8de,test,42,0.7046,0.6836,0.8419,0.275,0.01,0.718,16647
+M5_val_tuned,e0f27fe33847f170cfb7b7690afed56407ea66cc7247ad3c9172eed9f517e8de,test,42,0.7104,0.7139,0.8789,0.2854,0.0091,0.7046,16647

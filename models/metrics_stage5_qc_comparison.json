@@ -1,0 +1,636 @@
+{
+  "generated_at": "2026-11-16T09:15:21.680588+00:00",
+  "git_commit": "301febedd102a84f9161c2318bf45832ef1eecf5",
+  "input_sha256": {
+    "features_final": "e0f27fe33847f170cfb7b7690afed56407ea66cc7247ad3c9172eed9f517e8de",
+    "selected_features": "36ee7d271aa9774bc3666038e87ae8776822e0834f48b41d0eec32bb17c943ea"
+  },
+  "old_input_sha256": {
+    "features_final": "64285f40e81c72ab4872d282d52be68401078e8c33dec50134d93e7877d2f55b",
+    "selected_features": "2d11fd961aedd1fc57ab3036038bfc1d67e0e797cb40fc3e1b2362b568c80d61"
+  },
+  "same_final_model_parameters": true,
+  "same_level_thresholds": true,
+  "new_model_or_threshold_search": false,
+  "model_comparison": [
+    {
+      "model": "M5_fixed",
+      "split": "val_seed42",
+      "metric": "Macro_F1",
+      "old": 0.716,
+      "new": 0.7194,
+      "delta": 0.0034000000000000696
+    },
+    {
+      "model": "M5_fixed",
+      "split": "val_seed42",
+      "metric": "Balanced_Accuracy",
+      "old": 0.6991,
+      "new": 0.7015,
+      "delta": 0.0023999999999999577
+    },
+    {
+      "model": "M5_fixed",
+      "split": "val_seed42",
+      "metric": "High_Risk_Recall",
+      "old": 0.8092,
+      "new": 0.8081,
+      "delta": -0.0010999999999999899
+    },
+    {
+      "model": "M5_fixed",
+      "split": "val_seed42",
+      "metric": "MAOE",
+      "old": 0.2568,
+      "new": 0.2524,
+      "delta": -0.0043999999999999595
+    },
+    {
+      "model": "M5_fixed",
+      "split": "val_seed42",
+      "metric": "Severe_Jumping_Error_Rate",
+      "old": 0.007,
+      "new": 0.006,
+      "delta": -0.001
+    },
+    {
+      "model": "M5_fixed",
+      "split": "val_seed42",
+      "metric": "Avg_Asymmetric_Cost",
+      "old": 0.5929,
+      "new": 0.5883,
+      "delta": -0.0045999999999999375
+    },
+    {
+      "model": "M5_fixed",
+      "split": "test_seed42",
+      "metric": "Macro_F1",
+      "old": 0.7,
+      "new": 0.7046,
+      "delta": 0.0046000000000000485
+    },
+    {
+      "model": "M5_fixed",
+      "split": "test_seed42",
+      "metric": "Balanced_Accuracy",
+      "old": 0.6793,
+      "new": 0.6836,
+      "delta": 0.0042999999999999705
+    },
+    {
+      "model": "M5_fixed",
+      "split": "test_seed42",
+      "metric": "High_Risk_Recall",
+      "old": 0.8413,
+      "new": 0.8419,
+      "delta": 0.0005999999999999339
+    },
+    {
+      "model": "M5_fixed",
+      "split": "test_seed42",
+      "metric": "MAOE",
+      "old": 0.2787,
+      "new": 0.275,
+      "delta": -0.003699999999999981
+    },
+    {
+      "model": "M5_fixed",
+      "split": "test_seed42",
+      "metric": "Severe_Jumping_Error_Rate",
+      "old": 0.01,
+      "new": 0.01,
+      "delta": 0.0
+    },
+    {
+      "model": "M5_fixed",
+      "split": "test_seed42",
+      "metric": "Avg_Asymmetric_Cost",
+      "old": 0.7242,
+      "new": 0.718,
+      "delta": -0.006199999999999983
+    },
+    {
+      "model": "M5_fixed",
+      "split": "val_three_seed_mean",
+      "metric": "Macro_F1",
+      "old": 0.7152333333333334,
+      "new": 0.7178333333333334,
+      "delta": 0.0026000000000000467
+    },
+    {
+      "model": "M5_fixed",
+      "split": "val_three_seed_mean",
+      "metric": "Balanced_Accuracy",
+      "old": 0.6977000000000001,
+      "new": 0.7000000000000001,
+      "delta": 0.0022999999999999687
+    },
+    {
+      "model": "M5_fixed",
+      "split": "val_three_seed_mean",
+      "metric": "High_Risk_Recall",
+      "old": 0.8093666666666667,
+      "new": 0.8080666666666666,
+      "delta": -0.0013000000000000789
+    },
+    {
+      "model": "M5_fixed",
+      "split": "val_three_seed_mean",
+      "metric": "MAOE",
+      "old": 0.25659999999999994,
+      "new": 0.25416666666666665,
+      "delta": -0.0024333333333332874
+    },
+    {
+      "model": "M5_fixed",
+      "split": "val_three_seed_mean",
+      "metric": "Severe_Jumping_Error_Rate",
+      "old": 0.006600000000000001,
+      "new": 0.006333333333333333,
+      "delta": -0.00026666666666666766
+    },
+    {
+      "model": "M5_fixed",
+      "split": "val_three_seed_mean",
+      "metric": "Avg_Asymmetric_Cost",
+      "old": 0.5935666666666667,
+      "new": 0.5906333333333333,
+      "delta": -0.0029333333333333433
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_seed42",
+      "metric": "Macro_F1",
+      "old": 0.7214,
+      "new": 0.7251,
+      "delta": 0.0036999999999999256
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_seed42",
+      "metric": "Balanced_Accuracy",
+      "old": 0.7258,
+      "new": 0.7285,
+      "delta": 0.0027000000000000357
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_seed42",
+      "metric": "High_Risk_Recall",
+      "old": 0.8612,
+      "new": 0.8627,
+      "delta": 0.0015000000000000568
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_seed42",
+      "metric": "MAOE",
+      "old": 0.2628,
+      "new": 0.2582,
+      "delta": -0.004599999999999993
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_seed42",
+      "metric": "Severe_Jumping_Error_Rate",
+      "old": 0.0062,
+      "new": 0.0055,
+      "delta": -0.0007000000000000001
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_seed42",
+      "metric": "Avg_Asymmetric_Cost",
+      "old": 0.5828,
+      "new": 0.5752,
+      "delta": -0.00759999999999994
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "test_seed42",
+      "metric": "Macro_F1",
+      "old": 0.7078,
+      "new": 0.7104,
+      "delta": 0.0026000000000000467
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "test_seed42",
+      "metric": "Balanced_Accuracy",
+      "old": 0.7117,
+      "new": 0.7139,
+      "delta": 0.0021999999999999797
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "test_seed42",
+      "metric": "High_Risk_Recall",
+      "old": 0.8788,
+      "new": 0.8789,
+      "delta": 9.999999999998899e-05
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "test_seed42",
+      "metric": "MAOE",
+      "old": 0.2873,
+      "new": 0.2854,
+      "delta": -0.0019000000000000128
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "test_seed42",
+      "metric": "Severe_Jumping_Error_Rate",
+      "old": 0.0091,
+      "new": 0.0091,
+      "delta": 0.0
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "test_seed42",
+      "metric": "Avg_Asymmetric_Cost",
+      "old": 0.7083,
+      "new": 0.7046,
+      "delta": -0.0037000000000000366
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_three_seed_mean",
+      "metric": "Macro_F1",
+      "old": 0.7195333333333332,
+      "new": 0.7244333333333334,
+      "delta": 0.0049000000000001265
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_three_seed_mean",
+      "metric": "Balanced_Accuracy",
+      "old": 0.7234000000000002,
+      "new": 0.7279,
+      "delta": 0.0044999999999998375
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_three_seed_mean",
+      "metric": "High_Risk_Recall",
+      "old": 0.8600333333333333,
+      "new": 0.8619,
+      "delta": 0.0018666666666666831
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_three_seed_mean",
+      "metric": "MAOE",
+      "old": 0.26439999999999997,
+      "new": 0.2588,
+      "delta": -0.005599999999999994
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_three_seed_mean",
+      "metric": "Severe_Jumping_Error_Rate",
+      "old": 0.0061,
+      "new": 0.0057,
+      "delta": -0.0004000000000000002
+    },
+    {
+      "model": "M5_val_tuned",
+      "split": "val_three_seed_mean",
+      "metric": "Avg_Asymmetric_Cost",
+      "old": 0.5871333333333334,
+      "new": 0.5771999999999999,
+      "delta": -0.00993333333333346
+    }
+  ],
+  "interval_comparison": [
+    {
+      "method": "adaptive",
+      "split": "val",
+      "group": "overall",
+      "old": {
+        "PICP": 0.9000960614793467,
+        "MPIW": 25.44245539284957,
+        "n_samples": 16656
+      },
+      "new": {
+        "PICP": 0.9001021205021926,
+        "MPIW": 25.18841405935355,
+        "n_samples": 16647
+      },
+      "delta": {
+        "PICP": 6.059022845894546e-06,
+        "MPIW": -0.2540413334960192,
+        "n_samples": -9
+      }
+    },
+    {
+      "method": "adaptive",
+      "split": "val",
+      "group": "KL_City",
+      "old": {
+        "PICP": 0.8773414985590778,
+        "MPIW": 31.510332581972815,
+        "n_samples": 5552
+      },
+      "new": {
+        "PICP": 0.8743917823031176,
+        "MPIW": 31.160170014709177,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": -0.0029497162559601886,
+        "MPIW": -0.3501625672636379,
+        "n_samples": -3
+      }
+    },
+    {
+      "method": "adaptive",
+      "split": "val",
+      "group": "Port_Klang",
+      "old": {
+        "PICP": 0.9239913544668588,
+        "MPIW": 16.554344957486716,
+        "n_samples": 5552
+      },
+      "new": {
+        "PICP": 0.9309785546945396,
+        "MPIW": 16.552916620560797,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": 0.006987200227680845,
+        "MPIW": -0.0014283369259189271,
+        "n_samples": -3
+      }
+    },
+    {
+      "method": "adaptive",
+      "split": "val",
+      "group": "Sepang",
+      "old": {
+        "PICP": 0.8989553314121037,
+        "MPIW": 28.262688639089184,
+        "n_samples": 5552
+      },
+      "new": {
+        "PICP": 0.8949360245089205,
+        "MPIW": 27.852155542790683,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": -0.004019306903183195,
+        "MPIW": -0.41053309629850077,
+        "n_samples": -3
+      }
+    },
+    {
+      "method": "adaptive",
+      "split": "test",
+      "group": "overall",
+      "old": {
+        "PICP": 0.8797380909473178,
+        "MPIW": 32.11199106121323,
+        "n_samples": 16647
+      },
+      "new": {
+        "PICP": 0.8809395086201718,
+        "MPIW": 31.735747588197075,
+        "n_samples": 16647
+      },
+      "delta": {
+        "PICP": 0.0012014176728539772,
+        "MPIW": -0.37624347301615657,
+        "n_samples": 0
+      }
+    },
+    {
+      "method": "adaptive",
+      "split": "test",
+      "group": "KL_City",
+      "old": {
+        "PICP": 0.8477203099657596,
+        "MPIW": 38.753827934630436,
+        "n_samples": 5549
+      },
+      "new": {
+        "PICP": 0.8462786087583348,
+        "MPIW": 38.12576703667729,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": -0.001441701207424817,
+        "MPIW": -0.6280608979531479,
+        "n_samples": 0
+      }
+    },
+    {
+      "method": "adaptive",
+      "split": "test",
+      "group": "Port_Klang",
+      "old": {
+        "PICP": 0.9118760136961614,
+        "MPIW": 24.069344560079045,
+        "n_samples": 5549
+      },
+      "new": {
+        "PICP": 0.9149396287619391,
+        "MPIW": 23.845595020598633,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": 0.0030636150657776806,
+        "MPIW": -0.2237495394804121,
+        "n_samples": 0
+      }
+    },
+    {
+      "method": "adaptive",
+      "split": "test",
+      "group": "Sepang",
+      "old": {
+        "PICP": 0.8796179491800324,
+        "MPIW": 33.51280068893021,
+        "n_samples": 5549
+      },
+      "new": {
+        "PICP": 0.8816002883402415,
+        "MPIW": 33.235880707315296,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": 0.001982339160209068,
+        "MPIW": -0.2769199816149168,
+        "n_samples": 0
+      }
+    },
+    {
+      "method": "fixed",
+      "split": "val",
+      "group": "overall",
+      "old": {
+        "PICP": 0.9000960614793467,
+        "MPIW": 27.08278525907782,
+        "n_samples": 16656
+      },
+      "new": {
+        "PICP": 0.9001021205021926,
+        "MPIW": 26.86661840562384,
+        "n_samples": 16647
+      },
+      "delta": {
+        "PICP": 6.059022845894546e-06,
+        "MPIW": -0.21616685345398068,
+        "n_samples": -9
+      }
+    },
+    {
+      "method": "fixed",
+      "split": "val",
+      "group": "KL_City",
+      "old": {
+        "PICP": 0.8451008645533141,
+        "MPIW": 27.530985811698173,
+        "n_samples": 5552
+      },
+      "new": {
+        "PICP": 0.846639034060191,
+        "MPIW": 27.30343691632406,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": 0.0015381695068769075,
+        "MPIW": -0.22754889537411316,
+        "n_samples": -3
+      }
+    },
+    {
+      "method": "fixed",
+      "split": "val",
+      "group": "Port_Klang",
+      "old": {
+        "PICP": 0.9827089337175793,
+        "MPIW": 26.21745250463833,
+        "n_samples": 5552
+      },
+      "new": {
+        "PICP": 0.9821589475581186,
+        "MPIW": 26.03178726632008,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": -0.0005499861594606692,
+        "MPIW": -0.18566523831825066,
+        "n_samples": -3
+      }
+    },
+    {
+      "method": "fixed",
+      "split": "val",
+      "group": "Sepang",
+      "old": {
+        "PICP": 0.872478386167147,
+        "MPIW": 27.49991746089695,
+        "n_samples": 5552
+      },
+      "new": {
+        "PICP": 0.8715083798882681,
+        "MPIW": 27.264631034227385,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": -0.0009700062788788877,
+        "MPIW": -0.235286426669564,
+        "n_samples": -3
+      }
+    },
+    {
+      "method": "fixed",
+      "split": "test",
+      "group": "overall",
+      "old": {
+        "PICP": 0.8341442902625098,
+        "MPIW": 27.425517435591466,
+        "n_samples": 16647
+      },
+      "new": {
+        "PICP": 0.8329428725896558,
+        "MPIW": 27.207686745897306,
+        "n_samples": 16647
+      },
+      "delta": {
+        "PICP": -0.0012014176728539772,
+        "MPIW": -0.21783068969416064,
+        "n_samples": 0
+      }
+    },
+    {
+      "method": "fixed",
+      "split": "test",
+      "group": "KL_City",
+      "old": {
+        "PICP": 0.7561722832942872,
+        "MPIW": 27.614449925886053,
+        "n_samples": 5549
+      },
+      "new": {
+        "PICP": 0.7527482429266534,
+        "MPIW": 27.38674540845643,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": -0.003424040367633774,
+        "MPIW": -0.22770451742962194,
+        "n_samples": 0
+      }
+    },
+    {
+      "method": "fixed",
+      "split": "test",
+      "group": "Port_Klang",
+      "old": {
+        "PICP": 0.9306181293926834,
+        "MPIW": 27.067202881146482,
+        "n_samples": 5549
+      },
+      "new": {
+        "PICP": 0.9295368534871148,
+        "MPIW": 26.864843345133448,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": -0.0010812759055686127,
+        "MPIW": -0.20235953601303436,
+        "n_samples": 0
+      }
+    },
+    {
+      "method": "fixed",
+      "split": "test",
+      "group": "Sepang",
+      "old": {
+        "PICP": 0.8156424581005587,
+        "MPIW": 27.594899499741864,
+        "n_samples": 5549
+      },
+      "new": {
+        "PICP": 0.8165435213551991,
+        "MPIW": 27.371471484102038,
+        "n_samples": 5549
+      },
+      "delta": {
+        "PICP": 0.0009010632546404551,
+        "MPIW": -0.22342801563982562,
+        "n_samples": 0
+      }
+    }
+  ],
+  "adaptive_minus_fixed_test_coverage_pp": 4.799663603051596,
+  "adaptive_vs_fixed_test_width_change_percent": 16.642579299699435,
+  "M6_refit": false,
+  "new_model_fits": 0,
+  "new_model_test_predictions": 0,
+  "model_sha256": {
+    "rf_regressor.joblib": "759beafe26d8bf13d5e27d1577d9af4227a471ad11060420a68353a3a4afbf5f",
+    "ordinal_rf.joblib": "8a1c16807a6c3b930fbdc800b50aee6ddc9cea6b92f6e7ccc9e9801480744172"
+  }
+}

@@ -1,65 +1,65 @@
 {
   "method": "tree-spread-normalized absolute residual",
   "nominal_coverage": 0.9,
-  "scale_multiplier": 1.5452243600022562,
+  "scale_multiplier": 1.5474406352512813,
   "scale_floor": 1.0,
-  "calibration_sha256": "6409c819ce49a86124fd8b136afdadfef8bda475c11eef9b83c3a8925ace8197",
   "limitations": [
-    "Post-hoc extension: original test results were already known.",
-    "Candidate selection used only validation forward blocks; test does not choose method or parameters.",
-    "Validation was also used for original model selection; calibration is not independent.",
-    "Time-series dependence and shift prevent an unconditional 90% future coverage claim."
+    "Data-repair re-evaluation: the original test outcomes were already known.",
+    "Original M5 model parameters and risk thresholds were retained without new selection.",
+    "Calibration multiplier was fitted only on the repaired validation split.",
+    "Time-series dependence and shift prevent a guarantee of 90% future or per-node coverage."
   ],
+  "unit": "ug/m3",
+  "calibration_sha256": "c565c0c627da7caa60faa389980ba5f0028f8aa2a2b57078d613dce3674c1043",
   "new_model_fits": 0,
   "new_model_test_predictions": 0,
-  "unit": "ug/m3",
   "val": {
     "overall": {
-      "PICP": 0.9000960614793467,
-      "MPIW": 25.44245539284957,
-      "n_samples": 16656
+      "PICP": 0.9001021205021926,
+      "MPIW": 25.18841405935355,
+      "n_samples": 16647
     },
     "by_node": {
       "KL_City": {
-        "PICP": 0.8773414985590778,
-        "MPIW": 31.510332581972815,
-        "n_samples": 5552
+        "PICP": 0.8743917823031176,
+        "MPIW": 31.160170014709177,
+        "n_samples": 5549
       },
       "Port_Klang": {
-        "PICP": 0.9239913544668588,
-        "MPIW": 16.554344957486716,
-        "n_samples": 5552
+        "PICP": 0.9309785546945396,
+        "MPIW": 16.552916620560797,
+        "n_samples": 5549
       },
       "Sepang": {
-        "PICP": 0.8989553314121037,
-        "MPIW": 28.262688639089184,
-        "n_samples": 5552
+        "PICP": 0.8949360245089205,
+        "MPIW": 27.852155542790683,
+        "n_samples": 5549
       }
     }
   },
   "test": {
     "overall": {
-      "PICP": 0.8797380909473178,
-      "MPIW": 32.11199106121323,
+      "PICP": 0.8809395086201718,
+      "MPIW": 31.735747588197075,
       "n_samples": 16647
     },
     "by_node": {
       "KL_City": {
-        "PICP": 0.8477203099657596,
-        "MPIW": 38.753827934630436,
+        "PICP": 0.8462786087583348,
+        "MPIW": 38.12576703667729,
         "n_samples": 5549
       },
       "Port_Klang": {
-        "PICP": 0.9118760136961614,
-        "MPIW": 24.069344560079045,
+        "PICP": 0.9149396287619391,
+        "MPIW": 23.845595020598633,
         "n_samples": 5549
       },
       "Sepang": {
-        "PICP": 0.8796179491800324,
-        "MPIW": 33.51280068893021,
+        "PICP": 0.8816002883402415,
+        "MPIW": 33.235880707315296,
         "n_samples": 5549
       }
     }
   },
-  "intervals_sha256": "9ce21b2fbaf29c5e63b6e14be45a2c88a0fc1a6c8dd647f8a5388ca0b89b37ca"
+  "intervals_sha256": "2e0ee4750a167a61e51cb9643036273f530b4d71b3f6d430be8f5f5f94557127"
 }

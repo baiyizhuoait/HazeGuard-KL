@@ -119,7 +119,7 @@ def error_figure(y, predictions, output):
         plt.close(fig)
 
 
-def interval_figure(test, point, quantiles, overall, output):
+def interval_figure(test, point, quantiles, overall, output, calibrated=False):
     # 固定展示 Sepang 最早的 168 个测试小时，保留缺失小时。
     station = "Sepang"
     data = test[["station_id", "timestamp", "target_pm25_3h"]].copy()
@@ -133,7 +133,8 @@ def interval_figure(test, point, quantiles, overall, output):
                          "axes.spines.right": False}):
         fig, ax = plt.subplots(figsize=(11.5, 4.6), layout="constrained")
         ax.fill_between(horizon, data.q05.to_numpy(), data.q95.to_numpy(),
-                        color="#56B4E9", alpha=0.4, label="5th-95th tree prediction percentiles")
+                        color="#56B4E9", alpha=0.4,
+                        label="90% target adaptive interval" if calibrated else "5th-95th tree prediction percentiles")
         ax.plot(horizon, data.target_pm25_3h, color="#222222", linewidth=1.4,
                 label="CAMS target (not ground observation)")
         ax.plot(horizon, data["mean"], color="#0072B2", linewidth=1.2,
@@ -144,7 +145,7 @@ def interval_figure(test, point, quantiles, overall, output):
                ylabel="PM2.5 (µg/m³)", ylim=(0, None),
                title=f"M5, {station}: first 168 test hours; gaps retained\n"
                      f"Full-test PICP={overall['PICP']:.1%}; MPIW={overall['MPIW']:.2f} µg/m³. "
-                     "Band is uncalibrated.")
+                     + ("Adaptive calibration; 90% is a target." if calibrated else "Band is uncalibrated."))
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d\n%H:%M"))
         ax.grid(alpha=0.2)
         ax.legend(loc="best", fontsize=8, ncols=2)

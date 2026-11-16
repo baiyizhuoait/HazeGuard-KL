@@ -1,0 +1,39 @@
+{
+  "old_features_sha256": "64285f40e81c72ab4872d282d52be68401078e8c33dec50134d93e7877d2f55b",
+  "new_features_sha256": "e0f27fe33847f170cfb7b7690afed56407ea66cc7247ad3c9172eed9f517e8de",
+  "added_feature_names": [
+    "hour_cos"
+  ],
+  "removed_feature_names": [
+    "pm2_5_mean_6h"
+  ],
+  "by_split": {
+    "train": {
+      "old_n": 77753,
+      "new_n": 77744,
+      "shared_key_n": 77744,
+      "concentration_target_changes": 0,
+      "class_target_changes": 0,
+      "changed_common_features": {}
+    },
+    "val": {
+      "old_n": 16656,
+      "new_n": 16647,
+      "shared_key_n": 16647,
+      "concentration_target_changes": 0,
+      "class_target_changes": 0,
+      "changed_common_features": {}
+    },
+    "test": {
+      "old_n": 16647,
+      "new_n": 16647,
+      "shared_key_n": 16647,
+      "concentration_target_changes": 0,
+      "class_target_changes": 0,
+      "changed_common_features": {
+        "far_source_pm25_mean_24h": 1149
+      }
+    }
+  },
+  "interpretation": "Joint changes to rows, selected feature identity and feature values; no isolated causal attribution."
+}

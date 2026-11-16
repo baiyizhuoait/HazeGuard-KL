@@ -23,7 +23,7 @@ Commands (from repository root)
 
 The experiment has already been run. Use the saved models and predictions.
 The verifier checks saved results without making new test predictions.
-Training entry for an independently documented clean reproduction:
+Historical full M5/M6 training entry (not the QC M5-only refit):
   python src/05_ordinal_rf.py --n-jobs 8
   The alternative entry src/05_reg_to_cls.py runs the same complete workflow.
   Do NOT run both entry points consecutively. Existing audit records block repeats.
@@ -54,12 +54,13 @@ Interface cautions
   Timestamps are Kuala Lumpur local feature times; target time is timestamp + 3h.
   Row identity is timestamp plus station_id, not timestamp alone.
   Tree prediction percentiles are uncalibrated spread, not guaranteed 90% coverage.
-  For calibrated display, use interval_calibration.json and 05_interval_calibration.py.
-  Target coverage is 90%; observed test coverage is 83.41%, not a 90% guarantee.
+  For calibrated display, prefer the adaptive JSON/NPZ files described below.
+  Adaptive target coverage is 90%; QC test coverage is 88.09%, not a guarantee.
+  The fixed-width supplement is retained as a comparison (historical test coverage 83.41%).
   The target is a CAMS model product, not ground monitoring truth.
 
 Submission preparation
-  The reports file contains evidence, equations and writing prompts for the student.
+  The reports file contains the reviewed English sections, equations and result tables.
   Write the assessed prose yourself using your understanding and verified results.
   See the handover's spec clarifications before integrating with members 06/07.
 
@@ -70,7 +71,7 @@ Readability update
   Original training hashes remain in code_sha256; refactor.code_sha256 describes current code.
   The updated delivery archives have _readable in their filenames.
 
-Interval calibration supplement (2026-11-13)
+Historical interval calibration supplement (2026-11-13; current QC results below)
   python -m unittest discover -s tests -p "test_stage5*.py" -v
   python src/05_interval_calibration.py
   Calibration has already run; the second command blocks overwriting its records.
@@ -88,7 +89,7 @@ Interval calibration supplement (2026-11-13)
   See handover section 9 for the member-07 interface and reporting limits.
   Original metrics, model weights, NPZ predictions and figures are retained.
 
-Adaptive interval supplement (2026-11-13, recommended over fixed width)
+Historical adaptive interval supplement (2026-11-13; current QC results below)
   src/05_interval_adaptive.py supplies fit_calibration / apply_calibration.
   Selected on three chronological validation blocks, then frozen before test scoring.
   models/interval_calibration_adaptive.json stores frozen parameters and selection evidence.
@@ -99,5 +100,33 @@ Adaptive interval supplement (2026-11-13, recommended over fixed width)
   Test mean width: 20.79, 27.43, 32.11 ug/m3 respectively.
   Adaptive width improves observed coverage, but is not guaranteed 90%.
   Original weights, level thresholds and classification results remain unchanged.
-  Integrate the adaptive supplement into main after reviewing its PR.
+  The adaptive supplement is already present in main; see the QC status below.
   See handover section 10 for the integration snippet and validation limits.
+
+Adaptive application entry and QC status (2026-11-16)
+  python src/05_apply_adaptive_interval.py
+  Applies the existing calibration JSON; does not refit or generate model predictions.
+  Reads the feature table for concentration targets and the probability cache for row IDs.
+  Writes metrics_stage5_interval_adaptive.json and stage5_intervals_adaptive.npz only.
+  Existing outputs cause FileExistsError. Archive them before an authorized reproduction.
+  All data, calibration and prediction fingerprints must refer to the same experiment.
+  The QC table at main@7a46440 has 77,744 / 16,647 / 16,647 rows by split.
+  M5 has now been refitted on that table; current val/test interval shapes are (16647, 3).
+  QC adaptive validation PICP/MPIW: 0.90010212 / 25.18841406 ug/m3.
+  QC adaptive test PICP/MPIW: 0.88093951 / 31.73574759 ug/m3.
+  Original target coverage, scale floor, model parameters and level cuts were retained.
+  Calibration multipliers were fitted only on new validation outcomes before the new test predictions.
+  The original test had already been viewed; this is a repair re-evaluation, not a new blind test.
+  M5 validation seeds: 42/43/44; M5 test prediction batches: one (seed 42).
+  M6 was not refitted. Its old model is unchanged; historical probabilities are aligned by exact row keys.
+  Do not feed the new Top-25 matrix into the old ordinal model or call it QC-refitted.
+  See docs/qc_fix/stage5_refit_comparison.md and handover section 14.
+
+Clean QC M5-only reproduction
+  python src/05_refit_m5_qc.py --n-jobs 8
+  python tools/compare_stage5_qc.py
+  Both commands refuse existing audit outputs; do not rerun them in a completed checkout.
+  Start with original caches and the promoted QC table, as documented in handover section 14.
+  Old records: docs/qc_fix/pre_refit_stage5/; original joblib files remain in Git history.
+  New model and data fingerprints: models/metrics_stage5_qc_comparison.json.
+  Member-06 handover rows: docs/qc_fix/stage5_benchmark_rows.csv.

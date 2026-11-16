@@ -1,4 +1,4 @@
-"""Q5-3：按本地发出时刻汇总 M5 浓度 MAE，只读已保存的 v1 预测。"""
+"""Q5-3：按本地发出时刻汇总 M5 浓度 MAE，只读已登记的缓存预测。"""
 
 import importlib
 import json
@@ -50,7 +50,7 @@ def main():
     parts, names, hashes = R.load_data(ROOT)
     expected = official["input_sha256"]["features_final"]
     if hashes["features_final"] != expected or manifest["tables"]["data/features_final.parquet"]["sha256"] != expected:
-        raise ValueError("feature table is not the official stage-05 v1 table")
+        raise ValueError("feature table does not match the registered stage-05 experiment")
     if names != official["feature_names"]:
         raise ValueError("feature order differs from the official model")
     for name in ("stage5_predictions.npz", "ordinal_probs_val_test.npz"):
@@ -78,13 +78,14 @@ def main():
             comparison[split] = {"cross_20_minus_all_other_MAE": cross - rest,
                                   "cross_20_over_all_other_MAE": cross / rest if rest else None}
     output = pd.DataFrame(records)
-    output.to_csv(csv_path, index=False, float_format="%.12g")
+    output.to_csv(csv_path, index=False, float_format="%.12g", lineterminator="\n")
     result = {"generated_at": datetime.now(timezone.utc).isoformat(),
         "git_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
         "code_sha256": R.sha256(Path(__file__)), "input_sha256": input_hashes,
-        "model": "M5 official v1 RandomForestRegressor, frozen seed 42",
+        "model": "M5 RandomForestRegressor, frozen seed 42",
         "prediction": "reg_val/reg_test: saved forest mean concentration, before level thresholds",
-        "feature_set": "v1", "unit": "ug/m3", "target": "CAMS PM2.5 at feature time +3h",
+        "feature_set": "QC" if "evaluation_status" in official else "v1",
+        "unit": "ug/m3", "target": "CAMS PM2.5 at feature time +3h",
         "timezone": "Asia/Kuala_Lumpur (naive local timestamps)",
         "groups": {"cross_08": "issue hours 05-07; target hours 08-10",
                    "cross_20": "issue hours 17-19; target hours 20-22",
@@ -96,7 +97,7 @@ def main():
         "limitations": ["Post-hoc descriptive slicing of previously evaluated validation/test predictions.",
             "Raw MAE differences do not establish causality or statistical significance.",
             "No adjustment for concentration, season or serial/spatial dependence; target is a CAMS model product."]}
-    with json_path.open("x", encoding="utf-8") as stream:
+    with json_path.open("x", encoding="utf-8", newline="\n") as stream:
         json.dump(result, stream, ensure_ascii=False, indent=2, allow_nan=False)
     for name, digest in input_hashes.items():
         if R.sha256(ROOT / name) != digest:

@@ -54,12 +54,13 @@ Interface cautions
   Timestamps are Kuala Lumpur local feature times; target time is timestamp + 3h.
   Row identity is timestamp plus station_id, not timestamp alone.
   Tree prediction percentiles are uncalibrated spread, not guaranteed 90% coverage.
-  For calibrated display, use interval_calibration.json and 05_interval_calibration.py.
-  Target coverage is 90%; observed test coverage is 83.41%, not a 90% guarantee.
+  For calibrated display, prefer the adaptive JSON/NPZ files described below.
+  Adaptive target coverage is 90%; historical test coverage is 87.97%, not a guarantee.
+  The fixed-width supplement is retained as a comparison (historical test coverage 83.41%).
   The target is a CAMS model product, not ground monitoring truth.
 
 Submission preparation
-  The reports file contains evidence, equations and writing prompts for the student.
+  The reports file contains the reviewed English sections, equations and result tables.
   Write the assessed prose yourself using your understanding and verified results.
   See the handover's spec clarifications before integrating with members 06/07.
 
@@ -99,5 +100,19 @@ Adaptive interval supplement (2026-11-13, recommended over fixed width)
   Test mean width: 20.79, 27.43, 32.11 ug/m3 respectively.
   Adaptive width improves observed coverage, but is not guaranteed 90%.
   Original weights, level thresholds and classification results remain unchanged.
-  Integrate the adaptive supplement into main after reviewing its PR.
+  The adaptive supplement is already present in main; see the QC status below.
   See handover section 10 for the integration snippet and validation limits.
+
+Adaptive application entry and QC status (2026-11-16)
+  python src/05_apply_adaptive_interval.py
+  Applies the existing calibration JSON; does not refit or generate model predictions.
+  Reads the feature table for concentration targets and the probability cache for row IDs.
+  Writes metrics_stage5_interval_adaptive.json and stage5_intervals_adaptive.npz only.
+  Existing outputs cause FileExistsError. Archive them before an authorized reproduction.
+  All data, calibration and prediction fingerprints must refer to the same experiment.
+  The QC table at main@7a46440 has 77,744 / 16,647 / 16,647 rows by split.
+  Current stage-05 predictions and calibration still use the pre-QC validation size 16,656.
+  Historical results above were reproduced exactly on original inputs, not on the QC table.
+  New-table interval scores require matching stage-05 caches and frozen calibration first.
+  Do not bypass the checks, trim arrays, or report the old interval scores as new results.
+  See docs/qc_fix/stage5_adaptive_entrypoint.md and handover section 13.

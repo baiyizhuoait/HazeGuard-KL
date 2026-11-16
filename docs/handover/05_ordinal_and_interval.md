@@ -527,7 +527,7 @@ M5 重训在主指标中另记为 3 次拟合、1 批测试树预测，M6 均为
 git worktree add ../HazeGuard-KL_m5_qc_reproduce 48ef4d23ccf8b0c4c494eee749383c158da38815
 cd ../HazeGuard-KL_m5_qc_reproduce
 # 在独立目录中从本次交付分支取下面的入口，再运行；不要取 models/ 覆盖旧输入。
-git checkout origin/fix/05-adaptive-entrypoint -- src/05_refit_m5_qc.py src/05_apply_adaptive_interval.py src/05_seam_error.py tools/compare_stage5_qc.py tools/verify_stage5.py
+git checkout origin/fix/05-adaptive-entrypoint -- src/05_refit_m5_qc.py src/05_apply_adaptive_interval.py src/05_ordinal_rf.py src/05_seam_error.py tools/compare_stage5_qc.py tools/verify_stage5.py
 python src/05_refit_m5_qc.py --n-jobs 8
 python tools/compare_stage5_qc.py
 python tools/verify_stage5.py

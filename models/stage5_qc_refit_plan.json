@@ -1,0 +1,69 @@
+{
+  "frozen_at": "2026-11-16T09:08:38.445194+00:00",
+  "git_commit": "301febedd102a84f9161c2318bf45832ef1eecf5",
+  "input_sha256": {
+    "features_final": "e0f27fe33847f170cfb7b7690afed56407ea66cc7247ad3c9172eed9f517e8de",
+    "selected_features": "36ee7d271aa9774bc3666038e87ae8776822e0834f48b41d0eec32bb17c943ea"
+  },
+  "feature_names": [
+    "pm2_5",
+    "pm10",
+    "pm2_5_mean_3h",
+    "hour_sin",
+    "pm2_5_lag_1",
+    "pm10_lag_1",
+    "pm2_5_change_3h",
+    "no2",
+    "so2",
+    "pm2_5_slope_6h",
+    "gran_low_12h",
+    "gran_up_6h",
+    "spatial_pm25_gradient",
+    "no2_lag_12",
+    "gran_low_6h",
+    "relative_humidity_2m_lag_3",
+    "gran_slope_12h",
+    "no2_lag_6",
+    "o3",
+    "temperature_2m",
+    "no2_lag_24",
+    "co",
+    "far_source_pm25_mean_24h",
+    "no2_lag_2",
+    "hour_cos"
+  ],
+  "selected_regressor_params": {
+    "n_estimators": 100,
+    "max_depth": 14,
+    "min_samples_leaf": 10,
+    "max_features": 0.5
+  },
+  "m5_fixed_thresholds": [
+    15.0,
+    35.0,
+    55.0
+  ],
+  "m5_val_tuned_thresholds": [
+    17.0,
+    33.0,
+    55.0
+  ],
+  "random_seeds": [
+    42,
+    43,
+    44
+  ],
+  "final_seed": 42,
+  "adaptive_family": "tree-spread-normalized absolute residual",
+  "nominal_coverage": 0.9,
+  "scale_floor": 1.0,
+  "new_candidate_search": false,
+  "new_threshold_search": false,
+  "M6_refit": false,
+  "evaluation_status": "data-repair re-evaluation; test previously viewed",
+  "phase": "test_predictions_cached",
+  "adaptive_scale_multiplier": 1.5474406352512813,
+  "fixed_half_width": 13.709445488721798,
+  "calibration_frozen_at": "2026-11-16T09:09:27.892986+00:00",
+  "test_evaluation_count": 1
+}

@@ -1,30 +1,43 @@
 {
-  "frozen_at": "2026-11-11T15:36:51.006849+00:00",
+  "frozen_at": "2026-11-16T09:09:27.892986+00:00",
+  "git_commit": "301febedd102a84f9161c2318bf45832ef1eecf5",
   "input_sha256": {
-    "features_final": "64285f40e81c72ab4872d282d52be68401078e8c33dec50134d93e7877d2f55b",
-    "selected_features": "2d11fd961aedd1fc57ab3036038bfc1d67e0e797cb40fc3e1b2362b568c80d61"
+    "features_final": "e0f27fe33847f170cfb7b7690afed56407ea66cc7247ad3c9172eed9f517e8de",
+    "selected_features": "36ee7d271aa9774bc3666038e87ae8776822e0834f48b41d0eec32bb17c943ea"
   },
-  "code_sha256": {
-    "05_reg_to_cls.py": "c0e934661f597375c03707597b5c38895a73846fbf9d5957fb8703c9b9dcc272",
-    "05_ordinal_rf.py": "20177a9bf1d515be0c50ba63ce0c62e4f1d9534d626ffafa2d917fa47e39c24d",
-    "ordinal_forest.py": "3cc5d01097421cfb9ab05235cd525c6ce45830f91c30645b0510f6d32699db76",
-    "utils_metrics.py": "b0bcc02975ba7d23ad1d503bba40c2d4c86a0cdffa835613d71a4da5e95749f3",
-    "config.py": "362b8e51c41d5f31af2ed83fdaf82caeb493f802f3ff313f6e0b5ba0b44e9e7c"
-  },
+  "feature_names": [
+    "pm2_5",
+    "pm10",
+    "pm2_5_mean_3h",
+    "hour_sin",
+    "pm2_5_lag_1",
+    "pm10_lag_1",
+    "pm2_5_change_3h",
+    "no2",
+    "so2",
+    "pm2_5_slope_6h",
+    "gran_low_12h",
+    "gran_up_6h",
+    "spatial_pm25_gradient",
+    "no2_lag_12",
+    "gran_low_6h",
+    "relative_humidity_2m_lag_3",
+    "gran_slope_12h",
+    "no2_lag_6",
+    "o3",
+    "temperature_2m",
+    "no2_lag_24",
+    "co",
+    "far_source_pm25_mean_24h",
+    "no2_lag_2",
+    "hour_cos"
+  ],
   "selected_regressor_params": {
     "n_estimators": 100,
     "max_depth": 14,
     "min_samples_leaf": 10,
     "max_features": 0.5
   },
-  "selected_ordinal_params": {
-    "n_estimators": 100,
-    "max_depth": 14,
-    "min_samples_leaf": 10,
-    "max_features": 0.5
-  },
-  "ordinal_class_weight": "balanced_subsample",
-  "final_seed": 42,
   "m5_fixed_thresholds": [
     15.0,
     35.0,
@@ -35,6 +48,32 @@
     33.0,
     55.0
   ],
+  "random_seeds": [
+    42,
+    43,
+    44
+  ],
+  "final_seed": 42,
+  "adaptive_family": "tree-spread-normalized absolute residual",
+  "nominal_coverage": 0.9,
+  "scale_floor": 1.0,
+  "new_candidate_search": false,
+  "new_threshold_search": false,
+  "M6_refit": false,
+  "evaluation_status": "data-repair re-evaluation; test previously viewed",
+  "phase": "test_predictions_cached",
+  "adaptive_scale_multiplier": 1.5474406352512813,
+  "fixed_half_width": 13.709445488721798,
+  "calibration_frozen_at": "2026-11-16T09:09:27.892986+00:00",
+  "test_evaluation_count": 1,
   "test_evaluation_started": true,
-  "note": "All choices fixed before test predictions. No selection uses test metrics."
+  "note": "M5 refit only; final model parameters and risk cuts unchanged.",
+  "legacy_M6": {
+    "qc_refit": false,
+    "input_sha256": {
+      "features_final": "64285f40e81c72ab4872d282d52be68401078e8c33dec50134d93e7877d2f55b",
+      "selected_features": "2d11fd961aedd1fc57ab3036038bfc1d67e0e797cb40fc3e1b2362b568c80d61"
+    },
+    "archive": "docs/qc_fix/pre_refit_stage5"
+  }
 }

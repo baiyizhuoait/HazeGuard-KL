@@ -1,25 +1,29 @@
 {
   "nominal_coverage": 0.9,
-  "half_width": 13.820877192982458,
-  "n_calibration": 16656,
-  "order_statistic_rank": 14992,
+  "half_width": 13.709445488721798,
+  "n_calibration": 16647,
+  "order_statistic_rank": 14984,
   "center": "median of M5 individual tree predictions",
   "lower_bound": "max(0, median - half_width)",
   "upper_bound": "median + half_width",
   "unit": "ug/m3",
-  "calibration_split": "val",
-  "pooling": "all three receptor nodes",
-  "frozen_at_utc": "2026-11-13T13:43:39.851314+00:00",
-  "source_model": "M5 RandomForestRegressor",
   "input_sha256": {
-    "features_final": "64285f40e81c72ab4872d282d52be68401078e8c33dec50134d93e7877d2f55b",
-    "selected_features": "2d11fd961aedd1fc57ab3036038bfc1d67e0e797cb40fc3e1b2362b568c80d61"
+    "features_final": "e0f27fe33847f170cfb7b7690afed56407ea66cc7247ad3c9172eed9f517e8de",
+    "selected_features": "36ee7d271aa9774bc3666038e87ae8776822e0834f48b41d0eec32bb17c943ea"
   },
-  "source_code_sha256": "7e9929cc436ab702140379e2000092e9d86f0162763da8da6b9cc6d7cee8dbad",
-  "saved_predictions_sha256": "1e39eded352d9597eff4c4a85bb49cdca63dbeea32eb9def9c9ad5828826a2c7",
+  "frozen_utc": "2026-11-16T09:09:27.892986+00:00",
+  "predictions_sha256": "9f9441dfeff8e8e84ed7c9a348ca778c4210b4d9a213ddc7690661861a250596",
+  "source_sha256": "16f3875cfffaab293f6b786a56100a6f401a0dc266a2e93d2b3f58538e64c86c",
+  "selection_evidence": {
+    "family_fixed_from_previous_experiment": true,
+    "old_calibration": "docs/qc_fix/pre_refit_stage5/interval_calibration_adaptive.json",
+    "new_method_search": false,
+    "test_used_for_selection": false
+  },
   "limitations": [
-    "Post-selection calibration: validation was also used for model selection.",
-    "Temporally dependent data: exchangeability and 90% future coverage are not guaranteed.",
-    "Original test coverage was already known; this is a post-hoc extension, not a new blind test."
+    "Data-repair re-evaluation: the original test outcomes were already known.",
+    "Original M5 model parameters and risk thresholds were retained without new selection.",
+    "Calibration multiplier was fitted only on the repaired validation split.",
+    "Time-series dependence and shift prevent a guarantee of 90% future or per-node coverage."
   ]
 }

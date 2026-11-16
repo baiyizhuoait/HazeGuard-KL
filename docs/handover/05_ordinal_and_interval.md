@@ -1,5 +1,7 @@
 # 05 模块交接：回归分级、有序随机森林与树间区间
 
+**当前交付以第 14 节为准：M5 已在 QC 表重评，自适应测试覆盖 88.09%、平均宽度 31.74 µg/m³。前面各节保留分日期的历史记录。**
+
 本模块按 `docs/spec_v3.md` 第 4 节实施。数值来源为
 `models/metrics_stage5.json`；学习说明及结果表见 `reports/sec2_6_and_2_7.md`。
 
@@ -414,7 +416,7 @@ Frank and Hall 与 MAPIE 的来源已在前文交接中列出，请并入总参�
 没有修改模型、官方指标、特征表、区间产物、benchmark、README、CONTRIBUTING、共享配置或其他成员报告。
 没有重跑 M5/M6、继续调 M6、追加变量说明，或生成新 Word。
 
-## 13. 2026-11-16：自适应区间正式入口与 QC 数据接续
+## 13. 2026-11-16：自适应区间入口交付时的记录（重评现状见第 14 节）
 
 ### 本次交付
 
@@ -466,3 +468,72 @@ train/val/test 为 77,744 / 16,647 / 16,647。
 4 号的 M2/M3/M4 重训不会自动生成上述 M5 树百分位缓存。需由组长明确 stage-05 上游重评的安排。
 对应输入到齐后，保留旧产物，再运行入口，核对两组样本数和两组形状均为 16,647 / (16647, 3)，
 填入新旧 PICP/MPIW 对照并说明宽窄变化；不能用旧 87.97% / 32.11 冒充新表成绩。
+
+## 14. 2026-11-16：M5 QC 重评与新版区间已完成
+
+### 我产出了什么
+
+- `src/05_refit_m5_qc.py`：固定原最终配方，重训三个 M5 种子、仅给 seed 42 生成一次测试预测；拟合并冻结新验证集校准参数。
+- `models/metrics_stage5.json`、`rf_regressor.joblib`、`stage5_selection.json`、`stage5_qc_refit_plan.json` 与两份预测缓存：M5 已切到 QC 表。
+- 同名自适应/固定宽度校准 JSON、指标 JSON 和区间 NPZ：均对应新版 M5；正式应用入口只读参数、只应用缓存，不拟合。
+- `models/m5_seam_mae.csv` 与 `metrics_stage5_seam.json`、两张阶段 5 图：从新版缓存生成，没有第二轮测试预测。
+- `fig_interval_band.png` 当前展示自适应校准区间，标题注明 90% 是目标、测试实测覆盖 88.1%；原始树百分位只作为指标对照保留。
+- `models/metrics_stage5_qc_comparison.json`、`docs/qc_fix/stage5_refit_comparison.md`：新旧成绩、区间宽窄与超过 0.005 变化的逐项说明、模型 SHA256。
+- `docs/qc_fix/stage5_benchmark_rows.csv`：给 6 号更新 benchmark 的两条 M5 记录，含特征表指纹；没有修改共享 benchmark。
+- `docs/qc_fix/pre_refit_stage5/`：保留旧指标、选择记录、预测缓存、校准与区间、接缝表；旧模型可从 `48ef4d2` 恢复，指纹另列。
+
+### 字段与接口
+
+新版数据 SHA256 为 `e0f27fe33847f170cfb7b7690afed56407ea66cc7247ad3c9172eed9f517e8de`。
+train/val/test 为 77,744 / 16,647 / 16,647，区间验收输出为：
+
+```text
+val.n_samples=16647 / test.n_samples=16647
+interval_val.shape=(16647, 3) / interval_test.shape=(16647, 3)
+```
+
+看板的 JSON 层级和 NPZ 六键不变。`new_model_fits=0`、`new_model_test_predictions=0` 指区间应用步骤；
+M5 重训在主指标中另记为 3 次拟合、1 批测试树预测，M6 均为 0。
+`ordinal_probs_val_test.npz` 的 M6 概率来自旧模型缓存，按精确的时间戳/节点键连接并验证标签未变，
+不是按位置删九行，也不是重新预测。该文件两段现在各 16,647 行，便于和新版 M5/区间按键对齐。
+
+### 关键决策和理由
+
+- 不重复候选搜索、CV 或分档阈值搜索。沿用 100 棵树、深度 14、叶节点下限 10、max_features=0.5；阈值 17/33/55。
+- 三个种子仍为 42/43/44，只在验证集做稳定性检查；最终模型沿用 seed 42。
+- 自适应方法、名义覆盖率 0.90 和 scale_floor=1 不变；只在新版 val 按原次序统计量重估放大倍数 k=1.5474406353，然后冻结。
+- 新旧共同样本的目标完全相同；选择特征用 hour_cos 替换 pm2_5_mean_6h，train/val 各少 9 行，测试中 far_source_pm25_mean_24h 有 1,149 行改变。多项输入变化同时发生，不能把全部增益归因于 hour_cos。
+- M6 保留历史附录，不拟合、不产生新的模型预测。`models.M6_Ordinal_RF.qc_refit=false`，其旧训练指纹和特征顺序独立登记。
+
+### 已知缺陷和坑
+
+- 测试目标早已看过，本次明确记作数据修复后的重评，不称为新的盲测。
+- 新 M5 测试六项指标为 0.7104 / 0.7139 / 0.8789 / 0.2854 / 0.0091 / 0.7046；高危召回没有明显提升，不能只报 F1。
+- 自适应测试覆盖 88.09%，仍低于 90%；KL_City 为 84.63%，仍是主要覆盖缺口。平均宽度从 32.11 降到 31.74 µg/m³。
+- M6 历史模型的 `selected_features_` 与新版 Top-25 不同，不能把新矩阵直接喂给它；6 号的解释/泛化若调用模型，必须明确使用哪个版本。
+- M6/M7 的缓存概率仍是历史结果，不能称其已在 QC 表上重训，也不能据此重新作同表 M5/M6 优劣结论。
+- 共享 `all_models_benchmark.csv`、总报告、README.md 与 app.py 的静态文字由相应负责人更新；本次未越权改动。
+- 指标中的 `training_code_sha256` 保留实际执行版本；训练后纠正了参数记录的源模块指针与文本换行，模型、预测、区间数组和数值均未改变。
+
+### 下一棒怎么用
+
+1. 6 号从 `stage5_benchmark_rows.csv` 取两行新 M5 成绩，按团队最终版本口径更新共享 benchmark；不要连带把 M6/M7 标成已重训。
+2. 7 号继续读同名缓存；区间标签使用验证 90.01% / 测试 88.09% / 宽度 31.74。§2.7 的原 M5/M6 比较明确标为历史实验，新增 QC 对照、接缝表与 §2.8 使用新结果。
+3. `python tools/verify_stage5.py` 只核对缓存、冻结配方、区间和历史 M6 对齐，不调用模型预测；重复运行训练或应用入口会拒绝覆盖。
+
+独立复现需使用干净目录，不能对已经完成的产物再次运行训练。基线 `48ef4d2` 含旧缓存与新 QC 表：
+
+```bash
+git worktree add ../HazeGuard-KL_m5_qc_reproduce 48ef4d23ccf8b0c4c494eee749383c158da38815
+cd ../HazeGuard-KL_m5_qc_reproduce
+# 在独立目录中从本次交付分支取下面的入口，再运行；不要取 models/ 覆盖旧输入。
+git checkout origin/fix/05-adaptive-entrypoint -- src/05_refit_m5_qc.py src/05_apply_adaptive_interval.py src/05_seam_error.py tools/compare_stage5_qc.py tools/verify_stage5.py
+python src/05_refit_m5_qc.py --n-jobs 8
+python tools/compare_stage5_qc.py
+python tools/verify_stage5.py
+```
+
+### 我没做的事
+
+没有重新调参、重选分档阈值、再比较校准方案、按测试覆盖率凑 90%、重训或优化 M6。
+没有改共享配置、指标定义、数据表、01/04/06/07 代码、共享 benchmark 或生成 Word。

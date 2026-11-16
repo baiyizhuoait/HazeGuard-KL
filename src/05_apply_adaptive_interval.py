@@ -6,6 +6,7 @@ No fitting, parameter selection, or model prediction takes place here.
 """
 
 import importlib
+import hashlib
 import json
 from pathlib import Path
 
@@ -15,6 +16,19 @@ R = importlib.import_module("05_reg_to_cls")
 I = importlib.import_module("05_interval_calibration")
 A = importlib.import_module("05_interval_adaptive")
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def input_hashes_match(record, actual, root):
+    if record == actual:
+        return True
+    if record.get("features_final") != actual.get("features_final"):
+        return False
+    # Git may change JSON line endings on checkout; no other byte changes are accepted.
+    raw = (Path(root) / "models/selected_features.json").read_bytes()
+    lf = raw.replace(b"\r\n", b"\n")
+    return record.get("selected_features") in {
+        hashlib.sha256(content).hexdigest() for content in (raw, lf, lf.replace(b"\n", b"\r\n"))
+    }
 
 
 def main(root=ROOT):
@@ -29,7 +43,9 @@ def main(root=ROOT):
     cal = json.loads(calibration_path.read_text(encoding="utf-8"))
     original = json.loads((md / "metrics_stage5.json").read_text(encoding="utf-8"))
     parts, _, hashes = R.load_data(Path(root))
-    if hashes != original["input_sha256"] or hashes != cal["input_sha256"]:
+    if not input_hashes_match(original["input_sha256"], hashes, root) or not input_hashes_match(
+        cal["input_sha256"], hashes, root
+    ):
         raise ValueError("feature/calibration/prediction provenance mismatch; supply matching stage-05 artifacts")
     if cal["n_calibration"] != len(parts["val"]):
         raise ValueError("calibration sample count differs from the current validation contract")
@@ -81,7 +97,7 @@ def main(root=ROOT):
     with intervals_path.open("xb") as stream:
         np.savez_compressed(stream, **arrays)
     result["intervals_sha256"] = R.sha256(intervals_path)
-    with metrics_path.open("x", encoding="utf-8") as stream:
+    with metrics_path.open("x", encoding="utf-8", newline="\n") as stream:
         json.dump(result, stream, ensure_ascii=False, indent=2, allow_nan=False)
         stream.write("\n")
     print(f"val.n_samples={result['val']['overall']['n_samples']} / "

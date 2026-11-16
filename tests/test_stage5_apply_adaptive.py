@@ -1,6 +1,7 @@
 """Application checks: frozen schema, row provenance, and overwrite refusal."""
 
 import importlib
+import hashlib
 import json
 import sys
 import tempfile
@@ -88,6 +89,17 @@ class ApplyAdaptiveChecks(unittest.TestCase):
                     APP.main(self.root)
                 self.assertEqual(path.read_bytes(), b"keep existing result")
                 path.unlink()
+
+    def test_only_line_ending_changes_are_accepted(self):
+        path = self.md / "selected_features.json"
+        lf = b'{"selected_features": []}\n'
+        path.write_bytes(lf.replace(b"\n", b"\r\n"))
+        original = {"features_final": "same-table", "selected_features": hashlib.sha256(lf).hexdigest()}
+        actual = {"features_final": "same-table", "selected_features": APP.R.sha256(path)}
+        self.assertTrue(APP.input_hashes_match(original, actual, self.root))
+        path.write_bytes(b'{"selected_features": ["changed"]}\n')
+        actual["selected_features"] = APP.R.sha256(path)
+        self.assertFalse(APP.input_hashes_match(original, actual, self.root))
 
     def test_mismatched_inputs_fail_before_writing(self):
         mutations = (

@@ -1,0 +1,40 @@
+{
+  "source_commit": "48ef4d23ccf8b0c4c494eee749383c158da38815",
+  "input_sha256": {
+    "features_final": "64285f40e81c72ab4872d282d52be68401078e8c33dec50134d93e7877d2f55b",
+    "selected_features": "2d11fd961aedd1fc57ab3036038bfc1d67e0e797cb40fc3e1b2362b568c80d61"
+  },
+  "sha256": {
+    "metrics_stage5.json": "422486feb1793fc0bcab4cb2523780a548c04c407b35152189e7151bfd45dbfe",
+    "stage5_selection.json": "2c59f016f288bb0f86ca80c5968531565e09803c2601466da2520a0ddf3c4b66",
+    "ordinal_probs_val_test.npz": "72f3ae5c2b5be13e2f2b8464624272c47592cca26277758dd18ffb3725ba065e",
+    "stage5_predictions.npz": "1e39eded352d9597eff4c4a85bb49cdca63dbeea32eb9def9c9ad5828826a2c7",
+    "interval_calibration_adaptive.json": "6409c819ce49a86124fd8b136afdadfef8bda475c11eef9b83c3a8925ace8197",
+    "metrics_stage5_interval_adaptive.json": "9a74528c2f2e05eb37abf0edd01af3877a3616eab317c8100d4ead21e07c48d1",
+    "stage5_intervals_adaptive.npz": "9ce21b2fbaf29c5e63b6e14be45a2c88a0fc1a6c8dd647f8a5388ca0b89b37ca",
+    "interval_calibration.json": "219fb81218dd30139314e7ec8b6ae9aacfa377cbe94cbf0a83f7c636ee689ba2",
+    "metrics_stage5_interval_calibrated.json": "e124579220c31ae6a345d57ce047be9c85dcdbed55bc1f102fc1601690533473",
+    "stage5_intervals_calibrated.npz": "8428f0be577e3b20218ece5018ecb92bcb47a602e88d798198f0f14510121f95",
+    "m5_seam_mae.csv": "7e40e54e9ef409c510c2326d187835ba9491d8121b9f7fa95917ffec88b4cc81",
+    "metrics_stage5_seam.json": "f589045382b374413ec52f5a449bffcd4aa02050c485db0c9536c3c0076ae11e",
+    "rf_regressor.joblib": "d5f2487eba403ea5862ba69069e9cd7b95add29b8f3b8516ee0988bc28ce8ac3",
+    "ordinal_rf.joblib": "8a1c16807a6c3b930fbdc800b50aee6ddc9cea6b92f6e7ccc9e9801480744172"
+  },
+  "model_recovery": "Original joblib files remain available at source_commit.",
+  "local_prepare_commit": "301febedd102a84f9161c2318bf45832ef1eecf5",
+  "archive_file_sha256": {
+    "interval_calibration.json": "c1a664a161901084dd8f72eb433c3252f92b824e8ef452a6704ba3148807f43b",
+    "interval_calibration_adaptive.json": "95fe3767f5c3687da4fcf1a63d634f092539bf21fc5c4fe0a35490bd5803452e",
+    "m5_seam_mae.csv": "a12dfd7a4c9146ce051fc41e814b4c092f200a9d5aa3d028e6372134829269e7",
+    "metrics_stage5.json": "329860d0331bec1bda5b1520e59c3f26f98bc4fa24ff1eaec2032f3c53b62e76",
+    "metrics_stage5_interval_adaptive.json": "d27d19f09e636d423e913d5bb101dd5298b78bc25936c3649845b450c446d4ed",
+    "metrics_stage5_interval_calibrated.json": "8c231cb3c5922a240f9c29cdeb89ddb247ec538fdc3a27d365e68519bd944806",
+    "metrics_stage5_seam.json": "97650fd91a85240c0332f644e7ee29a568fecf6a8a270201b3d507d422ecb165",
+    "ordinal_probs_val_test.npz": "72f3ae5c2b5be13e2f2b8464624272c47592cca26277758dd18ffb3725ba065e",
+    "stage5_intervals_adaptive.npz": "9ce21b2fbaf29c5e63b6e14be45a2c88a0fc1a6c8dd647f8a5388ca0b89b37ca",
+    "stage5_intervals_calibrated.npz": "8428f0be577e3b20218ece5018ecb92bcb47a602e88d798198f0f14510121f95",
+    "stage5_predictions.npz": "1e39eded352d9597eff4c4a85bb49cdca63dbeea32eb9def9c9ad5828826a2c7",
+    "stage5_selection.json": "377a3ef32f5ad328992a152d0eac9da050a63db6f80aa2466a3981d9f2a235c5"
+  },
+  "text_serialization": "Archive JSON/CSV line endings normalized to LF; original raw hashes retained in sha256, archive hashes recorded separately. Binary arrays unchanged."
+}

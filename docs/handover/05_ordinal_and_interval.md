@@ -335,11 +335,9 @@ band = A.apply_calibration(quantiles, cal)  # 下界 / 中位数 / 上界
 - `models/metrics_stage5_interval_adaptive.json`
 - `models/stage5_intervals_adaptive.npz`
 
-局部研究脚本与结果分别位于工作区 `tmp/study_haze_intervals.py`、
-`tmp/apply_haze_interval_adaptive.py` 和 `output/HazeGuard-KL_interval_methods_validation_20261113.json`。
-这两个研究脚本保留在本地；方案比较 JSON 已随本次 PR 提供。
-新模块只负责计算区间，不依赖研究脚本运行。
-研究脚本与应用脚本均保留冻结记录；已有结果禁止直接覆盖。
+当时的局部研究与应用脚本保留在本地，方案比较记录见原冻结参数中的选择证据。
+2026-11-16 已将应用步骤整理为 `src/05_apply_adaptive_interval.py`，详见第 13 节。
+纯计算模块不变；正式入口不依赖本地研究脚本或方案比较文件，已有结果禁止直接覆盖。
 
 参考：[MAPIE 标准化残差分数](https://mapie.readthedocs.io/en/stable/content/conformal-prediction/conformity-scores/)。
 
@@ -415,3 +413,56 @@ Frank and Hall 与 MAPIE 的来源已在前文交接中列出，请并入总参�
 
 没有修改模型、官方指标、特征表、区间产物、benchmark、README、CONTRIBUTING、共享配置或其他成员报告。
 没有重跑 M5/M6、继续调 M6、追加变量说明，或生成新 Word。
+
+## 13. 2026-11-16：自适应区间正式入口与 QC 数据接续
+
+### 本次交付
+
+- `src/05_apply_adaptive_interval.py`：读取冻结参数并应用到缓存树百分位，不拟合参数或调用模型预测。
+- `tests/test_stage5_apply_adaptive.py`：核对看板接口、防覆盖、数据指纹、校准样本数和行标识。
+- `docs/qc_fix/stage5_adaptive_entrypoint.md`：新旧数据状态、旧结果复现、后续依赖和对照表。
+- 报告 §2.8 补充复现入口与数据版本界限，保留原有英文正文及历史指标。
+- `src/05_interval_adaptive.py`、官方指标、模型、预测缓存和冻结参数均未修改。
+
+### 输入与输出
+
+运行目录为仓库根目录：
+
+```bash
+python -m unittest discover -s tests -p "test_stage5*.py" -v
+python src/05_apply_adaptive_interval.py
+```
+
+主要输入为 `models/stage5_predictions.npz` 和 `models/interval_calibration_adaptive.json`。
+浓度真值从 `data/features_final.parquet` 读取，特征清单为 `models/selected_features.json`。
+`models/ordinal_probs_val_test.npz` 提供时间戳和节点行标识，`metrics_stage5.json` 提供来源指纹。
+注意该概率文件的 `y_val/y_test` 是等级标签，不能拿来计算浓度区间覆盖率。
+
+仅写出 `models/metrics_stage5_interval_adaptive.json` 和 `models/stage5_intervals_adaptive.npz`。
+冻结参数 JSON 只读，正式入口不重新选择方法、放大倍数、下限或模型。
+任一输出已存在就抛出 `FileExistsError`；需先保留旧文件后再运行，不提供覆盖选项。
+
+JSON 顶层保留 `method`、`nominal_coverage`、`scale_multiplier`、`scale_floor`、
+`calibration_sha256`、`limitations`、`new_model_fits`、`new_model_test_predictions`、`unit`，
+以及原有 `intervals_sha256`。`val/test` 各含 `overall` 与 `by_node`，每组指标均为
+`PICP`、`MPIW`、`n_samples`，节点键为 `KL_City`、`Port_Klang`、`Sepang`。
+
+NPZ 仅含六个键：`interval_val`、`ts_val`、`station_id_val`、
+`interval_test`、`ts_test`、`station_id_test`；区间三列顺序是下界、中位数、上界。
+时间戳仍是本地发出时刻，目标时刻加 3 小时。
+
+### 已验证与待接续
+
+旧输入的完整独立复现通过：val/test 样本数 16,656 / 16,647，
+`interval_val.shape=(16656, 3)`；所有总体、分节点指标和六个数组与旧产物完全相等。
+这项检查只证明旧结果可复现，不是 QC 重评成绩。
+
+main@7a46440 的新表已实读通过：111,038 × 32，包含 `gran_low_12h`，
+train/val/test 为 77,744 / 16,647 / 16,647。
+当前 main 的 stage-05 缓存和冻结参数仍绑定旧表。新表混用旧缓存的检查按预期拒跑，未写输出。
+
+下一步需要与新表对应的 stage-05 预测、行标识、来源登记，以及按原方法得到并冻结的校准参数。
+仅按行号删掉旧验证集 9 行不能替代新数据重评；测试集行数相同也不能证明特征和预测相同。
+4 号的 M2/M3/M4 重训不会自动生成上述 M5 树百分位缓存。需由组长明确 stage-05 上游重评的安排。
+对应输入到齐后，保留旧产物，再运行入口，核对两组样本数和两组形状均为 16,647 / (16647, 3)，
+填入新旧 PICP/MPIW 对照并说明宽窄变化；不能用旧 87.97% / 32.11 冒充新表成绩。

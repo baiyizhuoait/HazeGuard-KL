@@ -1,31 +1,26 @@
 {
-  "note": "03 特征表有两版。v1 是 M0~M7 已登记成绩所对应的版本；v2 补了 hour_cos，仅用于 M8 对照。02 正式特征表的逻辑摘要见 stage2，四个分片各自登记在 tables 中。文件变化须同步维护指纹。",
-  "version": "v1",
+  "note": "03 特征表以 data/features_final.parquet 为准：QC 面板（966,406 行）上重选的成对 Top-25，含 hour_sin 与 hour_cos，KD-01 不再适用。data/features_final_v2.parquet 建在旧面板（111,056 行）上，仅作 M8 旧对照的留档，已作废，不可作为当前表的对照。02 正式特征表的逻辑摘要见 stage2，四个分片各自登记在 tables 中。文件变化须同步维护指纹。",
+  "version": "qc",
   "tables": {
     "data/features_final.parquet": {
-      "version": "v1",
-      "sha256": "64285f40e81c72ab4872d282d52be68401078e8c33dec50134d93e7877d2f55b",
-      "rows": 111056,
+      "version": "qc",
+      "sha256": "e0f27fe33847f170cfb7b7690afed56407ea66cc7247ad3c9172eed9f517e8de",
+      "rows": 111038,
+      "panel": "QC 面板 966,406 行（02 分片摘要 e43cc67b…）",
       "used_by": [
-        "M0",
-        "M1",
-        "M2",
-        "M3",
-        "M4",
-        "M5",
-        "M6",
-        "M7"
+        "M0~M7 待在本表上重训"
       ],
-      "periodic_encoding": "hour_sin only (known defect KD-01)"
+      "periodic_encoding": "hour_sin + hour_cos"
     },
     "data/features_final_v2.parquet": {
       "version": "v2",
       "sha256": "cadbe163b43917c421070298f1de9f978358274989362e80a258043fd360c78a",
       "rows": 111056,
       "used_by": [
-        "M8 (pending)"
+        "M8（旧面板，已作废，仅留档）"
       ],
-      "periodic_encoding": "hour_sin + hour_cos"
+      "periodic_encoding": "hour_sin + hour_cos",
+      "panel": "旧面板 966,677 行"
     },
     "data/feat_spatiotemporal.parquet/part-0000.parquet": {
       "sha256": "67dd02cb70e65da273fc077432c7e45686272c6e279eb6064df19a4874461b7a",

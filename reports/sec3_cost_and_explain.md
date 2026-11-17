@@ -32,7 +32,7 @@ The optimization objective was:
 
 where \(C\) is the project's predefined asymmetric cost matrix.
 
-Threshold selection was performed exclusively on the validation set containing 16,656 samples. No GPSO or evolutionary optimization algorithm was used.
+Threshold selection was performed exclusively on the validation set containing 16,647 samples. No GPSO or evolutionary optimization algorithm was used.
 
 ### 3.1.3 Experimental Results
 

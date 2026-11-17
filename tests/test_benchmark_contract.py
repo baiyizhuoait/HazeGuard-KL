@@ -73,3 +73,16 @@ def test_every_row_uses_the_eligible_test_size(benchmark):
 
 def test_no_missing_cells(benchmark):
     assert not benchmark.isna().any().any()
+
+
+def test_m8_writer_uses_the_same_contract():
+    """M8 脚本会重写主表；它的列常量必须与契约同步，否则一次重跑就回退成旧列。"""
+    import importlib.util
+
+    path = ROOT / "src" / "07_m8_v2_control.py"
+    if not path.exists():
+        pytest.skip("M8 脚本不存在")
+    spec = importlib.util.spec_from_file_location("m8_writer", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.CONTRACT_COLUMNS == EXPECTED_COLUMNS

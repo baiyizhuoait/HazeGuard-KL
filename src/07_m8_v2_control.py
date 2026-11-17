@@ -69,7 +69,11 @@ SEEDS = (42, 43, 44)
 METRICS = ("Macro_F1", "Balanced_Accuracy", "High_Risk_Recall", "MAOE",
            "Severe_Jumping_Error_Rate", "Avg_Asymmetric_Cost")
 # docs/spec_v3.md v3.2: 11 columns, feature_set second
-CONTRACT_COLUMNS = ["model", "feature_set", "split", "seed", *METRICS, "n_samples"]
+CONTRACT_COLUMNS = ["model", "feature_set", "result_version", "split", "seed", *METRICS,
+                    "n_samples"]
+# 允许旧文件缺这两列，写回时补默认值（迁移期兼容）
+OPTIONAL_COLUMNS = {"feature_set", "result_version"}
+PRE_QC_MODELS = {"M6_Ordinal_RF", "M8"}
 
 
 def sha256(path: Path) -> str:
@@ -297,13 +301,18 @@ def step_benchmark(root: Path) -> int:
     with open(path, encoding="utf-8-sig", newline="") as handle:
         rows = list(csv.DictReader(handle))
     header = list(rows[0].keys()) if rows else CONTRACT_COLUMNS
-    if set(header) - set(CONTRACT_COLUMNS) or set(CONTRACT_COLUMNS) - set(header) - {"feature_set"}:
+    missing = set(CONTRACT_COLUMNS) - set(header) - OPTIONAL_COLUMNS
+    extra = set(header) - set(CONTRACT_COLUMNS)
+    if missing or extra:
         raise SystemExit(f"unexpected benchmark columns: {header}")
     for row in rows:
         if not row.get("feature_set"):
             row["feature_set"] = "v1"
+        if not row.get("result_version"):
+            row["result_version"] = "pre_qc" if row["model"] in PRE_QC_MODELS else "qc_refit"
     rows = [r for r in rows if r["model"] != "M8"]
-    rows.append({"model": "M8", "feature_set": "v2", "split": "test", "seed": "42",
+    rows.append({"model": "M8", "feature_set": "v2", "result_version": "pre_qc",
+                 "split": "test", "seed": "42",
                  **{k: f"{float(metrics[k]):.4f}" for k in METRICS},
                  "n_samples": str(record["test_n_samples"])})
     with open(path, "w", encoding="utf-8", newline="") as handle:

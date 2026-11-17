@@ -24,9 +24,9 @@ The replay analysis uses saved forecasts on an hourly grid by receptor and split
 | Alert issued at onset | 28 | 23 |
 | Alert issued after onset | 17 | 10 |
 | Missed onsets | 42 | 19 |
-| Alert issued before onset | 79.2% | 87.6% |
+| Alert issued before onset | 78.8% | 87.6% |
 | Full 3 h lead | 53.7% | 67.1% |
-| Fresh alerts confirmed | 82.7% of 427 | 71.0% of 407 |
+| Fresh alerts confirmed | 83.1% of 414 | 71.0% of 407 |
 
 *Table 4.1. Test replay results across 419 onsets at the three receptor nodes. The fresh-alert row uses a separate denominator for each rule. [2]*
 
@@ -51,19 +51,19 @@ The tuned M5 rule attained the full three-hour lead more often at the run bounda
 
 ## 4.6 Probability Calibration, Concentration Error and Interval Coverage
 
-Calibration of M6’s probability of L2 or higher was assessed in ten equal-width bins. Expected calibration error, the sample-weighted absolute gap between bin mean probability and observed frequency, was 0.0375 on validation and 0.0261 on test. Predicted probabilities generally exceeded the observed frequencies in the low and middle bins. The Brier score rose from 0.0776 on validation to 0.0907 on test. High-risk hours accounted for 29.1% of validation rows (4,842 of 16,656) and 41.1% of test rows (6,848 of 16,647). As prevalence moved closer to 50%, the Brier score of a constant forecast at each split’s observed rate, calculated as *p*(1 − *p*), rose from 0.2062 to 0.2421. M6 reduced Brier loss by about 62.5% relative to this reference on both splits. The higher raw test Brier score alone is therefore insufficient evidence of worse calibration. The bin-level gaps remain relevant to interpreting the minimum-expected-cost policy in Section 3, whose expected costs depend on the estimated probabilities. [2, 4]
+Calibration of M6’s probability of L2 or higher was assessed in ten equal-width bins. Expected calibration error, the sample-weighted absolute gap between bin mean probability and observed frequency, was 0.0375 on validation and 0.0261 on test. Predicted probabilities generally exceeded the observed frequencies in the low and middle bins. The Brier score rose from 0.0776 on validation to 0.0907 on test. High-risk hours accounted for 29.1% of validation rows (4,842 of 16,647) and 41.1% of test rows (6,848 of 16,647). As prevalence moved closer to 50%, the Brier score of a constant forecast at each split’s observed rate, calculated as *p*(1 − *p*), rose from 0.2062 to 0.2421. M6 reduced Brier loss by about 62.5% relative to this reference on both splits. The higher raw test Brier score alone is therefore insufficient evidence of worse calibration. The bin-level gaps remain relevant to interpreting the minimum-expected-cost policy in Section 3, whose expected costs depend on the estimated probabilities. [2, 4]
 
-The test concentration forecast error (M5 forecast minus outcome) averaged +3.70, +1.92, −1.29 and −16.10 µg/m³ across true levels L0 to L3. The signed errors indicate that the forest’s mean forecast attenuated extremes, particularly steep rises. Across all test rows M5 had a mean absolute error (MAE) of 8.07 µg/m³, compared with 10.53 µg/m³ for concentration persistence. The test results below show where that improvement came from. [2]
+The test concentration forecast error (M5 forecast minus outcome) averaged +3.65, +1.87, −1.41 and −16.29 µg/m³ across true levels L0 to L3. The signed errors indicate that the forest’s mean forecast attenuated extremes, particularly steep rises. Across all test rows M5 had a mean absolute error (MAE) of 8.05 µg/m³, compared with 10.53 µg/m³ for concentration persistence. The test results below show where that improvement came from. [2]
 
 | Test PM2.5 change from issue to valid time | M5 mean error | M5 MAE | Persistence MAE |
 | --- | ---: | ---: | ---: |
-| Rising by more than 10 µg/m³ | −15.05 | 17.98 | 24.42 |
-| Steady within ±10 µg/m³ | −0.63 | 4.94 | 3.98 |
-| Falling by more than 10 µg/m³ | +4.96 | 10.03 | 20.68 |
+| Rising by more than 10 µg/m³ | −15.09 | 17.99 | 24.42 |
+| Steady within ±10 µg/m³ | −0.72 | 4.93 | 3.98 |
+| Falling by more than 10 µg/m³ | +4.80 | 9.92 | 20.68 |
 
 *Table 4.3. Forecast error by realised three-hour change on the test split. Error values are in µg/m³. [2]*
 
-The adaptive concentration interval is centred on the M5 tree median and scales with the tree spread. Its scale multiplier was calibrated using absolute residuals normalised by that spread. At nominal 90% coverage, it achieved 90.0% on validation with a mean width of 25.4 µg/m³, and 88.0% on test with a mean width of 32.1 µg/m³. KL City had the lowest coverage on both splits at 87.7% on validation and 84.8% on test. The raw tree band covered 71.8% on test and the fixed-width calibration control covered 83.4%. The adaptive method was selected on forward validation blocks after the original test results were known. Validation was also used for model selection. Temporal dependence, distribution shift and the shortfall in observed test coverage limit the interpretation of the nominal target. [3, 7]
+The adaptive concentration interval is centred on the M5 tree median and scales with the tree spread. Its scale multiplier was calibrated using absolute residuals normalised by that spread. At nominal 90% coverage, it achieved 90.0% on validation with a mean width of 25.2 µg/m³, and 88.1% on test with a mean width of 31.7 µg/m³. KL City had the lowest coverage on both splits at 87.4% on validation and 84.6% on test. The raw tree band covered 71.8% on test and the fixed-width calibration control covered 83.3%. The adaptive method was selected on forward validation blocks after the original test results were known. Validation was also used for model selection. Temporal dependence, distribution shift and the shortfall in observed test coverage limit the interpretation of the nominal target. [3, 7]
 
 ## 4.7 M8 Feature Table Control for KD-01
 
@@ -92,7 +92,7 @@ M7’s gain in early alerts comes with a lower confirmed-alert share. M5 underes
 
 ## 4.9 Summary
 
-The HazeGuard-KL replay delivers three-hour risk estimates, concentration forecasts and uncertainty information from traceable model artifacts. M5 warned before 79.2% of the 419 test onsets, while M7 raised that share to 87.6% at the expense of alert confirmation. The run-boundary pattern, underprediction of concentration peaks and 88.0% test coverage for the nominal 90% interval qualify these results. For the team’s conclusions, the evidence supports historical replay of the warning policies on CAMS and identifies independent ground validation as a prerequisite for operational claims. [1, 2, 7]
+The HazeGuard-KL replay delivers three-hour risk estimates, concentration forecasts and uncertainty information from traceable model artifacts. M5 warned before 78.8% of the 419 test onsets, while M7 raised that share to 87.6% at the expense of alert confirmation. The run-boundary pattern, underprediction of concentration peaks and 88.1% test coverage for the nominal 90% interval qualify these results. For the team’s conclusions, the evidence supports historical replay of the warning policies on CAMS and identifies independent ground validation as a prerequisite for operational claims. [1, 2, 7]
 
 ### Section 4 Sources
 

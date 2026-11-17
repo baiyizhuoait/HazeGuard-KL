@@ -71,6 +71,18 @@
       "approved_by": "1 号复算并补录",
       "declared": "2026-11-17",
       "review_by": "报告定稿前复查"
+    },
+    {
+      "id": "KD-07",
+      "check": "交叉验证的时间净空",
+      "scope": "src/04_rf_and_boosting.py → chronological_splits()",
+      "description": "原实现用 TimeSeriesSplit 在唯一时间戳上切折，只保证训练时间戳早于验证段；标签比时间戳晚 3 小时，因此每折训练集末尾几小时的标签仍落在验证窗口内。与 KD-03（M1）同类，但 04 当时没跟着改。",
+      "status": "已修复（新增 horizon purge；测试 tests/test_stage4_cv.py 3 项）",
+      "why_accepted": "不适用：实现与声明的时间隔离不符",
+      "mitigation": "固定原参数重算 CV，另存 models/metrics_stage4_cv_fixed.json，旧的 rf_search_trace / boosting_search_trace 未改动。",
+      "approved_by": "1 号复核并修复",
+      "declared": "2026-11-17",
+      "review_by": "报告引用 CV 时用 *_fixed 的值"
     }
   ]
 }

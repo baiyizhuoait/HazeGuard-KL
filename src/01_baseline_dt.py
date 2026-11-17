@@ -33,6 +33,7 @@ import json
 import os
 import sys
 import time
+from pathlib import Path
 from typing import List
 
 import joblib
@@ -49,6 +50,17 @@ import config as C  # noqa: E402
 import utils_metrics as UM  # noqa: E402
 
 PANEL = os.path.join(C.DATA_DIR, "haze_panel_clean.parquet")
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+
+
+def _repo_rel(path) -> str:
+    """交付物里只写仓库相对路径：绝对路径换台机器就失效，也会带出本机目录结构。"""
+    resolved = Path(path).resolve()
+    try:
+        return resolved.relative_to(ROOT_DIR).as_posix()
+    except ValueError:
+        return resolved.as_posix()
 
 # 基础特征：当前时刻的污染物 + 气象 + 去基线残差 + 时间位置
 BASE_FEATURES = [
@@ -270,7 +282,7 @@ def main() -> None:
         p_e = model_e.predict(X_e[te_e])
         p_a = model_all.predict(X_e[te_e])          # 同一批测试键，全行模型
         elig_info = {
-            "source": os.path.abspath(args.eligibility),
+            "source": _repo_rel(args.eligibility),
             "fit_rows": int(tr_e.sum()),
             "test_rows": int(te_e.sum()),
             "vs_all_rows_diff_rows": int((p_e != p_a).sum()),
@@ -392,9 +404,9 @@ def main() -> None:
         "fit_rows": int(len(X_fit)),
         "fit_features": feats,
         "fit_input_sha256": _sha_fit(X_fit, y_fit),
-        "panel_path": os.path.abspath(args.panel),
+        "panel_path": _repo_rel(args.panel),
         "panel_sha256": _sha_file(args.panel),
-        "model_path": os.path.relpath(model_path, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        "model_path": _repo_rel(model_path),
         "model_file_sha256": _sha_file(model_path),
         "trained_at": pd.Timestamp.utcnow().isoformat(timespec="seconds"),
         "train_universe": "receptor nodes only (KL_City, Port_Klang, Sepang)",
@@ -411,8 +423,7 @@ def main() -> None:
         payload["eligibility"] = elig_info
         payload["metrics_test_eligible"] = m_te
     if allrows_path:
-        payload["allrows_model_path"] = os.path.relpath(
-            allrows_path, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        payload["allrows_model_path"] = _repo_rel(allrows_path)
 
     UM.save_metrics(payload, os.path.join(model_dir, "metrics_stage1.json"))
 

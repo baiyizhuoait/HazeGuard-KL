@@ -36,6 +36,9 @@ BENCHMARK_COLUMNS = ["model", "split", "seed", "Macro_F1", "Balanced_Accuracy",
                      "Avg_Asymmetric_Cost", "n_samples"]
 # docs/spec_v3.md v3.2 adds feature_set as the second column
 BENCHMARK_COLUMNS_V32 = BENCHMARK_COLUMNS[:1] + ["feature_set"] + BENCHMARK_COLUMNS[1:]
+# v3.3: result_version 区分 QC 重评与沿用旧预测的行
+BENCHMARK_COLUMNS_V33 = (BENCHMARK_COLUMNS_V32[:2] + ["result_version"]
+                         + BENCHMARK_COLUMNS_V32[2:])
 
 
 class OnsetLogic(unittest.TestCase):
@@ -110,10 +113,15 @@ class SavedInputs(unittest.TestCase):
         with open(MODELS / "all_models_benchmark.csv", encoding="utf-8-sig") as handle:
             rows = list(csv.DictReader(handle))
         header = list(rows[0].keys())
-        self.assertIn(header, (BENCHMARK_COLUMNS, BENCHMARK_COLUMNS_V32))
+        self.assertIn(header, (BENCHMARK_COLUMNS, BENCHMARK_COLUMNS_V32,
+                               BENCHMARK_COLUMNS_V33))
         if "feature_set" in header:          # M8 is the only v2 row (KD-01)
             for row in rows:
                 self.assertEqual(row["feature_set"], "v2" if row["model"] == "M8" else "v1")
+        if "result_version" in header:       # M6/M8 reuse pre-QC results
+            for row in rows:
+                expected = "pre_qc" if row["model"] in {"M6_Ordinal_RF", "M8"} else "qc_refit"
+                self.assertEqual(row["result_version"], expected)
 
     def test_m8_script_reads_the_registered_v2_files(self):
         m8 = load_module("m8_v2_control", "src/07_m8_v2_control.py")

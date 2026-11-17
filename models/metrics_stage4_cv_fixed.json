@@ -1,0 +1,95 @@
+{
+  "generated_at": "2026-11-17T05:08:22+00:00",
+  "source": "tools/recompute_stage4_cv.py",
+  "why": "The original folds split on timestamps only, so the last training hours carried labels inside the validation window. Parameters are unchanged; only the folds are stricter.",
+  "cv_scheme": "TimeSeriesSplit(5) on unique train timestamps, 3 h horizon purge",
+  "n_splits": 5,
+  "fold_sizes": [
+    {
+      "train": 12806,
+      "valid": 12921
+    },
+    {
+      "train": 25727,
+      "valid": 13002
+    },
+    {
+      "train": 38729,
+      "valid": 13002
+    },
+    {
+      "train": 51731,
+      "valid": 13002
+    },
+    {
+      "train": 64733,
+      "valid": 13002
+    }
+  ],
+  "rows_by_split": {
+    "train": 77744,
+    "test": 0,
+    "val": 0
+  },
+  "models": {
+    "M2_Nominal_RF": {
+      "hyperparameters": {
+        "n_estimators": 100,
+        "min_samples_leaf": 20,
+        "max_features": 0.5,
+        "max_depth": 14
+      },
+      "class_weight": null,
+      "cv_fold_macro_f1": [
+        0.679571,
+        0.669092,
+        0.679361,
+        0.683883,
+        0.66184
+      ],
+      "cv_mean_macro_f1": 0.674749,
+      "cv_std_macro_f1": 0.008082,
+      "cv_mean_macro_f1_before_purge": 0.674564
+    },
+    "M3_Balanced_RF": {
+      "hyperparameters": {
+        "n_estimators": 100,
+        "min_samples_leaf": 20,
+        "max_features": 0.5,
+        "max_depth": 14
+      },
+      "class_weight": "balanced_subsample",
+      "cv_fold_macro_f1": [
+        0.668548,
+        0.651548,
+        0.673102,
+        0.688218,
+        0.683569
+      ],
+      "cv_mean_macro_f1": 0.672997,
+      "cv_std_macro_f1": 0.012832,
+      "cv_mean_macro_f1_before_purge": 0.674564
+    },
+    "M4_Boosting": {
+      "hyperparameters": {
+        "learning_rate": 0.03,
+        "max_iter": 400,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 20
+      },
+      "class_weight": null,
+      "cv_fold_macro_f1": [
+        0.649401,
+        0.660321,
+        0.682224,
+        0.68084,
+        0.674397
+      ],
+      "cv_mean_macro_f1": 0.669437,
+      "cv_std_macro_f1": 0.01267,
+      "cv_mean_macro_f1_before_purge": 0.673652
+    }
+  },
+  "search_trace_untouched": true,
+  "elapsed_seconds": 39.3
+}

@@ -14,6 +14,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+from interval_view import summary as interval_summary
 from ordinal_forest import cumulative_to_proba
 from utils_metrics import evaluate_predictions
 R = importlib.import_module("05_reg_to_cls")
@@ -142,7 +143,8 @@ def verify():
                 functions.append(node)
         assert {f.name for f in functions} == needed
         scope = {"np": np, "pd": pd, "json": json, "Path": Path, "MODELS": md, "HORIZON_H": 3,
-                 "evaluate_predictions": evaluate_predictions}
+                 "evaluate_predictions": evaluate_predictions,
+                 "interval_summary": interval_summary}
         exec(compile(ast.Module(body=functions, type_ignores=[]), "app.py loading functions", "exec"), scope)
         displayed = scope["load_predictions"]()
         assert displayed.groupby("split").size().to_dict() == {"val": len(parts["val"]), "test": len(parts["test"])}

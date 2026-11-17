@@ -219,21 +219,33 @@ def split_frame(frame: pd.DataFrame, name: str) -> pd.DataFrame:
 
 
 def chronological_splits(
-    timestamps: Sequence[Any], n_splits: int = 5
+    timestamps: Sequence[Any], n_splits: int = 5, horizon_h: int = C.HORIZON_H
 ) -> list[tuple[np.ndarray, np.ndarray]]:
-    """Apply TimeSeriesSplit to unique timestamps, then map folds back to rows."""
+    """TimeSeriesSplit on unique timestamps, mapped back to rows, with a horizon purge.
+
+    ``TimeSeriesSplit`` only orders the training *timestamps* before the validation
+    window. The label of a training row sits ``horizon_h`` hours ahead, so the last
+    few training hours still carry labels that land inside the validation block.
+    They are dropped here. Without the purge the fold score is optimistic and
+    nothing in the output would show it.
+    """
     values = pd.to_datetime(pd.Series(timestamps), errors="raise").to_numpy()
     unique = np.unique(values)
     if len(unique) <= n_splits:
         raise ValueError(f"need more than {n_splits} unique timestamps for CV")
+    horizon = np.timedelta64(horizon_h, "h")
     folds: list[tuple[np.ndarray, np.ndarray]] = []
     for train_time_index, valid_time_index in TimeSeriesSplit(
         n_splits=n_splits
     ).split(unique):
-        train_times = unique[train_time_index]
         valid_times = unique[valid_time_index]
+        valid_start = valid_times.min()
+        train_times = unique[train_time_index]
+        train_times = train_times[train_times + horizon < valid_start]
         train_rows = np.flatnonzero(np.isin(values, train_times))
         valid_rows = np.flatnonzero(np.isin(values, valid_times))
+        if train_rows.size == 0 or valid_rows.size == 0:
+            raise ValueError("a fold is empty after the horizon purge")
         folds.append((train_rows, valid_rows))
     return folds
 

@@ -1,8 +1,8 @@
-"""主表契约：`models/all_models_benchmark.csv` 必须保持 11 列，且 M8 标 v2。
+"""主表契约：列名、结果版本与特征表归属。
 
-这条测试的由来：11-17 那次重跑里 `feature_set` 列被顺手删掉了，CSV 看起来仍然正常，
-但看板的 ``benchmark[benchmark["feature_set"] == "v1"]`` 会把 v2 的 M8 也算进主表，
-于是「主表全部是 v1」的说明和表内容自相矛盾。列级契约必须由测试守住，不能靠人看。
+`result_version` 这一列是 11-17 加的：面板换过之后，M1–M5 与 M7 是在新面板上重训/重算的，
+M6 沿用了旧模型的预测，M8 是旧面板上的 v2 对照。三种来源混在同一张表里而不标出来，
+读者会把它们当成同一次实验的结果，所以列级契约要由测试守住。
 """
 
 from pathlib import Path
@@ -16,6 +16,7 @@ BENCHMARK = ROOT / "models" / "all_models_benchmark.csv"
 EXPECTED_COLUMNS = [
     "model",
     "feature_set",
+    "result_version",
     "split",
     "seed",
     "Macro_F1",
@@ -45,6 +46,15 @@ def test_feature_set_is_only_v1_except_m8(benchmark):
     assert len(m8) == 1 and m8["feature_set"].iloc[0] == "v2"
     others = benchmark[benchmark["model"] != "M8"]
     assert (others["feature_set"] == "v1").all()
+
+
+def test_result_versions_are_declared_per_model(benchmark):
+    """M6 与 M8 必须是 pre_qc，其余是 qc_refit；不许出现空值或第三种类别。"""
+    assert set(benchmark["result_version"]) == {"qc_refit", "pre_qc"}
+    pre_qc = set(benchmark.loc[benchmark["result_version"] == "pre_qc", "model"])
+    assert pre_qc == {"M6_Ordinal_RF", "M8"}
+    qc = set(benchmark.loc[benchmark["result_version"] == "qc_refit", "model"])
+    assert {"M1", "M2_Nominal_RF", "M3_Balanced_RF", "M4_Boosting", "M7"} <= qc
 
 
 def test_v1_main_table_excludes_m8(benchmark):

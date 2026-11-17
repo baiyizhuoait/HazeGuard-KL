@@ -440,10 +440,10 @@ reports/sec3_cost_and_explain.md
 ```
 
 `all_models_benchmark.csv` 的列固定为 **11 列**：
-`model, feature_set, split, seed, Macro_F1, Balanced_Accuracy, High_Risk_Recall, MAOE,
+`model, feature_set, result_version, split, seed, Macro_F1, Balanced_Accuracy, High_Risk_Recall, MAOE,
 Severe_Jumping_Error_Rate, Avg_Asymmetric_Cost, n_samples`。
 
-指标名一个字都不能改，7 号按这组列名批量取数。**`feature_set` 是 v3.2 新增**，
+指标名一个字都不能改，7 号按这组列名批量取数。**`result_version` 是 v3.3 新增**，取值 `qc_refit`（QC 面板重训或重算）/ `pre_qc`（沿用旧模型旧预测，或旧面板上的 v2 对照）；**`feature_set` 是 v3.2 新增**，
 取值只允许 `v1` 或 `v2`：
 
 - 已登记的全部行（M0~M7）补 `v1`，**原有数字一个不动**；

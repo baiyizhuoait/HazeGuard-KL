@@ -166,3 +166,22 @@ def test_model_transform_matches_panel_anomaly_columns():
     for col in ("pm2_5_anomaly", "temp_anomaly"):
         diff = np.abs(Xa[col].to_numpy() - X[col].to_numpy())
         assert np.nanmax(diff) < 1e-9, (col, np.nanmax(diff))
+
+
+def test_artifacts_use_repo_relative_paths():
+    """交付物里不能出现本机绝对路径：换台机器就失效，也会带出目录结构。"""
+    path = ROOT / "models" / "metrics_stage1.json"
+    if not path.exists():
+        pytest.skip("尚未生成 M1 产物")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+
+    fields = ["panel_path", "model_path", "allrows_model_path"]
+    values = [payload.get(k) for k in fields if payload.get(k)]
+    values.append(payload.get("eligibility", {}).get("source"))
+
+    for value in values:
+        if not value:
+            continue
+        assert not value.startswith(("/", "\\")), value
+        assert ":" not in value, f"{value} 含盘符"
+        assert "\\" not in value, f"{value} 用了反斜杠"

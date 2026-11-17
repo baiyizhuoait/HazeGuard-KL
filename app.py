@@ -46,6 +46,8 @@ from config import (  # noqa: E402
     LEVEL_THRESHOLDS,
     NODES,
 )
+from cache_freshness import stale_inputs  # noqa: E402
+from interval_view import pick_block, summary as interval_summary  # noqa: E402
 from utils_metrics import evaluate_predictions  # noqa: E402
 
 # ---------------------------------------------------------------------------
@@ -295,16 +297,24 @@ def load_predictions() -> pd.DataFrame:
     return out
 
 
+def load_current_stage7() -> dict | None:
+    """Return the system analysis only if it was built from the current caches."""
+    record = load_json_or_none("metrics_stage7.json")
+    if not record:
+        return None
+    if stale_inputs(record, MODELS, DATA):
+        return None
+    return record
+
+
 def interval_label() -> tuple[str, str] | None:
     """Short legend label and the coverage note for member 5's calibrated interval."""
     record = (load_json_or_none("metrics_stage5_interval_adaptive.json")
               or load_json_or_none("metrics_stage5_interval_calibrated.json"))
-    if not record:
+    info = interval_summary(record)
+    if not info:
         return None
-    nominal = record.get("nominal_coverage", 0.9)
-    test = record["test"].get("overall") or record["test"]["calibrated"]
-    val = record["val"].get("overall") or record["val"]["calibrated"]
-    nodes = record["test"].get("by_node", {})
+    nominal, test, val, nodes = info["nominal"], info["test"], info["val"], info["nodes"]
     worst = min(nodes.items(), key=lambda kv: kv[1]["PICP"]) if nodes else None
     label = f"{nominal:.0%} target-coverage interval (calibrated on validation)"
     note = (f"Interval: {nominal:.0%} target coverage, calibrated on the validation split "
@@ -1492,13 +1502,15 @@ def tab_method() -> None:
     interval = (load_json_or_none("metrics_stage5_interval_adaptive.json")
                 or load_json_or_none("metrics_stage5_interval_calibrated.json"))
     if interval:
-        got = (interval["test"].get("overall") or interval["test"]["calibrated"])["PICP"]
-        rows.append({
-            tr("Limit"): L("Interval misses its target on test", "区间在测试段未达标"),
-            tr("What it affects"): L(f"90% target, {got:.1%} achieved on the test split.",
-                                     f"目标覆盖 90%，测试段实际 {got:.1%}。"),
-            tr("Evidence"): "models/metrics_stage5_interval_adaptive.json"})
-    stage7 = load_json_or_none("metrics_stage7.json")
+        block = pick_block(interval.get("test"))
+        if block:
+            got = block["PICP"]
+            rows.append({
+                tr("Limit"): L("Interval misses its target on test", "区间在测试段未达标"),
+                tr("What it affects"): L(f"90% target, {got:.1%} achieved on the test split.",
+                                         f"目标覆盖 90%，测试段实际 {got:.1%}。"),
+                tr("Evidence"): "models/metrics_stage5_interval_adaptive.json"})
+    stage7 = load_current_stage7()
     if stage7:
         level3 = stage7["error_anatomy"]["test"]["by_true_level"].get("3")
         if level3:
@@ -1847,9 +1859,17 @@ def tab_models(benchmark: pd.DataFrame | None, stage7: dict | None) -> None:
     if "feature_set" not in benchmark.columns:
         benchmark = benchmark.assign(feature_set="v1")
     benchmark["feature_set"] = benchmark["feature_set"].fillna("v1").astype(str)
-    main_table = benchmark[benchmark["feature_set"] == "v1"]
-    st.caption("Main table: every model here uses feature table v1. The v2 control M8 is "
-               "shown separately below and is never ranked against these models.")
+    if "result_version" not in benchmark.columns:
+        benchmark = benchmark.assign(result_version="unspecified")
+    main_table = benchmark[benchmark["feature_set"] == "v1"].copy()
+    st.caption(
+        "Main table, feature table v1. Rows marked qc_refit were retrained or re-scored on "
+        "the QC panel (966,406 rows); M6 is the pre-QC model, whose saved predictions were "
+        "reused rather than refitted, and its row is marked pre_qc. M7 keeps the qc_refit "
+        "label: its thresholds were re-selected on the QC validation split and the scores "
+        "were recomputed from the current probabilities, which happens to land on the same "
+        "operating point. The v2 control M8 is shown separately below and is never ranked "
+        "against these models.")
     splits = sorted(main_table["split"].unique())
     c1, c2 = st.columns(2)
     split = c1.selectbox("Split", splits, index=splits.index("test") if "test" in splits else 0)
@@ -2004,7 +2024,13 @@ def main() -> None:
     if problem:
         st.error(problem)
 
-    stage7 = load_json_or_none("metrics_stage7.json")
+    stage7 = load_current_stage7()
+    if stage7 is None and (MODELS / "metrics_stage7.json").exists():
+        st.warning(
+            "System analysis is out of date: `models/metrics_stage7.json` was built from "
+            "different cached predictions. Rerun `python src/07_system_analysis.py` to "
+            "refresh it; the early-warning, calibration and error-anatomy sections stay "
+            "hidden until the fingerprints match.")
     station, when, rule, events = sidebar(data, stage7)
     benchmark = load_table("all_models_benchmark.csv")
     ref = reliability_reference(preds)

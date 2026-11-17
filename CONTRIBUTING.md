@@ -191,7 +191,12 @@ Avg_Asymmetric_Cost
 n_samples
 n_high_risk
 feature_set          （只出现在 all_models_benchmark.csv，取值 v1 / v2）
+result_version       （只出现在 all_models_benchmark.csv，取值 qc_refit / pre_qc）
 ```
+
+`result_version` 是 2026-11-17 新增：QC 面板重训或重算的模型记 `qc_refit`，
+沿用旧模型旧预测的（M6）与旧面板上的 v2 对照（M8）记 `pre_qc`。两种来源混在一张表里
+而不标出来，读者会以为是同一次实验的结果。
 
 不要写 `macro_f1`、`MacroF1`、`f1_macro`、`highrisk_recall` 这些变体。
 最后合成报告时是按这套键名批量取数的，拼错不会报错，只会少一列。

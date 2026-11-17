@@ -247,20 +247,20 @@
     "wd_cos"
   ],
   "fit_input_sha256": "0ed7b3d493f48dd6c55ea06a493d5737dbf1d55d420f338621151b4dd98397ff",
-  "panel_path": "D:\\Projects\\HazeGuard-KL\\data\\haze_panel_clean.parquet",
+  "panel_path": "data/haze_panel_clean.parquet",
   "panel_sha256": "5cd7c1d3149147b85259bcf5d48dfda5a88d8cff7a42b4030ed2cb129e4a5bc6",
-  "model_path": "models\\baseline_dt.joblib",
+  "model_path": "models/baseline_dt.joblib",
   "model_file_sha256": "9bc0138ef34e1dc26059d28c411d7cde91bb4c605aac52bbb9e75576a91789dc",
-  "trained_at": "2026-11-15T15:53:05+00:00",
+  "trained_at": "2026-11-17T05:03:39+00:00",
   "train_universe": "receptor nodes only (KL_City, Port_Klang, Sepang)",
   "train_universe_note": "主实验统一只在 3 个受体节点上训练与验证；23 个走廊/源区节点只作特征输入与泛化实验对照",
   "metric_version": "High_Risk_Recall = P(ŷ∈{2,3} | y∈{2,3})，诊断项 diag_* 不参与横向排序",
   "evaluation_status": "post-fix re-evaluation",
   "test_previously_viewed": true,
   "evaluation_note": "插值规则与切分修复后重评。测试集此前已查看过一次，本次结果不构成「从未看过测试集」的声明；超参数沿用修复前选择，未按测试表现调整。",
-  "elapsed_sec": 2.8,
+  "elapsed_sec": 2.9,
   "eligibility": {
-    "source": "D:\\Projects\\HazeGuard-KL\\data\\feat_spatiotemporal.parquet",
+    "source": "data/feat_spatiotemporal.parquet",
     "fit_rows": 77744,
     "test_rows": 16647,
     "vs_all_rows_diff_rows": 451,
@@ -278,5 +278,5 @@
     "diag_High_Risk_Exact_Recall": 0.5739,
     "diag_Level3_Recall": 0.6716
   },
-  "allrows_model_path": "models\\baseline_dt_allrows.joblib"
+  "allrows_model_path": "models/baseline_dt_allrows.joblib"
 }

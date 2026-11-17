@@ -1472,5 +1472,24 @@
       ]
     },
     "test_split_used": false
+  },
+  "cv_fixed": {
+    "artifact": "models/metrics_stage4_cv_fixed.json",
+    "cv_scheme": "TimeSeriesSplit(5) on unique train timestamps, 3 h horizon purge",
+    "note": "用固定参数、带 3 小时净空的折重算；旧的 rf_search_trace 与 boosting_search_trace 保留为当时的搜索记录，未改动。",
+    "models": {
+      "M2_Nominal_RF": {
+        "cv_mean_macro_f1": 0.674749,
+        "cv_std_macro_f1": 0.008082
+      },
+      "M3_Balanced_RF": {
+        "cv_mean_macro_f1": 0.672997,
+        "cv_std_macro_f1": 0.012832
+      },
+      "M4_Boosting": {
+        "cv_mean_macro_f1": 0.669437,
+        "cv_std_macro_f1": 0.01267
+      }
+    }
   }
 }

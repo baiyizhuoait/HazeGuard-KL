@@ -11,7 +11,7 @@
 - 输入取自 03 分支 `50b6e63dfc936945e36999c797e85bf7f5ba4696`。
 - 特征表 SHA256：`64285f40e81c72ab4872d282d52be68401078e8c33dec50134d93e7877d2f55b`。
 - 仅使用受体节点 KL_City、Port_Klang、Sepang；25 列与上游顺序相同。
-- 行数：train 77,753 / val 16,656 / test 16,647。
+- 行数（QC 面板，2026-11-17）：train 77,744 / val 16,647 / test 16,647；换面板前的旧值为 77,753 / 16,656，旧产物归档在 `docs/qc_fix/pre_refit_stage5/`。
 - 未修改其他成员代码、配置、指标或数据；本地从 03/04 分支取出的文件只是依赖与对照。
 - 公共依赖沿用 `requirements.txt`，不增加 quantile-forest、SHAP 或其他算法库。
 
@@ -89,7 +89,7 @@ val/test 未参与特征选择。本模块没有重做特征选择，保证与�
 | `ts_val`, `ts_test` | (n,) | 无时区的吉隆坡本地时间 t；不是目标时刻 t+3h |
 | `station_id_val`, `station_id_test` | (n,) | 同刻多个节点，联合 timestamp 才能唯一定位 |
 
-val n=16,656；test n=16,647。行序均为 timestamp、station_id。
+val n=16,647；test n=16,647。行序均为 timestamp、station_id。
 **采用 spec_v3 的 `proba_val`，不是旧文档的 `val_probs`。**
 高危概率为 `proba[:,2] + proba[:,3]`。阈值只能用 val 调整，test 用于冻结方案的最终报告。
 

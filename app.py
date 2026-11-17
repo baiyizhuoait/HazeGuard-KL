@@ -1521,9 +1521,14 @@ def tab_method() -> None:
                     f"实际为 L3 时平均误差 {level3['mean_error']:+.1f} µg/m³。"),
                 tr("Evidence"): "models/metrics_stage7.json"})
     rows.append({
-        tr("Limit"): L("KD-01: hour encoded with sine only (v1)", "KD-01：v1 的钟点只有正弦编码"),
-        tr("What it affects"): L("24 hours collapse to 13 values. M8 on v2 measures the effect.",
-                                 "24 个钟点只有 13 个取值；由 v2 上的 M8 量化影响。"),
+        tr("Limit"): L("The paired-encoding check predates the QC refit",
+                       "成对编码的验证早于 QC 重建"),
+        tr("What it affects"): L(
+            "M8 on v2 is the only like-for-like test of the hour-pair fix. The current v1 "
+            "table already includes hour_cos and M8 was not rerun, so the size of the effect "
+            "on the current data is unmeasured.",
+            "v2 上的 M8 是钟点成对编码的唯一同条件检验。当前 v1 表已含 hour_cos，"
+            "而 M8 未重跑，因此在当前数据上的效应大小没有测量。"),
         tr("Evidence"): "docs/known_defects.json, models/metrics_m8.json"})
     m8 = load_json_or_none("metrics_m8.json")
     if m8 and m8.get("environment"):
@@ -1930,7 +1935,10 @@ def m8_section() -> None:
         items = json.loads(defects.read_text(encoding="utf-8")).get("items", [])
         kd = next((i for i in items if i.get("id") == "KD-01"), None)
     if kd:
+        status = kd.get("status")
         st.caption(f"KD-01: {kd['description']}")
+        if status:
+            st.caption(f"Status: {status}")
     m8 = load_json_or_none("metrics_m8.json")
     if not m8:
         st.info("M8 has not been run yet (`python src/07_m8_v2_control.py`).")

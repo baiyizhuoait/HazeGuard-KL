@@ -143,3 +143,10 @@ v2 归属、v1 子集不含 M8、n_samples 全为 16,647。
 
 **新登记 KD-06**：sec3 的 temporal holdout（n = 21,852）六个数只 print 不落盘，
 仓库无 json/csv 可溯源，等 6 号补产物。
+
+**KD-06 已关闭**：1 号按 `python src/06_generalization_study.py --temporal` 复算，
+得到 `0.6740 / 0.6578 / 0.7949 / 0.3092 / 0.0171 / 0.8178`，与报告 §3 逐项相同；
+同一命令重跑时 `seasonal_metrics.csv` 字节不变。已落盘
+`models/generalization_temporal_holdout.json`（含切分规则、n_train 89,656、n_eval 21,852、
+hyperparameters 与 provenance_note），没有改任何数值。数字溯源待复核从 4 个降到 3 个。
+另修正 KD-03 状态里残留的旧 CV 0.6281 → 0.6277。

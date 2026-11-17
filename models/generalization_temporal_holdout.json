@@ -1,0 +1,49 @@
+{
+  "model": "M1_DecisionTree",
+  "split": "temporal_holdout_2026",
+  "description": "M1 hyperparameters refitted on labels whose lead time ends before 2026-01-01, then evaluated on 2026 only.",
+  "cutoff": "2026-01-01",
+  "train_rule": "timestamp + 3h < cutoff",
+  "eval_rule": "timestamp >= cutoff and year == 2026",
+  "train_universe": "receptor nodes only",
+  "n_train": 89656,
+  "n_eval": 21852,
+  "n_train_stations": 3,
+  "features": [
+    "pm2_5",
+    "pm10",
+    "no2",
+    "so2",
+    "o3",
+    "co",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "wind_speed_ms",
+    "wind_direction_10m",
+    "precipitation",
+    "pm2_5_anomaly",
+    "temp_anomaly",
+    "hour",
+    "month",
+    "dayofweek",
+    "wd_sin",
+    "wd_cos"
+  ],
+  "hyperparameters": {
+    "criterion": "gini",
+    "max_depth": 9,
+    "min_samples_leaf": 20,
+    "random_state": 42
+  },
+  "metrics": {
+    "Macro_F1": 0.674,
+    "Balanced_Accuracy": 0.6578,
+    "High_Risk_Recall": 0.7949,
+    "MAOE": 0.3092,
+    "Severe_Jumping_Error_Rate": 0.0171,
+    "Avg_Asymmetric_Cost": 0.8178
+  },
+  "generated_by": "python src/06_generalization_study.py --temporal",
+  "generated_at": "2026-11-17T12:41:00+08:00",
+  "provenance_note": "KD-06 补录：脚本原本只把这张表 print 到 stdout，没有落盘，报告 §3 的六个指标因此在仓库里查不到出处。本文件按原命令复算后写入，六项数值与 reports/sec3_cost_and_explain.md 的 2026 Evaluation 表逐项一致；同一命令重跑时 models/seasonal_metrics.csv 字节不变，说明该段可复现。"
+}

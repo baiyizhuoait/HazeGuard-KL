@@ -29,7 +29,7 @@
       "check": "交叉验证切分与折内预处理",
       "scope": "src/01_baseline_dt.py",
       "description": "原用 TimeSeriesSplit(5) 按行切折，训练集末尾 3 小时的标签落在验证折里（每折 9–11 行）；pm2_5_anomaly / temp_anomaly 用全训练段气候态算好后在折内复用，验证期信息从特征侧渗回训练。",
-      "status": "已采纳：修复进 main，CV 统一报 0.6281",
+      "status": "已采纳：修复进 main，CV 统一报 0.6277",
       "why_accepted": "不适用",
       "mitigation": "CV 0.6315 → 0.6277（std 0.0105）。测试成绩未受影响：M1 修复后重评 0.6658 / 0.7675，与修复前一致；超参数未按测试表现调整。",
       "approved_by": "1 号",
@@ -65,10 +65,10 @@
       "check": "报告数字可溯源",
       "scope": "src/06_generalization_study.py → temporal holdout 段",
       "description": "sec3 的 2026 temporal holdout 表（n = 21,852：Macro-F1 0.6740、Balanced Accuracy 0.6578、High-Risk Recall 0.7949、MAOE 0.3092、Severe Jump 0.0171、Cost 0.8178）只 print 不落盘，仓库里没有任何 json/csv 能查到这六个数。LOSO 与分季度有 csv，temporal holdout 没有。",
-      "status": "未修（等 6 号补一个 models/generalization_temporal_holdout.json）",
+      "status": "已补（1 号按原命令复算后落盘，未改任何数值）",
       "why_accepted": "不适用：这是缺产物，不是取舍",
-      "mitigation": "脚本把 temporal holdout 的 metrics 字典写进 json 即可，约 10 行；修好前 check_report_numbers 会把这六个数列为待复核。",
-      "approved_by": "1 号登记，待 6 号补",
+      "mitigation": "新增 models/generalization_temporal_holdout.json：含六指标、n_train 89,656、n_eval 21,852、切分规则与 hyperparameters，provenance_note 说明由 1 号补录。复算值 0.6740 / 0.6578 / 0.7949 / 0.3092 / 0.0171 / 0.8178 与报告 §3 逐项一致；同一命令重跑时 seasonal_metrics.csv 字节不变，证明该段可复现。",
+      "approved_by": "1 号复算并补录",
       "declared": "2026-11-17",
       "review_by": "报告定稿前复查"
     }

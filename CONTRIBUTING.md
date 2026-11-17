@@ -155,7 +155,7 @@ git push
    ```
 
    取完 Top-K 自己先跑一遍，别等人发现。
-7. **主实验统一在 3 个受体节点上训练**（`role == "receptor"`，面板实测 train 78,102 行；2 号离线完整性筛选后 77,753 行可建模，以 `models/metrics_stage2_features.json` 登记为准）。
+7. **主实验统一在 3 个受体节点上训练**（`role == "receptor"`，面板实测 train 78,093 行；2 号离线完整性筛选后 77,744 行可建模，以 `models/metrics_stage2_features.json` 登记为准）。
    走廊和源区那 23 个节点只作特征输入与泛化对照，不许混进训练集——
    它们 Level 3 占比接近 0，混进去会把高危先验稀释到 3.37%，和 M1 就没法比了。
 8. **调 `TimeSeriesSplit` 之前必须先按 `timestamp` 排序。** 面板是按

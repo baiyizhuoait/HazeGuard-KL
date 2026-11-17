@@ -95,7 +95,7 @@ The experiment covers 26 spatial nodes:
 
 Each fold excludes one node from model training. A fresh M1 Decision Tree is fitted using the training portion of the remaining nodes and evaluated using the held-out node's validation observations.
 
-A target-consistency audit retained 966,510 of 966,677 original records. The other 167 records could not be verified against available exact three-hour future observations and were excluded from this experiment.
+A target-consistency audit retained 966,072 of 966,406 records on the QC panel. The other 334 records could not be verified against available exact three-hour future observations and were excluded from this experiment. The pre-QC panel retained 966,510 of 966,677.
 
 Mean receptor-node results:
 

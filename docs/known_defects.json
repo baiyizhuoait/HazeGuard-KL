@@ -59,6 +59,18 @@
       "approved_by": "1 号",
       "declared": "2026-11-15",
       "review_by": "恢复搜索前重开这条"
+    },
+    {
+      "id": "KD-06",
+      "check": "报告数字可溯源",
+      "scope": "src/06_generalization_study.py → temporal holdout 段",
+      "description": "sec3 的 2026 temporal holdout 表（n = 21,852：Macro-F1 0.6740、Balanced Accuracy 0.6578、High-Risk Recall 0.7949、MAOE 0.3092、Severe Jump 0.0171、Cost 0.8178）只 print 不落盘，仓库里没有任何 json/csv 能查到这六个数。LOSO 与分季度有 csv，temporal holdout 没有。",
+      "status": "未修（等 6 号补一个 models/generalization_temporal_holdout.json）",
+      "why_accepted": "不适用：这是缺产物，不是取舍",
+      "mitigation": "脚本把 temporal holdout 的 metrics 字典写进 json 即可，约 10 行；修好前 check_report_numbers 会把这六个数列为待复核。",
+      "approved_by": "1 号登记，待 6 号补",
+      "declared": "2026-11-17",
+      "review_by": "报告定稿前复查"
     }
   ]
 }

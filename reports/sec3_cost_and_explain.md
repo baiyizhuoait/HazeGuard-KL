@@ -130,15 +130,17 @@ The result should therefore be presented as an explicit trade-off: **better high
 
 ### 3.2.1 Permutation Feature Importance
 
-Permutation Importance was applied to the M6 Ordinal Random Forest using validation data.
+Permutation importance was applied to the M6 Ordinal Random Forest using validation observations. The experiment sampled 1,000 validation observations and performed five permutation repetitions, with Macro-F1 as the scoring metric.
 
-The evaluation used 1,000 sampled validation observations and five permutation repetitions, with Macro-F1 as the scoring metric.
+The M6 model was not retrained following the upstream quality-control (QC) update. Instead, the existing fitted model and saved predictions were retained. The updated validation data contained 16,647 observations, which were aligned with the saved predictions using exact station identifiers and timestamps.
 
-The results indicate that `pm2_5` is the most influential feature, followed by `hour_sin` and recent PM2.5 historical features.
+To ensure compatibility with the original fitted model, the permutation experiment used the historical feature table from Git commit `67e8977` and the 25 training features stored in the model's `selected_features_` attribute. This was necessary because the latest QC feature selection differed from the original M6 training configuration. The original model predictions were successfully reproduced, with a maximum probability difference of approximately 3.33 × 10⁻¹⁶. This verification was completed before generating the feature-importance results.
 
-This suggests that the model relies strongly on current pollution concentration and temporal patterns when predicting future haze risk.
+The analysis identified `pm2_5` as the most influential feature, with a mean permutation importance of 0.2569, followed by `hour_sin` at 0.0809. Other influential predictors included `no2_lag_6` (0.0172), `gran_slope_12h` (0.0099), and `no2_lag_12` (0.0091).
 
-The contribution of upstream spatial features was comparatively limited in this experiment. However, low permutation importance does not establish that upstream pollution transport is physically unimportant. Correlated predictors may reduce the apparent individual contribution of a feature.
+These findings indicate that the original M6 model relies strongly on current PM2.5 concentration and temporal information when predicting future haze-risk levels. Several lagged pollution and trend features also contribute to prediction performance.
+
+The comparatively low individual importance of some spatial and upstream features should not be interpreted as evidence that atmospheric transport is unimportant. Correlations between predictors can reduce their measured individual contributions under permutation. The results describe the predictive behavior of the retained M6 model rather than causal relationships.
 
 Figure: `figures/fig_perm_importance.png`
 
@@ -158,91 +160,97 @@ Figure: `figures/fig_pdp_wind_humidity.png`
 
 ### 3.3.1 Spatial Generalization: Leave-One-Station-Out
 
-A 26-fold Leave-One-Station-Out (LOSO) experiment was conducted using the M1 Decision Tree configuration.
+A 26-fold Leave-One-Station-Out (LOSO) experiment was conducted using the M1 Decision Tree configuration. In each fold, one spatial node was excluded from training and used for evaluation. The dataset included three receptor nodes, ten corridor nodes, and thirteen source nodes.
 
-The spatial dataset contained:
+Before model evaluation, the three-hour prediction targets were checked against available future observations. The QC-updated dataset contained 966,406 records. Of these, 966,071 satisfied the target-consistency verification criteria, while 335 records were excluded because their targets could not be verified.
 
-- 3 receptor nodes
-- 10 corridor nodes
-- 13 source nodes
+The receptor-node results were as follows:
 
-For each fold, one node was excluded from training and used for evaluation.
+| Station | Evaluation Samples | Macro-F1 | High-Risk Recall | Average Asymmetric Cost |
+|---|---:|---:|---:|---:|
+| KL_City | 5,573 | 0.5652 | 0.6598 | 1.3277 |
+| Port_Klang | 5,573 | 0.5946 | 0.5543 | 0.4263 |
+| Sepang | 5,573 | 0.6024 | 0.6486 | 1.0074 |
+| **Receptor mean** | — | **0.5874** | **0.6209** | **0.9205** |
 
-A temporal target-consistency audit was performed before the experiment. Of 966,677 records, 966,510 satisfied the exact three-hour target verification criteria. The remaining 167 records were excluded from this analysis because their targets could not be verified against available future observations.
+The mean High-Risk Recall across the three receptor folds was 0.6209. The mean Average Asymmetric Cost was 0.9205. Performance differed by location, with Port_Klang producing the lowest asymmetric cost and KL_City the highest.
 
-The receptor-node results were:
+These findings indicate that the M1 baseline faces difficulties when making predictions at unseen spatial nodes. High-risk detection performance was not uniform across the three receptor locations.
 
-| Station | Macro-F1 | High-Risk Recall | Avg Asymmetric Cost |
-|---|---:|---:|---:|
-| KL_City | 0.5653 | 0.6598 | 1.3262 |
-| Port_Klang | 0.5947 | 0.5543 | 0.4259 |
-| Sepang | 0.6020 | 0.6521 | 1.0013 |
+The corridor and source nodes represent modeled background or transport-related grid locations. They should not be interpreted as 23 additional independent ground-monitoring stations.
 
-The mean receptor High-Risk Recall was 0.6221, with an average asymmetric cost of 0.9178 across the three receptor folds.
-
-These results suggest that the baseline model faces challenges when predicting previously unseen spatial nodes, particularly in high-risk detection.
-
-The corridor and source nodes represent spatial background or transport-related grid locations and should not be described as independent ground-monitoring stations.
-
-Additionally, this experiment reused previously constructed features. Therefore, the findings should be interpreted as a spatial holdout experiment with partially precomputed inputs, rather than a fully leakage-audited end-to-end spatial validation.
+The LOSO experiment reused previously engineered features. Consequently, it provides a spatial holdout assessment with partially precomputed inputs rather than a fully leakage-audited, end-to-end spatial validation.
 
 Results: `models/loso_results.csv`
 
 ### 3.3.2 Temporal Generalization: 2025 to 2026
 
-A temporal holdout experiment was conducted by training a fresh M1 Decision Tree using receptor observations from 2025 and earlier, followed by evaluation on 2026 observations.
+A temporal holdout experiment was conducted to assess the ability of the M1 Decision Tree to generalize to a later observation period. A fresh model was trained using receptor observations from 2025 and earlier and evaluated on receptor observations from 2026. No 2026 observations were used for model training.
 
-The experiment used 89,677 training samples and 21,870 evaluation samples.
+Following the updated target-consistency checks, the experiment included 89,656 training observations and 21,852 evaluation observations across three receptor nodes.
+
+The temporal holdout results were as follows:
 
 | Metric | 2026 Evaluation |
 |---|---:|
-| Macro-F1 | 0.6741 |
-| Balanced Accuracy | 0.6579 |
+| Macro-F1 | 0.6740 |
+| Balanced Accuracy | 0.6578 |
 | High-Risk Recall | 0.7949 |
-| MAOE | 0.3089 |
+| MAOE | 0.3092 |
 | Severe Jumping Error Rate | 0.0171 |
-| Avg Asymmetric Cost | 0.8171 |
+| Average Asymmetric Cost | 0.8178 |
 
-The model achieved a High-Risk Recall of 79.49% on the 2026 holdout data.
+The model achieved a High-Risk Recall of 0.7949, indicating that approximately 79.49% of high-risk observations were identified under the evaluation definition. The Average Asymmetric Cost was 0.8178, reflecting the operational consequences of classification errors under the project's cost matrix.
 
-This demonstrates measurable predictive performance on a later period, but a historical comparison is required before quantifying temporal performance degradation.
+These results demonstrate that the M1 baseline retained measurable predictive performance when evaluated on observations from a later period. However, the temporal holdout results alone do not establish the magnitude of performance degradation, as this would require a comparable evaluation against an earlier period under the same experimental conditions.
+
+The 2026 predictions were also used for the seasonal evaluation reported in Section 3.3.3.
 
 ### 3.3.3 Seasonal Generalization
 
-Seasonal generalization was evaluated using the 2026 temporal holdout predictions from the M1 Baseline Decision Tree. The evaluation samples were divided into two periods: June–October (the project's defined monsoon-related period) and the remaining available months (January–May).
+Seasonal generalization was evaluated using the predictions from the 2026 temporal holdout experiment with the M1 Baseline Decision Tree. The evaluation observations were divided into two periods: June–October, defined as the project's monsoon-related period, and the remaining available months, January–May.
 
-The same model, trained exclusively on observations from 2025 and earlier, was used for both groups. No seasonal retraining or threshold optimization was performed.
+The same model, trained exclusively on receptor observations from 2025 and earlier, was evaluated for both periods. No seasonal retraining or additional threshold optimization was performed.
 
-The seasonal evaluation results are summarized below.
+The QC-updated seasonal evaluation results are summarized below.
 
 | Metric | June–October | January–May |
 |---|---:|---:|
-| Number of Samples | 10,998 | 10,872 |
-| Macro-F1 | 0.6812 | 0.6625 |
+| Number of Samples | 10,998 | 10,854 |
+| High-Risk Samples | 5,167 | 3,761 |
+| Macro-F1 | 0.6812 | 0.6624 |
+| Balanced Accuracy | 0.6645 | 0.6491 |
 | High-Risk Recall | 0.8127 | 0.7705 |
-| Average Asymmetric Cost | 0.8956 | 0.7378 |
+| MAOE | 0.3187 | 0.2995 |
+| Severe Jumping Error Rate | 0.0232 | 0.0110 |
+| Average Asymmetric Cost | 0.8956 | 0.7390 |
 
-The June–October period achieved a higher Macro-F1 and High-Risk Recall than January–May. Specifically, High-Risk Recall increased by 4.22 percentage points, from 77.05% to 81.27%.
+The June–October period achieved a higher Macro-F1 and High-Risk Recall than January–May. High-Risk Recall increased by 4.22 percentage points, from 77.05% to 81.27%.
 
-However, the Average Asymmetric Cost was also higher during June–October, increasing from 0.7378 to 0.8956, approximately 21.39% higher than the January–May value.
+However, Average Asymmetric Cost was also higher during June–October, increasing from 0.7390 to 0.8956, a relative increase of approximately 21.19%. The Severe Jumping Error Rate was also higher during this period, at 0.0232 compared with 0.0110.
 
-This indicates that improved high-risk recall does not necessarily lead to a lower overall asymmetric prediction cost. Differences in risk-level distributions and the severity of classification errors may contribute to this result.
+These results show that higher high-risk recall does not necessarily correspond to lower overall asymmetric prediction cost. Differences in class distributions and the severity of prediction errors may help explain the observed cost variation.
 
-The findings suggest that model performance varies across the evaluated seasonal periods. Nevertheless, the comparison is descriptive rather than causal. Since the available 2026 observations end in October, the January–May group does not represent a complete November–May seasonal cycle.
+The seasonal comparison is descriptive rather than causal. The available 2026 observations end in October, meaning that the January–May group does not represent a complete November–May seasonal cycle. Further investigation of class distributions and error types would be required to explain the differences in model performance.
 
-Further analysis of class distributions and error types would be required to explain the observed cost differences.
-
-The results were saved in `models/seasonal_metrics.csv`.
+The seasonal evaluation results were saved in `models/seasonal_metrics.csv`.
 
 ## 3.4 Limitations
 
-The experimental results should be interpreted with the following limitations:
+The experimental results should be interpreted in light of the following limitations:
 
-1. The M7 threshold-search results were selected on the validation set. Validation performance should not be treated as independent test performance.
-2. The permutation analysis explains M6, whereas the PDP and generalization experiments use an M1 Decision Tree configuration.
-3. The 26 spatial nodes include modeled background, corridor and source locations rather than 26 independent ground-monitoring stations.
-4. Existing upstream feature engineering may introduce dependencies that are not fully addressed by the model-level holdout procedures.
-5. Partial Dependence and Permutation Importance measure statistical model behavior rather than physical causality.
-6. Temporal results are limited to the available observation period, ending in October 2026.
+1. **Validation-based threshold selection.** The M7 thresholds were selected exclusively using validation data to minimize Average Asymmetric Cost. Validation results are not independent test results. The fixed thresholds were subsequently evaluated on the test set without further optimization.
+
+2. **Classification performance trade-offs.** Compared with the default decision rule, M7 increased test High-Risk Recall from 0.8737 to 0.9376 and reduced Average Asymmetric Cost from 0.6497 to 0.5405. However, Macro-F1 decreased from 0.6972 to 0.6659, and Balanced Accuracy decreased from 0.7192 to 0.6656. M7 therefore prioritizes reducing costly missed high-risk events rather than maximizing general classification performance.
+
+3. **Reuse of the historical M6 model.** The M6 Ordinal Random Forest was not retrained after the upstream QC update. Its original fitted model and saved predictions were retained. Permutation importance used the compatible historical feature table from commit `67e8977`, with the model's original 25 feature names and ordering. Although predictions were successfully reproduced on aligned validation observations, this analysis does not measure the performance of a newly trained M6 model using the latest feature-selection configuration.
+
+4. **Different models for interpretability analyses.** Permutation importance was calculated for M6, whereas the wind-speed and relative-humidity partial dependence plots were generated using the M1 Baseline Decision Tree. The PDP findings should not be interpreted as direct explanations of M6 or M7.
+
+5. **Spatial generalization constraints.** The 26 spatial nodes included three receptor locations, ten corridor locations, and thirteen source locations. The corridor and source nodes represent modeled grid locations rather than independent ground-monitoring stations. The LOSO experiments also reused precomputed features, so the resulting estimates do not constitute a fully leakage-audited end-to-end spatial validation.
+
+6. **Temporal and seasonal coverage.** The temporal experiment used historical receptor observations for training and observations from 2026 for evaluation. The available 2026 data ended in October. Consequently, the January–May seasonal group does not cover the full November–May period, and observed seasonal performance differences should not be interpreted as causal effects.
+
+7. **Interpretability is not causality.** Permutation importance and partial dependence quantify aspects of model behavior. Correlations between predictors and interactions among pollution, weather, and spatial features limit their interpretation as independent physical effects.
 
 These limitations are important when considering the reliability and deployment readiness of the proposed haze early-warning system.

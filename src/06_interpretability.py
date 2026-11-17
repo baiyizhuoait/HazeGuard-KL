@@ -1,6 +1,8 @@
 
 from pathlib import Path
 import json
+import io
+import subprocess
 import joblib
 import numpy as np
 import pandas as pd
@@ -31,12 +33,28 @@ def load_interpretability_data():
 
     model = joblib.load(MODEL_PATH)
 
-    with open(FEATURE_PATH, "r", encoding="utf-8") as f:
-        feature_info = json.load(f)
+        # Use the actual feature order stored in the fitted M6 model.
+    feature_names = list(model.selected_features_)
 
-    feature_names = feature_info["selected_features"]
+    # Historical feature data verified against the saved M6 probabilities.
+    # Do not overwrite the current QC feature table.
+    historical_commit = "67e8977"
 
-    df = pd.read_parquet(DATA_PATH)
+    result = subprocess.run(
+        [
+            "git",
+            "show",
+            f"{historical_commit}:data/features_final.parquet",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        check=True,
+    )
+
+    df = pd.read_parquet(io.BytesIO(result.stdout))
+
+    print("M6 historical feature source:", historical_commit)
+    print("M6 training features:", len(feature_names))
 
     # Only use validation data
     val_df = df[df["split"] == "val"].copy()

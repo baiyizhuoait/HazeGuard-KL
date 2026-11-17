@@ -562,11 +562,11 @@ git diff --stat origin/main...HEAD       # 确认没动别人的文件
 | A2 | ✅ 02 已并入 main | 1 号 | 8e7c847 |
 | A3 | ✅ 03/04/05/06 已依次并线 | 1 号 | b955a23 / 1e75e86 / d90db26 / 8e52e3d |
 | A4 | ✅ 4 号交接与报告章节已补 | 4 号 | `docs/handover/04_*.md`、`reports/sec2_6_models.md` |
-| A5 | ✅ 仓库体积 | 1 号 | `.git` 约 190 MB，已确认这是仓库不是提交包；提交包见 A9 |
+| A5 | ✅ 仓库体积 | 1 号 | `.git` 约 334 MB（含多轮 QC 前后的数据与模型），已确认这是仓库不是提交包；提交包见 A9 |
 | A6 | ✅ `PANEL_CONTRACT` 已补登 02 的目录形态 | 1 号 | verify_data 第 17 项按指纹校验 |
 | **A7** | **最终总报告 `reports/HazeGuard_KL_Demonstration_Report.md` 未产出** | **1 号** | 7 号失联，原定由她总成。现在只能由 1 号起草，材料见 `docs/report_evidence_index.md` |
 | **A8** | **看板只做过无头运行验证，没有视觉验收** | 1 号 | `AppTest` 跑通（0 异常、5 tab、17 表、8 卡），但没有逐页看图；`use_container_width` 已废弃，1.58 仍可用 |
-| **A9** | 提交包已称重，**待报告 PDF 后打最后一次 zip** | 1 号 | `--dry-run` 结果：93 个文件、8.3 MB（figures 6.70 / models 1.00 / src 0.32），加上报告 PDF 约 10–11 MB，仍在 20 MB 内；脚本会因为缺报告直接报错，这是设计如此 |
+| **A9** | 提交包已称重，**待报告 PDF 后打最后一次 zip** | 1 号 | `--dry-run` 结果（2026-11-17）：**125 个文件、9.1 MB**（figures 7.23 / models 1.11 / src 0.38 / tools 0.13），加上报告 PDF 约 11–12 MB，仍在 20 MB 内；脚本会因为缺报告直接报错，这是设计如此 |
 
 ---
 
